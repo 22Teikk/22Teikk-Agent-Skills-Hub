@@ -1,122 +1,116 @@
-# Using agent-skills with Antigravity CLI (agy)
+# Using agent-skills with Antigravity 2.0
 
-The `agent-skills` package can be installed as a native plugin in the Antigravity CLI (`agy`), giving the agent access to structured workflows, personas, and custom slash commands.
+Antigravity 2.0 uses workspace-level **Rules** and **Workflows** under `.agents/`. This repo ships a ready-made `.agents/` directory — the Antigravity equivalent of `.cursor/rules/` for Cursor.
 
 ## Setup
 
-### Option 1: Native Plugin Installation (Recommended)
+### Option 1: Workspace Rules + Workflows (Recommended for Antigravity 2.0 IDE)
 
-Antigravity CLI has a first-class plugin system that registers skills, agents, and custom commands.
+Antigravity 2.0 discovers project configuration automatically:
 
-**Install from the remote repository:**
+| Path | Purpose |
+|------|---------|
+| `.agents/rules/` | Always-on or model-triggered behavior guidelines |
+| `.agents/workflows/` | Slash commands (`/spec`, `/build`, `/ship`, …) |
+| `AGENTS.md` (repo root) | Skill routing and lifecycle mapping |
+
+**Use this repo as-is** — open it in Antigravity and the bundled `.agents/` config loads automatically.
+
+**Use in another project** — copy the pieces you need:
+
+```bash
+# Essential rules (always-on engineering workflows)
+mkdir -p .agents/rules .agents/workflows
+cp /path/to/agent-skills/.agents/rules/*.md .agents/rules/
+
+# Lifecycle slash commands
+cp /path/to/agent-skills/.agents/workflows/*.md .agents/workflows/
+
+# Skill routing (required for strict lifecycle enforcement)
+cp /path/to/agent-skills/AGENTS.md .
+cp -r /path/to/agent-skills/skills .
+cp -r /path/to/agent-skills/agents .
+```
+
+Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Antigravity agent panel. Workflows appear as `/` commands in chat.
+
+> **Antigravity 2.0 path:** Workspace rules default to `.agents/rules/` (backward compatible with `.agent/rules/`). Workflows default to `.agents/workflows/` (backward compatible with `.agent/workflows/`).
+
+### Option 2: Antigravity CLI Plugin
+
+For the `agy` CLI plugin system (skills, subagents, and TOML slash commands):
 
 ```bash
 agy plugin install https://github.com/addyosmani/agent-skills.git
 ```
 
-**Install from a local clone:**
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/addyosmani/agent-skills.git
-   ```
-2. Install the plugin using `agy`:
-   ```bash
-   agy plugin install /path/to/agent-skills
-   ```
-
-This will validate the plugin and install it into your global Antigravity configuration directory (`~/.gemini/antigravity-cli/plugins/agent-skills/`).
-
-### Option 2: Import from Gemini CLI
-
-If you have already installed `agent-skills` under your legacy Gemini CLI installation, you can import it directly:
-```bash
-agy plugin import gemini
-```
-
-Once installed, verify the active plugin:
-```bash
-agy plugin list
-```
-
----
-
-## Slash Commands
-
-The plugin registers 7 custom slash commands that map to the development lifecycle:
-
-| Command | What it does | Activated Skill |
-|---------|--------------|-----------------|
-| `/spec` | Write a structured spec before writing code | `spec-driven-development` |
-| `/planning` | Break work into small, verifiable tasks | `planning-and-task-breakdown` |
-| `/build` | Implement the next task incrementally | `incremental-implementation` |
-| `/test` | Run TDD workflow — red, green, refactor | `test-driven-development` |
-| `/review` | Five-axis code review | `code-review-and-quality` |
-| `/code-simplify` | Reduce complexity without changing behavior | `code-simplification` |
-| `/ship` | Pre-launch checklist via parallel persona fan-out | `shipping-and-launch` |
-
-Each command automatically invokes the corresponding skill and guides the agent step-by-step.
-
-> **Note:** Use `/planning` instead of `/plan` to avoid conflicts with Antigravity's internal plan-generation command.
-
----
-
-## Skills & Discovery
-
-Antigravity automatically discovers skills inside the plugin's `skills/` directory. 
-* Antigravity matches user tasks and intents to relevant skills on-demand.
-* If a task matches a skill, the agent will load the skill and prompt you for permission before executing.
-
----
-
-## Verification & Validation
-
-To validate that your local plugin is correctly structured and contains all skills, run:
-```bash
-agy plugin validate /path/to/agent-skills
-```
-
----
-
-## How It Works
-
-### 1. On-Demand Skill Activation
-Antigravity CLI automatically discovers the `SKILL.md` files located in the `skills/` directory of the installed plugin. Using the trigger descriptions in each skill's frontmatter, the agent will dynamically activate the appropriate workflow when it detects matching developer intent.
-
-For example, when you ask the agent to:
-- **Design a new system** &rarr; It will suggest/activate `spec-driven-development`.
-- **Implement a feature** &rarr; It will activate `incremental-implementation` and `test-driven-development`.
-- **Fix a bug** &rarr; It will activate `debugging-and-error-recovery`.
-
-### 2. Specialized Agent Personas
-The plugin registers reusable subagent definitions from the `agents/` directory:
-- `code-reviewer.md`
-- `security-auditor.md`
-- `test-engineer.md`
-
-You can invoke these personas directly within your session or when delegating tasks using subagents.
-
----
-
-## Configuration & Customization
-
-### Project-Specific Enforcements (`AGENTS.md`)
-To enforce strict skill compliance (e.g. requiring a spec or plan before writing code), copy or link `AGENTS.md` into the root of your workspace. Antigravity CLI reads this file to align the agent's behavior and planning phase with your team's conventions.
-
-### Sandbox Mode
-If you want to run skills or scripts with limited terminal permissions (for safety when running third-party validation tests), launch the CLI with:
+Or from a local clone:
 
 ```bash
-agy --sandbox
+git clone https://github.com/addyosmani/agent-skills.git
+agy plugin install ./agent-skills
 ```
 
----
+The plugin exposes commands from `commands/*.toml` and discovers skills from `skills/`.
+
+## Recommended Configuration
+
+### Essential Rules (Always On)
+
+These three rules are bundled in `.agents/rules/` with `activation: always_on`:
+
+1. `test-driven-development.md` — TDD workflow and Prove-It pattern
+2. `code-review-and-quality.md` — Five-axis review
+3. `incremental-implementation.md` — Build in small verifiable slices
+
+### Lifecycle Workflows (Slash Commands)
+
+| Command | Workflow file | Skill / persona |
+|---------|---------------|-----------------|
+| `/spec` | `spec.md` | spec-driven-development |
+| `/planning` | `planning.md` | planning-and-task-breakdown |
+| `/build` | `build.md` | incremental-implementation + TDD |
+| `/test` | `test.md` | test-driven-development |
+| `/review` | `review.md` | code-review-and-quality |
+| `/code-simplify` | `code-simplify.md` | code-simplification |
+| `/ship` | `ship.md` | shipping-and-launch + parallel personas |
+| `/androidperf` | `androidperf.md` | android-performance-auditor |
+
+> Use **`/planning`** instead of `/plan` — Antigravity has a built-in plan command that conflicts with this lifecycle.
+
+### Phase-Specific Rules (Load on Demand)
+
+Add these to `.agents/rules/` when working on relevant tasks, then remove when done to manage context limits:
+
+| Rule file | Source |
+|-----------|--------|
+| `spec-driven-development.md` | `skills/spec-driven-development/SKILL.md` |
+| `android-ui.md` | `skills/android-ui-kotlin/SKILL.md` (or `-java`) |
+| `security.md` | `skills/security-and-hardening/SKILL.md` |
+
+Set `activation: model_decision` (or configure via **Customizations → Rules**) so they load only when relevant.
 
 ## Usage Tips
 
-1. **Keep plugins up-to-date:** You can update the CLI or check for newer plugin versions using:
-   ```bash
-   agy update
-   ```
-2. **Review before execution:** When agents execute complex refactoring tasks using these skills, use `Ctrl+r` to enter the **Artifact Review** screen to review, edit, or approve code before it is committed.
-3. **Control permissions:** You can use the `--dangerously-skip-permissions` flag only in trusted local projects where you want to bypass manual tool approval prompts.
+1. **Don't load all skills at once** — Antigravity has context limits. Keep 2–3 essential rules always on; add phase-specific rules as needed.
+2. **Reference skills explicitly** — Tell the agent "Follow the test-driven-development rules for this change" to ensure it reads loaded rules.
+3. **Use workflows for lifecycle phases** — Type `/spec` to start a spec, `/planning` to break work down, `/build` to implement incrementally.
+4. **Use personas for review** — Workflows reference `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md` for `/ship`.
+5. **Global preferences** — Personal coding standards that apply to every project live in `~/.gemini/GEMINI.md`.
+
+## Verify Setup
+
+In Antigravity chat:
+
+1. Open **Customizations → Rules** — confirm the three essential rules appear under Workspace.
+2. Type `/` — autocomplete should list `/spec`, `/planning`, `/build`, `/test`, `/review`, `/ship`, and others.
+3. Ask the agent to "follow AGENTS.md skill routing" — it should invoke skills from `skills/` instead of improvising.
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Rules not loading | Confirm files are in `.agents/rules/` (not `.agent/rules/` unless using legacy path) |
+| `/plan` runs wrong workflow | Use `/planning` instead |
+| Workflows missing | Confirm `.md` files are in `.agents/workflows/` with YAML frontmatter |
+| Skills not found | Copy `skills/` and `AGENTS.md` into the project, or install the CLI plugin |

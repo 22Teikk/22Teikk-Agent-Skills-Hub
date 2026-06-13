@@ -67,26 +67,21 @@ claude --plugin-dir /path/to/agent-skills
 <details>
 <summary><b>Cursor</b></summary>
 
-Copy any `SKILL.md` into `.cursor/rules/`, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+Copy `.cursor/rules/*.mdc` into your project, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 
 <details>
-<summary><b>Antigravity CLI</b></summary>
+<summary><b>Antigravity 2.0</b></summary>
 
-Install as a native plugin for skills, subagents, and slash commands. See [docs/antigravity-setup.md](docs/antigravity-setup.md).
+This repo ships `.agents/rules/` and `.agents/workflows/` for native Antigravity 2.0 support — the equivalent of `.cursor/rules/` for Cursor. See [docs/antigravity-setup.md](docs/antigravity-setup.md).
 
-**Install from the repo:**
+**Workspace (IDE):** Open this repo in Antigravity — rules and `/` workflows load automatically.
+
+**CLI plugin:**
 
 ```bash
 agy plugin install https://github.com/addyosmani/agent-skills.git
-```
-
-**Install from a local clone:**
-
-```bash
-git clone https://github.com/addyosmani/agent-skills.git
-agy plugin install ./agent-skills
 ```
 
 </details>
@@ -292,6 +287,10 @@ agent-skills/
 ├── agents/                            # 4 specialist personas
 ├── references/                        # 4 supplementary checklists
 ├── hooks/                             # Session lifecycle hooks
+├── .cursor/rules/                     # 3 essential rules (.mdc, Cursor)
+├── .agents/                           # Rules + workflows (Antigravity 2.0)
+│   ├── rules/                         #   Always-on engineering rules
+│   └── workflows/                     #   8 lifecycle slash commands
 ├── .claude/commands/                  # 7 slash commands (Claude Code)
 ├── .gemini/commands/                  # 7 slash commands (Gemini CLI)
 ├── commands/                          # 8 slash commands (Antigravity CLI)

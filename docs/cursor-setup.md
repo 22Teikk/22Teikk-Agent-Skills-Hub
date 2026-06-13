@@ -4,55 +4,88 @@
 
 ### Option 1: Rules Directory (Recommended)
 
-Cursor supports a `.cursor/rules/` directory for project-specific rules:
+Cursor loads project rules from `.cursor/rules/` as `.mdc` files with YAML frontmatter:
 
 ```bash
-# Create the rules directory
 mkdir -p .cursor/rules
 
-# Copy skills you want as rules
-cp /path/to/agent-skills/skills/test-driven-development/SKILL.md .cursor/rules/test-driven-development.md
-cp /path/to/agent-skills/skills/code-review-and-quality/SKILL.md .cursor/rules/code-review-and-quality.md
-cp /path/to/agent-skills/skills/incremental-implementation/SKILL.md .cursor/rules/incremental-implementation.md
+cp /path/to/agent-skills/.cursor/rules/test-driven-development.mdc .cursor/rules/
+cp /path/to/agent-skills/.cursor/rules/code-review-and-quality.mdc .cursor/rules/
+cp /path/to/agent-skills/.cursor/rules/incremental-implementation.mdc .cursor/rules/
 ```
 
-Rules in this directory are automatically loaded into Cursor's context.
+**Rule file format:**
+
+```markdown
+---
+description: Brief description shown in the rule picker
+alwaysApply: true          # every session
+globs: **/*.{kt,java}      # optional — apply when matching files are open
+---
+
+# Rule content
+```
+
+| Field | Purpose |
+|-------|---------|
+| `description` | Shown in Cursor's rule picker |
+| `alwaysApply: true` | Loaded in every conversation |
+| `globs` | File pattern — rule applies when matching files are open (`alwaysApply: false`) |
+
+Rules with `alwaysApply: true` are injected automatically. File-scoped rules activate when you work on matching paths.
 
 ### Option 2: .cursorrules File
 
-Create a `.cursorrules` file in your project root with the essential skills inlined:
+Legacy single-file rules at the project root. Prefer `.cursor/rules/*.mdc` for per-rule scope control.
 
 ```bash
-# Generate a combined rules file
 cat /path/to/agent-skills/skills/test-driven-development/SKILL.md > .cursorrules
-echo "\n---\n" >> .cursorrules
+echo -e "\n---\n" >> .cursorrules
 cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> .cursorrules
 ```
 
 ## Recommended Configuration
 
-### Essential Skills (Always Load)
+### Essential Rules (Always Apply)
 
-Add these to `.cursor/rules/`:
+These three rules ship in `.cursor/rules/` with `alwaysApply: true`:
 
-1. `test-driven-development.md` — TDD workflow and Prove-It pattern
-2. `code-review-and-quality.md` — Five-axis review
-3. `incremental-implementation.md` — Build in small verifiable slices
+1. `test-driven-development.mdc` — TDD workflow and Prove-It pattern
+2. `code-review-and-quality.mdc` — Five-axis review
+3. `incremental-implementation.mdc` — Build in small verifiable slices
 
-### Phase-Specific Skills (Load on Demand)
+### Phase-Specific Rules (On Demand)
 
-For phase-specific work, create additional rule files as needed:
+Create additional `.mdc` files when needed. Use `alwaysApply: false` and optional `globs`:
 
-- `spec-development.md` -> `spec-driven-development/SKILL.md`
-- `android-ui.md` -> `android-ui-kotlin/SKILL.md` (or `android-ui-java/SKILL.md`)
-- `security.md` -> `security-and-hardening/SKILL.md`
-- `android-performance.md` -> `agents/android-performance-auditor.md`
+```markdown
+---
+description: Android Compose UI patterns and performance
+globs: **/*.{kt,kts}
+alwaysApply: false
+---
+```
 
-Add these to `.cursor/rules/` when working on relevant tasks, then remove when done to manage context limits.
+| Rule file | Source |
+|-----------|--------|
+| `spec-driven-development.mdc` | `skills/spec-driven-development/SKILL.md` |
+| `android-ui.mdc` | `skills/android-ui-kotlin/SKILL.md` (or `-java`) |
+| `security.mdc` | `skills/security-and-hardening/SKILL.md` |
+| `android-performance.mdc` | `agents/android-performance-auditor.md` |
+
+Remove phase-specific rules when done to manage context limits.
 
 ## Usage Tips
 
-1. **Don't load all skills at once** - Cursor has context limits. Load 2-3 essential skills as rules and add phase-specific skills as needed.
-2. **Reference skills explicitly** - Tell Cursor "Follow the test-driven-development rules for this change" to ensure it reads the loaded rules.
-3. **Use agents for review** - Copy `agents/code-reviewer.md` content and tell Cursor to "review this diff using this code review framework."
-4. **Load references on demand** - When working on performance, add `android-performance.md` to `.cursor/rules/` or paste the checklist content directly.
+1. **Don't load all skills at once** — Cursor has context limits. Keep 2–3 essential rules with `alwaysApply: true`; add phase-specific rules as needed.
+2. **Reference rules explicitly** — Tell Cursor "Follow the test-driven-development rules for this change."
+3. **Use agents for review** — Reference `agents/code-reviewer.md` for structured review.
+4. **Verify in UI** — Open **Cursor Settings → Rules** to confirm rules are discovered and scoped correctly.
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Rules not loading | Use `.mdc` extension, not `.md` |
+| Rule never triggers | Set `alwaysApply: true`, or add matching `globs` |
+| Too much context | Set `alwaysApply: false` on non-essential rules |

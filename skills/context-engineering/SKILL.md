@@ -69,7 +69,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ```
 
 **Equivalent files for other tools:**
-- `.cursorrules` or `.cursor/rules/*.md` (Cursor)
+- `.cursorrules` or `.cursor/rules/*.mdc` (Cursor)
 - `AGENTS.md` (OpenAI Codex)
 
 ### Level 2: Specs and Architecture
