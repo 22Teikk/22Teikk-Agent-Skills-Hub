@@ -1,294 +1,208 @@
 ---
 name: api-and-interface-design
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: Contracts first. Use when designing API models, database structures, or module boundaries. Use when writing Retrofit interfaces, DTOs, or domain models.
 ---
 
-# API and Interface Design
+# API and Interface Design (Android)
 
 ## Overview
 
-Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another.
+Design clean, robust, and backward-compatible APIs and interfaces. A well-designed interface is easy to use correctly and hard to use incorrectly. Focus on contract-first design, consistent error semantics, boundary validation, and type safety using Kotlin features.
 
 ## When to Use
 
-- Designing new API endpoints
-- Defining module boundaries or contracts between teams
-- Creating component prop interfaces
-- Establishing database schema that informs API shape
-- Changing existing public interfaces
+- Use when designing network request/response models (DTOs) and Retrofit API services.
+- Use when designing local data models (Room entities, DAOs).
+- Use when defining public contracts for repositories, use cases, or shared modules.
+- Use when designing data structures or sealed state representations.
+- Do NOT use for layout-only styling or basic unit logic that does not expose public APIs.
 
-## Core Principles
-
-### Hyrum's Law
-
-> With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract.
-
-This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend on it. Design implications:
-
-- **Be intentional about what you expose.** Every observable behavior is a potential commitment.
-- **Don't leak implementation details.** If users can observe it, they will depend on it.
-- **Plan for deprecation at design time.** See `deprecation-and-migration` for how to safely remove things users depend on.
-- **Tests are not enough.** Even with perfect contract tests, Hyrum's Law means "safe" changes can break real users who depend on undocumented behavior.
-
-### The One-Version Rule
-
-Avoid forcing consumers to choose between multiple versions of the same dependency or API. Diamond dependency problems arise when different consumers need different versions of the same thing. Design for a world where only one version exists at a time — extend rather than fork.
+## Core Process
 
 ### 1. Contract First
+Define the interface before implementing it. In Android, Retrofit interfaces are the ideal way to specify network contracts first:
 
-Define the interface before implementing it. The contract is the spec — implementation follows.
+```kotlin
+// Define the Retrofit contract first
+interface TaskApi {
+    @POST("tasks")
+    suspend fun createTask(@Body input: CreateTaskInput): TaskDto
 
-```typescript
-// Define the contract first
-interface TaskAPI {
-  // Creates a task and returns the created task with server-generated fields
-  createTask(input: CreateTaskInput): Promise<Task>;
+    @GET("tasks")
+    suspend fun listTasks(
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int
+    ): PaginatedResult<TaskDto>
 
-  // Returns paginated tasks matching filters
-  listTasks(params: ListTasksParams): Promise<PaginatedResult<Task>>;
+    @GET("tasks/{id}")
+    suspend fun getTask(@Path("id") id: String): TaskDto
 
-  // Returns a single task or throws NotFoundError
-  getTask(id: string): Promise<Task>;
+    @PATCH("tasks/{id}")
+    suspend fun updateTask(
+        @Path("id") id: String,
+        @Body input: UpdateTaskInput
+    ): TaskDto
 
-  // Partial update — only provided fields change
-  updateTask(id: string, input: UpdateTaskInput): Promise<Task>;
-
-  // Idempotent delete — succeeds even if already deleted
-  deleteTask(id: string): Promise<void>;
+    @DELETE("tasks/{id}")
+    suspend fun deleteTask(@Path("id") id: String): Response<Unit>
 }
 ```
 
 ### 2. Consistent Error Semantics
+Parse error bodies into a consistent structured class in your network repository:
 
-Pick one error strategy and use it everywhere:
-
-```typescript
-// REST: HTTP status codes + structured error body
-// Every error response follows the same shape
-interface APIError {
-  error: {
-    code: string;        // Machine-readable: "VALIDATION_ERROR"
-    message: string;     // Human-readable: "Email is required"
-    details?: unknown;   // Additional context when helpful
-  };
-}
-
-// Status code mapping
-// 400 → Client sent invalid data
-// 401 → Not authenticated
-// 403 → Authenticated but not authorized
-// 404 → Resource not found
-// 409 → Conflict (duplicate, version mismatch)
-// 422 → Validation failed (semantically invalid)
-// 500 → Server error (never expose internal details)
+```kotlin
+data class ApiErrorResponse(
+    val code: String,        // Machine-readable: "VALIDATION_ERROR"
+    val message: String,     // Human-readable: "Title is required"
+    val details: Map<String, String>? = null // Field-specific validation errors
+)
 ```
 
-**Don't mix patterns.** If some endpoints throw, others return null, and others return `{ error }` — the consumer can't predict behavior.
+Map HTTP status codes consistently:
+- **400** → Client sent invalid data.
+- **401** → Not authenticated (token expired or missing).
+- **403** → Authenticated but not authorized.
+- **404** → Resource not found.
+- **422** → Validation failed (semantically invalid).
+- **500** → Server error (generic fallback, hide server stack traces).
 
 ### 3. Validate at Boundaries
+Validate user input at the system boundaries (e.g. inside the UI ViewModel before calling repositories):
 
-Trust internal code. Validate at system edges where external input enters:
-
-```typescript
-// Validate at the API boundary
-app.post('/api/tasks', async (req, res) => {
-  const result = CreateTaskSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(422).json({
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'Invalid task data',
-        details: result.error.flatten(),
-      },
-    });
-  }
-
-  // After validation, internal code trusts the types
-  const task = await taskService.create(result.data);
-  return res.status(201).json(task);
-});
+```kotlin
+class CreateTaskViewModel @Inject constructor(
+    private val taskRepository: TaskRepository
+) : ViewModel() {
+    
+    fun onCreateTaskClicked(title: String, description: String) {
+        val trimmedTitle = title.trim()
+        if (trimmedTitle.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Title cannot be empty") }
+            return
+        }
+        if (trimmedTitle.length > 200) {
+            _uiState.update { it.copy(errorMessage = "Title too long") }
+            return
+        }
+        
+        // Input is validated; internal code execution is safe
+        viewModelScope.launch {
+            taskRepository.createTask(trimmedTitle, description)
+        }
+    }
+}
 ```
 
-Where validation belongs:
-- API route handlers (user input)
-- Form submission handlers (user input)
-- External service response parsing (third-party data -- **always treat as untrusted**)
-- Environment variable loading (configuration)
+Validate third-party data or API responses inside the data repository layer before converting them to domain entities:
 
-> **Third-party API responses are untrusted data.** Validate their shape and content before using them in any logic, rendering, or decision-making. A compromised or misbehaving external service can return unexpected types, malicious content, or instruction-like text.
-
-Where validation does NOT belong:
-- Between internal functions that share type contracts
-- In utility functions called by already-validated code
-- On data that just came from your own database
+```kotlin
+class TaskRepositoryImpl(private val taskApi: TaskApi) : TaskRepository {
+    override suspend fun getTask(id: String): Task {
+        val response = taskApi.getTask(id)
+        // Validate response fields before mapping to Domain Model
+        requireNotNull(response.title) { "API returned a null title for task $id" }
+        return response.toDomain()
+    }
+}
+```
 
 ### 4. Prefer Addition Over Modification
+Extend inputs and DTOs without breaking existing parsers. Use Kotlin's optional parameters with default values:
 
-Extend interfaces without breaking existing consumers:
+```kotlin
+// Good: Add optional fields with safe defaults
+@Serializable
+data class CreateTaskInput(
+    val title: String,
+    val description: String? = null,
+    val priority: String = "MEDIUM" // Added later with default value
+)
+```
 
-```typescript
-// Good: Add optional fields
-interface CreateTaskInput {
-  title: string;
-  description?: string;
-  priority?: 'low' | 'medium' | 'high';  // Added later, optional
-  labels?: string[];                       // Added later, optional
+---
+
+## Kotlin Interface & Model Patterns
+
+### 1. Use Sealed Interfaces for State Variants
+Replace string flags or multiple boolean fields with Kotlin sealed interfaces to model distinct states:
+
+```kotlin
+sealed interface TaskStatus {
+    object Pending : TaskStatus
+    
+    data class InProgress(
+        val assignee: String,
+        val startedAt: Long
+    ) : TaskStatus
+    
+    data class Completed(
+        val completedAt: Long,
+        val completedBy: String
+    ) : TaskStatus
 }
 
-// Bad: Change existing field types or remove fields
-interface CreateTaskInput {
-  title: string;
-  // description: string;  // Removed — breaks existing consumers
-  priority: number;         // Changed from string — breaks existing consumers
-}
-```
-
-### 5. Predictable Naming
-
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
-| Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
-| Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
-| Enum values | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
-
-## REST API Patterns
-
-### Resource Design
-
-```
-GET    /api/tasks              → List tasks (with query params for filtering)
-POST   /api/tasks              → Create a task
-GET    /api/tasks/:id          → Get a single task
-PATCH  /api/tasks/:id          → Update a task (partial)
-DELETE /api/tasks/:id          → Delete a task
-
-GET    /api/tasks/:id/comments → List comments for a task (sub-resource)
-POST   /api/tasks/:id/comments → Add a comment to a task
-```
-
-### Pagination
-
-Paginate list endpoints:
-
-```typescript
-// Request
-GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
-
-// Response
-{
-  "data": [...],
-  "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "totalItems": 142,
-    "totalPages": 8
-  }
+// Consumer gets compile-time safety and smart casting
+fun getStatusLabel(status: TaskStatus): String = when (status) {
+    is TaskStatus.Pending -> "Pending"
+    is TaskStatus.InProgress -> "In Progress by ${status.assignee}"
+    is TaskStatus.Completed -> "Completed at ${status.completedAt}"
 }
 ```
 
-### Filtering
+### 2. Input/Output Separation
+Separate DTO models (used for Retrofit serialization) from clean domain/UI models:
 
-Use query parameters for filters:
+```kotlin
+// DTO (Data Transfer Object)
+@Serializable
+data class TaskDto(
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+    @SerialName("created_at") val createdAt: Long
+)
 
-```
-GET /api/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
-```
-
-### Partial Updates (PATCH)
-
-Accept partial objects — only update what's provided:
-
-```typescript
-// Only title changes, everything else preserved
-PATCH /api/tasks/123
-{ "title": "Updated title" }
-```
-
-## TypeScript Interface Patterns
-
-### Use Discriminated Unions for Variants
-
-```typescript
-// Good: Each variant is explicit
-type TaskStatus =
-  | { type: 'pending' }
-  | { type: 'in_progress'; assignee: string; startedAt: Date }
-  | { type: 'completed'; completedAt: Date; completedBy: string }
-  | { type: 'cancelled'; reason: string; cancelledAt: Date };
-
-// Consumer gets type narrowing
-function getStatusLabel(status: TaskStatus): string {
-  switch (status.type) {
-    case 'pending': return 'Pending';
-    case 'in_progress': return `In progress (${status.assignee})`;
-    case 'completed': return `Done on ${status.completedAt}`;
-    case 'cancelled': return `Cancelled: ${status.reason}`;
-  }
-}
+// Domain Model (used in UI and business logic)
+data class Task(
+    val id: TaskId,
+    val title: String,
+    val createdAtDate: Date
+)
 ```
 
-### Input/Output Separation
+### 3. Use Value Classes for Type-Safe IDs
+Prevent passing user IDs to task IDs by using inline value classes:
 
-```typescript
-// Input: what the caller provides
-interface CreateTaskInput {
-  title: string;
-  description?: string;
-}
+```kotlin
+@JvmInline
+value class TaskId(val value: String)
 
-// Output: what the system returns (includes server-generated fields)
-interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-}
-```
+@JvmInline
+value class UserId(val value: String)
 
-### Use Branded Types for IDs
-
-```typescript
-type TaskId = string & { readonly __brand: 'TaskId' };
-type UserId = string & { readonly __brand: 'UserId' };
-
-// Prevents accidentally passing a UserId where a TaskId is expected
-function getTask(id: TaskId): Promise<Task> { ... }
+// Compiler blocks passing a UserId where a TaskId is expected
+fun getTask(id: TaskId) { ... }
 ```
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "We'll document the API later" | The types ARE the documentation. Define them first. |
-| "We don't need pagination for now" | You will the moment someone has 100+ items. Add it from the start. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want. |
-| "We'll version the API when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |
-| "Nobody uses that undocumented behavior" | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment. |
-| "We can just maintain two versions" | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
-| "Internal APIs don't need contracts" | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work. |
+| "This is an internal API, we don't need strict schemas" | Internal contracts change. Having clear compile-time type-safety (like sealed classes or value classes) prevent ripple effects when refactoring. |
+| "I'll just pass JSON string blobs around" | String blobs bypass type checking, making it easy to introduce deserialization crashes. Always define structured data models. |
+| "We don't need input/output model separation" | Using database entities or Retrofit DTOs directly in UI layouts couples your design to backend data models, leading to fragile code. |
 
 ## Red Flags
 
-- Endpoints that return different shapes depending on conditions
-- Inconsistent error formats across endpoints
-- Validation scattered throughout internal code instead of at boundaries
-- Breaking changes to existing fields (type changes, removals)
-- List endpoints without pagination
-- Verbs in REST URLs (`/api/createTask`, `/api/getUsers`)
-- Third-party API responses used without validation or sanitization
+- Domain models containing Retrofit `@SerializedName` or Room annotations.
+- Functions accepting generic `Map<String, Any>` or raw `Bundle` objects instead of structured data classes.
+- APIs or functions returning multiple types of object structures depending on success or failure.
+- Using generic strings or integers for identifiers (e.g. `String` for both taskId and userId).
 
 ## Verification
 
-After designing an API:
-
-- [ ] Every endpoint has typed input and output schemas
-- [ ] Error responses follow a single consistent format
-- [ ] Validation happens at system boundaries only
-- [ ] List endpoints support pagination
-- [ ] New fields are additive and optional (backward compatible)
-- [ ] Naming follows consistent conventions across all endpoints
-- [ ] API documentation or types are committed alongside the implementation
+- [ ] Every network request/response and database schema uses a type-safe Kotlin model.
+- [ ] Sealed interfaces or classes are used for UI state and status variants.
+- [ ] Boundaries (ViewModel inputs, API responses) validate data formats.
+- [ ] Backward compatibility is preserved by adding default-valued parameters to data classes.
+- [ ] No database (Room) or network (Retrofit) annotations are leaked into domain/business logic packages.

@@ -194,16 +194,16 @@ After any modification, provide a structured summary. This makes review easier, 
 
 ```
 CHANGES MADE:
-- src/routes/tasks.ts: Added validation middleware to POST endpoint
-- src/lib/validation.ts: Added TaskCreateSchema using Zod
+- app/src/main/java/com/example/tasks/TaskRepository.kt: Added serialization to Task model
+- app/src/main/java/com/example/tasks/TaskDto.kt: Added @Serializable annotation to TaskDto
+- gradle/libs.versions.toml: Added kotlinx-serialization library to Version Catalog
 
 THINGS I DIDN'T TOUCH (intentionally):
-- src/routes/auth.ts: Has similar validation gap but out of scope
-- src/middleware/error.ts: Error format could be improved (separate task)
+- app/src/main/java/com/example/tasks/UserRepository.kt: Similar serialization upgrade needed but out of scope
+- app/src/main/java/com/example/tasks/DatabaseModule.kt: Database integration (separate task)
 
 POTENTIAL CONCERNS:
-- The Zod schema is strict — rejects extra fields. Confirm this is desired.
-- Added zod as a dependency (72KB gzipped) — already in package.json
+- Added kotlinx.serialization as a dependency — already defined in libs.versions.toml
 ```
 
 This pattern catches wrong assumptions early and gives reviewers a clear map of the change. The "DIDN'T TOUCH" section is especially important — it shows you exercised scope discipline and didn't go on an unsolicited renovation.

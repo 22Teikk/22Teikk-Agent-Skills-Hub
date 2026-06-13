@@ -62,31 +62,28 @@ Simplification that breaks project consistency is not simplification — it's ch
 
 Explicit code is better than compact code when the compact version requires a mental pause to parse.
 
-```typescript
-// UNCLEAR: Dense ternary chain
-const label = isNew ? 'New' : isUpdated ? 'Updated' : isArchived ? 'Archived' : 'Active';
+```kotlin
+// UNCLEAR: Dense nested if-else expressions
+val label = if (isNew) "New" else if (isUpdated) "Updated" else if (isArchived) "Archived" else "Active"
 
-// CLEAR: Readable mapping
-function getStatusLabel(item: Item): string {
-  if (item.isNew) return 'New';
-  if (item.isUpdated) return 'Updated';
-  if (item.isArchived) return 'Archived';
-  return 'Active';
+// CLEAR: Kotlin when expression
+val label = when {
+    isNew -> "New"
+    isUpdated -> "Updated"
+    isArchived -> "Archived"
+    else -> "Active"
 }
 ```
 
-```typescript
-// UNCLEAR: Chained reduces with inline logic
-const result = items.reduce((acc, item) => ({
-  ...acc,
-  [item.id]: { ...acc[item.id], count: (acc[item.id]?.count ?? 0) + 1 }
-}), {});
-
-// CLEAR: Named intermediate step
-const countById = new Map<string, number>();
-for (const item of items) {
-  countById.set(item.id, (countById.get(item.id) ?? 0) + 1);
+```kotlin
+// UNCLEAR: Complex fold/reduce mapping
+val result = items.fold(mutableMapOf<String, Int>()) { acc, item ->
+    acc[item.id] = (acc[item.id] ?: 0) + 1
+    acc
 }
+
+// CLEAR: Standard grouping count utility in Kotlin
+val countById = items.groupingBy { it.id }.eachCount()
 ```
 
 ### 4. Maintain Balance
@@ -186,115 +183,68 @@ If the "simplified" version is harder to understand or review, revert. Not every
 
 ## Language-Specific Guidance
 
-### TypeScript / JavaScript
+### Kotlin
 
-```typescript
-// SIMPLIFY: Unnecessary async wrapper
+```kotlin
+// SIMPLIFY: Verbose manual collection building
 // Before
-async function getUser(id: string): Promise<User> {
-  return await userService.findById(id);
+val activeUsers = mutableListOf<User>()
+for (user in users) {
+    if (user.isActive) activeUsers.add(user)
 }
 // After
-function getUser(id: string): Promise<User> {
-  return userService.findById(id);
-}
+val activeUsers = users.filter { it.isActive }
 
-// SIMPLIFY: Verbose conditional assignment
+// SIMPLIFY: Redundant null checking
 // Before
-let displayName: string;
-if (user.nickname) {
-  displayName = user.nickname;
-} else {
-  displayName = user.fullName;
+fun getOrDefault(value: String?): String {
+    if (value != null) return value
+    return "default"
 }
 // After
-const displayName = user.nickname || user.fullName;
-
-// SIMPLIFY: Manual array building
-// Before
-const activeUsers: User[] = [];
-for (const user of users) {
-  if (user.isActive) {
-    activeUsers.push(user);
-  }
-}
-// After
-const activeUsers = users.filter((user) => user.isActive);
-
-// SIMPLIFY: Redundant boolean return
-// Before
-function isValid(input: string): boolean {
-  if (input.length > 0 && input.length < 100) {
-    return true;
-  }
-  return false;
-}
-// After
-function isValid(input: string): boolean {
-  return input.length > 0 && input.length < 100;
-}
+fun getOrDefault(value: String?) = value ?: "default"
 ```
 
-### Python
+### Java
 
-```python
-# SIMPLIFY: Verbose dictionary building
-# Before
-result = {}
-for item in items:
-    result[item.id] = item.name
-# After
-result = {item.id: item.name for item in items}
+```java
+// SIMPLIFY: Verbose Stream collectors
+// Before
+List<String> names = users.stream()
+    .map(u -> u.getName())
+    .collect(Collectors.toList());
+// After (Java 16+)
+List<String> names = users.stream()
+    .map(User::getName)
+    .toList();
 
-# SIMPLIFY: Nested conditionals with early return
-# Before
-def process(data):
-    if data is not None:
-        if data.is_valid():
-            if data.has_permission():
-                return do_work(data)
-            else:
-                raise PermissionError("No permission")
-        else:
-            raise ValueError("Invalid data")
-    else:
-        raise TypeError("Data is None")
-# After
-def process(data):
-    if data is None:
-        raise TypeError("Data is None")
-    if not data.is_valid():
-        raise ValueError("Invalid data")
-    if not data.has_permission():
-        raise PermissionError("No permission")
-    return do_work(data)
+// SIMPLIFY: Replace standard for-loop with enhanced for-loop
+// Before
+for (int i = 0; i < items.size(); i++) {
+    process(items.get(i));
+}
+// After
+for (Item item : items) {
+    process(item);
+}
 ```
 
 ### Jetpack Compose
 
 ```kotlin
-// SIMPLIFY: Verbose conditional rendering
+// SIMPLIFY: Simplify conditional modifiers
 // Before
-@Composable
-fun UserBadge(user: User) {
-    if (user.isAdmin) {
-        Badge(variant = BadgeVariant.Admin) { Text("Admin") }
-    } else {
-        Badge(variant = BadgeVariant.Default) { Text("User") }
-    }
-}
+Modifier.padding(if (selected) 16.dp else 0.dp)
 // After
-@Composable
-fun UserBadge(user: User) {
-    val variant = if (user.isAdmin) BadgeVariant.Admin else BadgeVariant.Default
-    val label = if (user.isAdmin) "Admin" else "User"
-    Badge(variant = variant) { Text(label) }
-}
+Modifier.padding(if (selected) 16.dp else PaddingValues(0.dp))
 
-// SIMPLIFY: Deep state hoisting / parameter drilling
-// Before — passing callbacks through multiple intermediate composables.
-// Consider utilizing composition patterns, exposing slot APIs, or standard State/ViewModel design.
-// This is a judgment call — flag it, don't auto-refactor.
+// SIMPLIFY: Destructuring state objects
+// Before
+val userState = remember { mutableStateOf(User()) }
+Text(userState.value.name)
+// After
+val (user) = remember { mutableStateOf(User()) }
+Text(user.name)
 ```
 
 ## Common Rationalizations

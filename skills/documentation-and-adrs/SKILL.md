@@ -95,70 +95,72 @@ PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
 
 Comment the *why*, not the *what*:
 
-```typescript
+```kotlin
 // BAD: Restates the code
 // Increment counter by 1
-counter += 1;
+counter += 1
 
 // GOOD: Explains non-obvious intent
 // Rate limit uses a sliding window — reset counter at window boundary,
 // not on a fixed schedule, to prevent burst attacks at window edges
 if (now - windowStart > WINDOW_SIZE_MS) {
-  counter = 0;
-  windowStart = now;
+  counter = 0
+  windowStart = now
 }
 ```
 
 ### When NOT to Comment
 
-```typescript
+```kotlin
 // Don't comment self-explanatory code
-function calculateTotal(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+fun calculateTotal(items: List<CartItem>): Double {
+  return items.sumOf { it.price * it.quantity }
 }
 
 // Don't leave TODO comments for things you should just do now
 // TODO: add error handling  ← Just add it
 
 // Don't leave commented-out code
-// const oldImplementation = () => { ... }  ← Delete it, git has history
+// fun oldImplementation() { ... }  ← Delete it, git has history
 ```
 
 ### Document Known Gotchas
 
-```typescript
+```kotlin
 /**
- * IMPORTANT: This function must be called before the first render.
- * If called after hydration, it causes a flash of unstyled content
- * because the theme context isn't available during SSR.
+ * IMPORTANT: This function must be called from the Main Thread before Hilt
+ * initializes the repository. Calling this late will result in an
+ * IllegalStateException because the database reference won't be ready.
  *
  * See ADR-003 for the full design rationale.
  */
-export function initializeTheme(theme: Theme): void {
+fun initializeDatabase(context: Context) {
   // ...
 }
 ```
 
 ## API Documentation
 
-For public APIs (REST, GraphQL, library interfaces):
+For public APIs (REST, library interfaces):
 
-### Inline with Types (Preferred for TypeScript)
+### KDoc for Kotlin (Preferred)
 
-```typescript
+```kotlin
 /**
  * Creates a new task.
  *
- * @param input - Task creation data (title required, description optional)
- * @returns The created task with server-generated ID and timestamps
- * @throws {ValidationError} If title is empty or exceeds 200 characters
- * @throws {AuthenticationError} If the user is not authenticated
+ * @param title - Task title (required, cannot be empty or exceed 200 characters)
+ * @param description - Optional details of the task
+ * @return The created [Task] containing database-generated ID and timestamps
+ * @throws IllegalArgumentException If title validation fails
  *
  * @example
- * const task = await createTask({ title: 'Buy groceries' });
- * console.log(task.id); // "task_abc123"
+ * ```kotlin
+ * val task = repository.createTask("Buy groceries")
+ * println(task.id) // "task_abc123"
+ * ```
  */
-export async function createTask(input: CreateTaskInput): Promise<Task> {
+suspend fun createTask(title: String, description: String? = null): Task {
   // ...
 }
 ```

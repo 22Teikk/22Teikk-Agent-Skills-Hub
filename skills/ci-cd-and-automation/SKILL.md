@@ -158,21 +158,32 @@ Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies
 ```
 
-## Deployment Strategies
-
 ### Preview Deployments
 
-Every PR gets a preview deployment for manual testing:
+Every PR gets a preview build deployed to testing tracks (e.g. Firebase App Distribution) for QA verification:
 
 ```yaml
-# Deploy preview on PR (Vercel/Netlify/etc.)
+# Deploy debug build to Firebase App Distribution on PR
 deploy-preview:
   runs-on: ubuntu-latest
   if: github.event_name == 'pull_request'
   steps:
     - uses: actions/checkout@v4
-    - name: Deploy preview
-      run: npx vercel --token=${{ secrets.VERCEL_TOKEN }}
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+    - name: Assemble Debug APK
+      run: ./gradlew assembleDebug
+    - name: Upload to Firebase App Distribution
+      uses: wzieba/Firebase-App-Distribution@v1
+      with:
+        appId: ${{ secrets.FIREBASE_APP_ID }}
+        token: ${{ secrets.FIREBASE_CLI_TOKEN }}
+        groups: qa-testers
+        file: app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ### Feature Flags
@@ -180,16 +191,16 @@ deploy-preview:
 Feature flags decouple deployment from release. Deploy incomplete or risky features behind flags so you can:
 
 - **Ship code without enabling it.** Merge to main early, enable when ready.
-- **Roll back without redeploying.** Disable the flag instead of reverting code.
+- **Roll back without redeploying.** Disable the flag remotely instead of releasing a new APK.
 - **Canary new features.** Enable for 1% of users, then 10%, then 100%.
-- **Run A/B tests.** Compare behavior with and without the feature.
 
-```typescript
-// Simple feature flag pattern
-if (featureFlags.isEnabled('new-checkout-flow', { userId })) {
-  return renderNewCheckout();
+```kotlin
+// Simple Remote Config feature flag pattern
+if (remoteConfig.getBoolean("new_checkout_flow")) {
+    launchNewCheckoutFlow()
+} else {
+    launchLegacyCheckoutFlow()
 }
-return renderLegacyCheckout();
 ```
 
 **Flag lifecycle:** Create → Enable for testing → Canary → Full rollout → Remove the flag and dead code. Flags that live forever become technical debt — set a cleanup date when you create them.

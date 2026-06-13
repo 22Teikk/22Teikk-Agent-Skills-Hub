@@ -123,7 +123,7 @@ Fix the underlying issue, not the symptom:
 Symptom: "The user list shows duplicate entries"
 
 Symptom fix (bad):
-  → Deduplicate in the UI component: [...new Set(users)]
+  → Deduplicate in the UI component: `users.distinct()`
 
 Root cause fix (good):
   → The API endpoint has a JOIN that produces duplicates
@@ -136,14 +136,15 @@ Ask: "Why does this happen?" until you reach the actual cause, not just where it
 
 Write a test that catches this specific failure:
 
-```typescript
+```kotlin
 // The bug: task titles with special characters broke the search
-it('finds tasks with special characters in title', async () => {
-  await createTask({ title: 'Fix "quotes" & <brackets>' });
-  const results = await searchTasks('quotes');
-  expect(results).toHaveLength(1);
-  expect(results[0].title).toBe('Fix "quotes" & <brackets>');
-});
+@Test
+fun testSearchTasks_findsTasksWithSpecialCharactersInTitle() = runTest {
+    repository.createTask("Fix \"quotes\" & <brackets>")
+    val results = repository.searchTasks("quotes")
+    assertEquals(1, results.size)
+    assertEquals("Fix \"quotes\" & <brackets>", results[0].title)
+}
 ```
 
 This test will prevent the same bug from recurring. It should fail without the fix and pass with it.
@@ -197,43 +198,47 @@ Build fails:
 
 ```
 Runtime error:
-├── TypeError: Cannot read property 'x' of undefined
+├── NullPointerException / KotlinNullPointerException
 │   └── Something is null/undefined that shouldn't be
 │       → Check data flow: where does this value come from?
-├── Network error / CORS
-│   └── Check URLs, headers, server CORS config
-├── Render error / White screen
-│   └── Check error boundary, console, component tree
+│   └── Safe call (?.) and Elvis operator (?:) missing
+├── Network Error (SocketTimeoutException / UnknownHostException)
+│   └── Check URLs, connectivity, interceptors, NetworkSecurityConfig
+├── Compose Recomposition crash / Layout Inflation error
+│   └── Check Layout Inspector, check UI state model nullability
 └── Unexpected behavior (no error)
-    └── Add logging at key points, verify data at each step
+    └── Add Timber logging at key points, verify data at each step
 ```
 
 ## Safe Fallback Patterns
 
 When under time pressure, use safe fallbacks:
 
-```typescript
+```kotlin
 // Safe default + warning (instead of crashing)
-function getConfig(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    console.warn(`Missing config: ${key}, using default`);
-    return DEFAULTS[key] ?? '';
-  }
-  return value;
+fun getConfig(key: String): String {
+    val value = System.getenv(key) ?: BuildConfig.KEYS[key]
+    return if (value == null) {
+        Timber.w("Missing config: $key, using default")
+        DEFAULTS[key] ?: ""
+    } else {
+        value
+    }
 }
 
 // Graceful degradation (instead of broken feature)
-function renderChart(data: ChartData[]) {
-  if (data.length === 0) {
-    return <EmptyState message="No data available for this period" />;
-  }
-  try {
-    return <Chart data={data} />;
-  } catch (error) {
-    console.error('Chart render failed:', error);
-    return <ErrorState message="Unable to display chart" />;
-  }
+@Composable
+fun RenderChart(data: List<ChartData>) {
+    if (data.isEmpty()) {
+        EmptyState(message = "No data available")
+        return
+    }
+    try {
+        Chart(data = data)
+    } catch (e: Exception) {
+        Timber.e(e, "Chart render failed")
+        ErrorState(message = "Unable to display chart")
+    }
 }
 ```
 

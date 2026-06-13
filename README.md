@@ -219,7 +219,7 @@ Quick-reference material that skills pull in when needed:
 | Reference | Covers |
 |-----------|--------|
 | [testing-patterns.md](references/testing-patterns.md) | Test structure, naming, mocking, Compose/Espresso/MockK examples, anti-patterns |
-| [security-checklist.md](references/security-checklist.md) | Pre-commit checks, auth, input validation, headers, CORS, OWASP Top 10 |
+| [security-checklist.md](references/security-checklist.md) | Pre-commit checks, storage, network security config, intents/deep links, WebView security, OWASP Mobile Top 10 |
 | [performance-checklist.md](references/performance-checklist.md) | Android app startup, rendering frame jank, profiling tools |
 | [accessibility-checklist.md](references/accessibility-checklist.md) | Android TalkBack content descriptions, touch target size, semantics merging |
 

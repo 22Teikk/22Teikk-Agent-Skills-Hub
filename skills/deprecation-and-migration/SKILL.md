@@ -135,15 +135,14 @@ Phase 5: Remove old system
 
 Create an adapter that translates calls from the old interface to the new implementation. Consumers keep using the old interface while you migrate the backend.
 
-```typescript
+```kotlin
 // Adapter: old interface, new implementation
-class LegacyTaskService implements OldTaskAPI {
-  constructor(private newService: NewTaskService) {}
+class LegacyTaskService(private val newService: NewTaskService) : OldTaskApi {
 
   // Old method signature, delegates to new implementation
-  getTask(id: number): OldTask {
-    const task = this.newService.findById(String(id));
-    return this.toOldFormat(task);
+  override fun getTask(id: Int): OldTask {
+    val task = newService.findById(id.toString())
+    return toOldFormat(task)
   }
 }
 ```
@@ -152,12 +151,12 @@ class LegacyTaskService implements OldTaskAPI {
 
 Use feature flags to switch consumers from old to new system one at a time:
 
-```typescript
-function getTaskService(userId: string): TaskService {
-  if (featureFlags.isEnabled('new-task-service', { userId })) {
-    return new NewTaskService();
+```kotlin
+fun getTaskService(remoteConfig: FirebaseRemoteConfig): TaskService {
+  if (remoteConfig.getBoolean("new_task_service")) {
+    return NewTaskService()
   }
-  return new LegacyTaskService();
+  return LegacyTaskService()
 }
 ```
 

@@ -148,11 +148,11 @@ After each increment, the project must build and existing tests must pass. Don't
 
 If a feature isn't ready for users but you need to merge increments:
 
-```typescript
-// Feature flag for work-in-progress
-const ENABLE_TASK_SHARING = process.env.FEATURE_TASK_SHARING === 'true';
+```kotlin
+// Feature flag for work-in-progress (Remote Config / BuildConfig)
+val isTaskSharingEnabled = remoteConfig.getBoolean("feature_task_sharing")
 
-if (ENABLE_TASK_SHARING) {
+if (isTaskSharingEnabled) {
   // New sharing UI
 }
 ```
@@ -163,10 +163,9 @@ This lets you merge small increments to the main branch without exposing incompl
 
 New code should default to safe, conservative behavior:
 
-```typescript
-// Safe: disabled by default, opt-in
-export function createTask(data: TaskInput, options?: { notify?: boolean }) {
-  const shouldNotify = options?.notify ?? false;
+```kotlin
+// Safe: disabled by default, opt-in with Kotlin default parameters
+fun createTask(title: String, notify: Boolean = false) {
   // ...
 }
 ```
