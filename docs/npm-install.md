@@ -123,7 +123,13 @@ npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-SSH clone (recommended for 22Teikk maintainers):
+SSH clone (22Teikk maintainers with `Host teikk` in `~/.ssh/config`):
+
+```bash
+git clone git@teikk:22Teikk/22Teikk-Agent-Skills-Hub.git
+```
+
+Or standard GitHub SSH:
 
 ```bash
 git clone git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git

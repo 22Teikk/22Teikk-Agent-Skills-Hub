@@ -6,7 +6,7 @@
   "author": "22Teikk <https://github.com/22Teikk>",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/22Teikk/22Teikk-Agent-Skills-Hub.git"
+    "url": "git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git"
   },
   "homepage": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub#readme",
   "bugs": {
