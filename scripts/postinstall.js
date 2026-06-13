@@ -1,14 +1,15 @@
 'use strict';
 
 /**
- * Optional postinstall: reads AGENT_SKILLS_TARGET env var or
- * package.json → "agent-skills".target from the consuming project.
+ * Optional postinstall: reads TEIKK_AGENTS_SKILLS_TARGET env var or
+ * package.json → "teikk-agents-skills".target from the consuming project.
  */
 const fs = require('fs');
 const path = require('path');
+const { PACKAGE_NAME, CONFIG_KEY, ENV_TARGET, ENV_SKIP_POSTINSTALL } = require('../lib/constants');
 
 function readConsumerConfig(projectRoot) {
-  const envTarget = process.env.AGENT_SKILLS_TARGET;
+  const envTarget = process.env[ENV_TARGET];
   if (envTarget) {
     return envTarget;
   }
@@ -20,29 +21,29 @@ function readConsumerConfig(projectRoot) {
 
   try {
     const consumerPkg = JSON.parse(fs.readFileSync(consumerPkgPath, 'utf8'));
-    return consumerPkg['agent-skills']?.target || null;
+    return consumerPkg[CONFIG_KEY]?.target || null;
   } catch {
     return null;
   }
 }
 
 function main() {
-  if (process.env.AGENT_SKILLS_SKIP_POSTINSTALL === '1') {
+  if (process.env[ENV_SKIP_POSTINSTALL] === '1') {
     return;
   }
 
   const packageRoot = path.resolve(__dirname, '..');
-  const initScript = path.join(packageRoot, 'bin', 'agent-skills.js');
+  const initScript = path.join(packageRoot, 'bin', 'teikk-agents-skills.js');
 
   let projectRoot = process.env.INIT_CWD || process.cwd();
-  if (projectRoot.includes(`${path.sep}node_modules${path.sep}agent-skills`)) {
+  if (projectRoot.includes(`${path.sep}node_modules${path.sep}${PACKAGE_NAME}`)) {
     projectRoot = path.resolve(packageRoot, '..', '..', '..');
   }
 
   const target = readConsumerConfig(projectRoot);
   if (!target) {
     process.stderr.write(
-      'agent-skills: skipped postinstall (set AGENT_SKILLS_TARGET or package.json → agent-skills.target to auto-install)\n',
+      `${PACKAGE_NAME}: skipped postinstall (set ${ENV_TARGET} or package.json → ${CONFIG_KEY}.target to auto-install)\n`,
     );
     return;
   }

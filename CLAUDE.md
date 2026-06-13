@@ -1,6 +1,8 @@
-# agent-skills
+# teikk-agents-skills
 
-This is the agent-skills project — a collection of production-grade engineering skills for AI coding agents.
+This is the **teikk-agents-skills** project by [22Teikk](https://github.com/22Teikk) — a collection of production-grade engineering skills for AI coding agents.
+
+Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teikk-Agent-Skills-Hub)
 
 ## Project Structure
 

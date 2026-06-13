@@ -1,11 +1,12 @@
 {
-  "name": "agent-skills",
-  "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.",
+  "name": "teikk-agents-skills",
+  "description": "Production-grade engineering skills for AI coding agents by 22Teikk — covering the full software development lifecycle from spec to ship.",
   "author": {
-    "name": "Addy Osmani"
+    "name": "22Teikk",
+    "url": "https://github.com/22Teikk"
   },
-  "homepage": "https://github.com/addyosmani/agent-skills",
-  "repository": "https://github.com/addyosmani/agent-skills",
+  "homepage": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
+  "repository": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
   "license": "MIT",
   "commands": "./.claude/commands",
   "skills": "./skills",

@@ -9,20 +9,20 @@ Gemini CLI has a native skills system that auto-discovers `SKILL.md` files in `.
 **Install from the repo:**
 
 ```bash
-gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
+gemini skills install https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git --path skills
 ```
 
 **Or install from a local clone:**
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
-gemini skills install /path/to/agent-skills/skills/
+git clone https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
+gemini skills install /path/to/22Teikk-Agent-Skills-Hub/skills/
 ```
 
 **Install for a specific workspace only:**
 
 ```bash
-gemini skills install /path/to/agent-skills/skills/ --scope workspace
+gemini skills install /path/to/22Teikk-Agent-Skills-Hub/skills/ --scope workspace
 ```
 
 Skills installed at workspace scope go into `.gemini/skills/` (or `.agents/skills/`). User-level skills go into `~/.gemini/skills/`.
@@ -41,9 +41,9 @@ For skills you want always loaded as persistent project context (rather than on-
 
 ```bash
 # Create GEMINI.md with core skills as persistent context
-cat /path/to/agent-skills/skills/incremental-implementation/SKILL.md > GEMINI.md
+cat /path/to/22Teikk-Agent-Skills-Hub/skills/incremental-implementation/SKILL.md > GEMINI.md
 echo -e "\n---\n" >> GEMINI.md
-cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> GEMINI.md
+cat /path/to/22Teikk-Agent-Skills-Hub/skills/code-review-and-quality/SKILL.md >> GEMINI.md
 ```
 
 You can also modularize by importing from separate files:

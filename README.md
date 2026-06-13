@@ -1,10 +1,10 @@
-# Agent Skills
+# Teikk Agent Skills
 
 **Production-grade engineering skills for AI coding agents.**
 
-Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. These ones are packaged so AI agents follow them consistently across every phase of development.
+Maintained by **[22Teikk](https://github.com/22Teikk)** — [22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teikk-Agent-Skills-Hub).
 
-![Addy's Agent Skills](https://addyosmani.com/assets/images/addys-agent-skills.jpg)
+Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. These ones are packaged so AI agents follow them consistently across every phase of development.
 
 ```
   DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
@@ -45,23 +45,23 @@ Skills also activate automatically based on what you're doing — designing an A
 Works with Cursor, Claude Code, Antigravity, Gemini CLI, and OpenCode. Installs IDE-specific config and updates `.gitignore` automatically.
 
 ```bash
-npm install agent-skills --save-dev
-npx agent-skills init cursor    # or: claude | antigravity | gemini | opencode | all
+npm install teikk-agents-skills --save-dev
+npx teikk-agents-skills init cursor    # or: claude | antigravity | gemini | opencode | all
 ```
 
 Auto-install on `npm install` — add to your project's `package.json`:
 
 ```json
 {
-  "agent-skills": { "target": "cursor" }
+  "teikk-agents-skills": { "target": "cursor" }
 }
 ```
 
-From GitHub before npm publish:
+From GitHub:
 
 ```bash
-npm install github:teikk/agent-skills#v1.1.0 --save-dev
-npx agent-skills init cursor
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
+npx teikk-agents-skills init cursor
 ```
 
 Full guide: [docs/npm-install.md](docs/npm-install.md).
@@ -74,21 +74,21 @@ Full guide: [docs/npm-install.md](docs/npm-install.md).
 **Marketplace install:**
 
 ```
-/plugin marketplace add addyosmani/agent-skills
-/plugin install agent-skills@addy-agent-skills
+/plugin marketplace add 22Teikk/22Teikk-Agent-Skills-Hub
+/plugin install teikk-agents-skills@teikk-agents-skills-hub
 ```
 
 > **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force the HTTPS cloning:
 > ```bash
-> /plugin marketplace add https://github.com/addyosmani/agent-skills.git
-> /plugin install agent-skills@addy-agent-skills
+> /plugin marketplace add https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
+> /plugin install teikk-agents-skills@teikk-agents-skills-hub
 > ```
 
 **Local / development:**
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
-claude --plugin-dir /path/to/agent-skills
+git clone git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git
+claude --plugin-dir /path/to/22Teikk-Agent-Skills-Hub
 ```
 
 </details>
@@ -97,7 +97,7 @@ claude --plugin-dir /path/to/agent-skills
 <summary><b>Cursor</b></summary>
 
 ```bash
-npm install agent-skills --save-dev && npx agent-skills init cursor
+npm install teikk-agents-skills --save-dev && npx teikk-agents-skills init cursor
 ```
 
 Manual copy: see [docs/cursor-setup.md](docs/cursor-setup.md).
@@ -114,7 +114,7 @@ This repo ships `.agents/rules/` and `.agents/workflows/` for native Antigravity
 **CLI plugin:**
 
 ```bash
-agy plugin install https://github.com/addyosmani/agent-skills.git
+agy plugin install git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git
 ```
 
 </details>
@@ -127,13 +127,13 @@ Install as native skills for auto-discovery, or add to `GEMINI.md` for persisten
 **Install from the repo:**
 
 ```bash
-gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
+gemini skills install git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git --path skills
 ```
 
 **Install from a local clone:**
 
 ```bash
-gemini skills install ./agent-skills/skills/
+gemini skills install ./22Teikk-Agent-Skills-Hub/skills/
 ```
 
 </details>
@@ -287,7 +287,7 @@ Every skill follows a consistent anatomy:
 ## Project Structure
 
 ```
-agent-skills/
+22Teikk-Agent-Skills-Hub/
 ├── skills/                            # 28 skills (27 lifecycle + 1 meta)
 │   ├── interview-me/                  #   Define
 │   ├── idea-refine/                   #   Define

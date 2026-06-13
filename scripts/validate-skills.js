@@ -45,7 +45,7 @@ const REQUIRED_SECTIONS = [
 // Every entry must have a documented reason.
 const SECTION_EXEMPT_SKILLS = {
   'using-agent-skills': 'Meta-skill — orchestrates other skills; When-to-Use and Verification are not applicable to a routing document.',
-  'idea-refine':        'Legacy structure predating skill-anatomy.md — uses How-It-Works/Usage/Anti-patterns instead of standard headings. Tracked for conformance in https://github.com/addyosmani/agent-skills/issues',
+  'idea-refine':        'Legacy structure predating skill-anatomy.md — uses How-It-Works/Usage/Anti-patterns instead of standard headings. Tracked for conformance in https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/issues',
 };
 
 // Regex patterns that indicate an explicit cross-skill reference.

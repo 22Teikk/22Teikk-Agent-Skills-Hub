@@ -21,15 +21,15 @@ Antigravity 2.0 discovers project configuration automatically:
 ```bash
 # Essential rules (always-on engineering workflows)
 mkdir -p .agents/rules .agents/workflows
-cp /path/to/agent-skills/.agents/rules/*.md .agents/rules/
+cp /path/to/22Teikk-Agent-Skills-Hub/.agents/rules/*.md .agents/rules/
 
 # Lifecycle slash commands
-cp /path/to/agent-skills/.agents/workflows/teikk-*.md .agents/workflows/
+cp /path/to/22Teikk-Agent-Skills-Hub/.agents/workflows/teikk-*.md .agents/workflows/
 
 # Skill routing (required for strict lifecycle enforcement)
-cp /path/to/agent-skills/AGENTS.md .
-cp -r /path/to/agent-skills/skills .
-cp -r /path/to/agent-skills/agents .
+cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
+cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
+cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
 ```
 
 Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Antigravity agent panel. Workflows appear as `/` commands in chat.
@@ -41,14 +41,14 @@ Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Ant
 For the `agy` CLI plugin system (skills, subagents, and TOML slash commands):
 
 ```bash
-agy plugin install https://github.com/addyosmani/agent-skills.git
+agy plugin install https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
 ```
 
 Or from a local clone:
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
-agy plugin install ./agent-skills
+git clone https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
+agy plugin install ./22Teikk-Agent-Skills-Hub
 ```
 
 The plugin exposes commands from `commands/*.toml` and discovers skills from `skills/`.

@@ -1,6 +1,6 @@
-# Getting Started with agent-skills
+# Getting Started with teikk-agents-skills
 
-agent-skills works with any AI coding agent that accepts Markdown instructions. This guide covers the universal approach. For tool-specific setup, see the dedicated guides.
+teikk-agents-skills works with any AI coding agent that accepts Markdown instructions. Maintained by [22Teikk](https://github.com/22Teikk).
 
 ## How Skills Work
 
@@ -13,8 +13,8 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### npm install (recommended)
 
 ```bash
-npm install agent-skills --save-dev
-npx agent-skills init cursor    # or claude, antigravity, gemini, opencode, all
+npm install teikk-agents-skills --save-dev
+npx teikk-agents-skills init cursor    # or claude, antigravity, gemini, opencode, all
 ```
 
 See [npm-install.md](npm-install.md) for auto-install, update, uninstall, and `.gitignore` behavior.
@@ -22,7 +22,7 @@ See [npm-install.md](npm-install.md) for auto-install, update, uninstall, and `.
 ### Manual: clone the repository
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
+git clone git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git
 ```
 
 ### 2. Choose a skill

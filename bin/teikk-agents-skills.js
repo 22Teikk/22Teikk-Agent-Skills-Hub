@@ -2,9 +2,9 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
 const { findPackageRoot, install, uninstall, describeTargets } = require('../lib/install');
 const { TARGET_NAMES } = require('../lib/targets');
+const { PACKAGE_NAME, CONFIG_KEY, ENV_TARGET } = require('../lib/constants');
 
 const pkg = require('../package.json');
 
@@ -27,28 +27,28 @@ function parseArgs(argv) {
 
 function printHelp() {
   const targetLines = TARGET_NAMES.map((name) => `  ${name.padEnd(12)}`).join('\n');
-  process.stdout.write(`agent-skills — install engineering skills for AI coding agents
+  process.stdout.write(`${PACKAGE_NAME} — install engineering skills for AI coding agents (22Teikk)
 
 Usage:
-  agent-skills init <target> [--cwd <dir>]
-  agent-skills update [<target>] [--cwd <dir>]
-  agent-skills uninstall [--cwd <dir>]
-  agent-skills targets
+  ${PACKAGE_NAME} init <target> [--cwd <dir>]
+  ${PACKAGE_NAME} update [<target>] [--cwd <dir>]
+  ${PACKAGE_NAME} uninstall [--cwd <dir>]
+  ${PACKAGE_NAME} targets
 
 Targets:
 ${targetLines}  all           Install every supported target
 
 Examples:
-  npx agent-skills init cursor
-  npm install agent-skills --save-dev && npx agent-skills init cursor
-  npx agent-skills init all --cwd ./my-app
+  npx ${PACKAGE_NAME} init cursor
+  npm install ${PACKAGE_NAME} --save-dev && npx ${PACKAGE_NAME} init cursor
+  npx ${PACKAGE_NAME} init all --cwd ./my-app
 
 Auto-install (optional):
-  Set "agent-skills": { "target": "cursor" } in your package.json, or
-  AGENT_SKILLS_TARGET=cursor npm install agent-skills
+  Set "${CONFIG_KEY}": { "target": "cursor" } in your package.json, or
+  ${ENV_TARGET}=cursor npm install ${PACKAGE_NAME}
 
 Each init/update copies IDE-specific config into your project and appends a
-managed block to .gitignore (workflow artifacts + installed agent-skills files).
+managed block to .gitignore (workflow artifacts + installed ${PACKAGE_NAME} files).
 `);
 }
 
@@ -63,7 +63,7 @@ function resolveRoots(args) {
 function runInit(args) {
   const target = args._[1];
   if (!target) {
-    process.stderr.write('Error: missing target. Example: agent-skills init cursor\n');
+    process.stderr.write(`Error: missing target. Example: ${PACKAGE_NAME} init cursor\n`);
     process.exit(1);
   }
 
@@ -75,7 +75,7 @@ function runInit(args) {
     version: pkg.version,
   });
 
-  process.stderr.write(`agent-skills ${pkg.version} installed for: ${result.targets.join(', ')}\n`);
+  process.stderr.write(`${PACKAGE_NAME} ${pkg.version} installed for: ${result.targets.join(', ')}\n`);
   process.stderr.write(`Project: ${projectRoot}\n`);
   process.stderr.write('Copied:\n');
   for (const item of result.copied) {
@@ -92,7 +92,7 @@ function runUpdate(args) {
 function runUninstall(args) {
   const { projectRoot } = resolveRoots(args);
   const result = uninstall({ projectRoot });
-  process.stderr.write(`Removed agent-skills for: ${result.targets.join(', ')}\n`);
+  process.stderr.write(`Removed ${PACKAGE_NAME} for: ${result.targets.join(', ')}\n`);
   for (const item of result.removed) {
     process.stderr.write(`  - ${item}\n`);
   }

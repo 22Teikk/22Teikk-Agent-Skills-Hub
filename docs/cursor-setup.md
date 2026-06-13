@@ -7,8 +7,8 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 ### Option 1: npm (Recommended)
 
 ```bash
-npm install agent-skills --save-dev
-npx agent-skills init cursor
+npm install teikk-agents-skills --save-dev
+npx teikk-agents-skills init cursor
 ```
 
 This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and workflow artifacts (`SPEC.md`, `tasks/`, etc.).
@@ -17,7 +17,7 @@ Auto-install on every `npm install`:
 
 ```json
 {
-  "agent-skills": { "target": "cursor" }
+  "teikk-agents-skills": { "target": "cursor" }
 }
 ```
 
@@ -29,15 +29,15 @@ See [npm-install.md](npm-install.md) for all targets, update/uninstall, and GitH
 mkdir -p .cursor/rules .cursor/commands
 
 # Always-on engineering rules
-cp /path/to/agent-skills/.cursor/rules/*.mdc .cursor/rules/
+cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/rules/*.mdc .cursor/rules/
 
 # Lifecycle slash commands
-cp /path/to/agent-skills/.cursor/commands/teikk-*.md .cursor/commands/
+cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/commands/teikk-*.md .cursor/commands/
 
 # Skill routing (optional — for strict lifecycle enforcement)
-cp /path/to/agent-skills/AGENTS.md .
-cp -r /path/to/agent-skills/skills .
-cp -r /path/to/agent-skills/agents .
+cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
+cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
+cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
 ```
 
 **Open this repo in Cursor** — the bundled `.cursor/` config loads automatically.

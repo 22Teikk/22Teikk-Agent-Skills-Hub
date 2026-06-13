@@ -18,7 +18,7 @@ jobs:
           node-version: '20'
 
       - name: Validate skills and install CLI
-        run: AGENT_SKILLS_SKIP_POSTINSTALL=1 npm test
+        run: TEIKK_AGENTS_SKILLS_SKIP_POSTINSTALL=1 npm test
 
   validate:
     name: Validate plugin structure
@@ -53,4 +53,4 @@ jobs:
         run: claude plugin marketplace list
 
       - name: Install plugin
-        run: claude plugin install agent-skills@addy-agent-skills --scope user
+        run: claude plugin install teikk-agents-skills@teikk-agents-skills-hub --scope user
