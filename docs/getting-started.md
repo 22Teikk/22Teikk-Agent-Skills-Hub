@@ -10,7 +10,16 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 
 ## Quick Start (Any Agent)
 
-### 1. Clone the repository
+### npm install (recommended)
+
+```bash
+npm install agent-skills --save-dev
+npx agent-skills init cursor    # or claude, antigravity, gemini, opencode, all
+```
+
+See [npm-install.md](npm-install.md) for auto-install, update, uninstall, and `.gitignore` behavior.
+
+### Manual: clone the repository
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git

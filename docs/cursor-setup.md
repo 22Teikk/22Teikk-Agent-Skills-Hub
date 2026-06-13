@@ -4,7 +4,26 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 
 ## Setup
 
-### Option 1: Rules + Commands (Recommended)
+### Option 1: npm (Recommended)
+
+```bash
+npm install agent-skills --save-dev
+npx agent-skills init cursor
+```
+
+This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and workflow artifacts (`SPEC.md`, `tasks/`, etc.).
+
+Auto-install on every `npm install`:
+
+```json
+{
+  "agent-skills": { "target": "cursor" }
+}
+```
+
+See [npm-install.md](npm-install.md) for all targets, update/uninstall, and GitHub install URLs.
+
+### Option 2: Manual copy
 
 ```bash
 mkdir -p .cursor/rules .cursor/commands

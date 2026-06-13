@@ -39,8 +39,37 @@ Skills also activate automatically based on what you're doing — designing an A
 
 ## Quick Start
 
+<details open>
+<summary><b>npm (any IDE)</b></summary>
+
+Works with Cursor, Claude Code, Antigravity, Gemini CLI, and OpenCode. Installs IDE-specific config and updates `.gitignore` automatically.
+
+```bash
+npm install agent-skills --save-dev
+npx agent-skills init cursor    # or: claude | antigravity | gemini | opencode | all
+```
+
+Auto-install on `npm install` — add to your project's `package.json`:
+
+```json
+{
+  "agent-skills": { "target": "cursor" }
+}
+```
+
+From GitHub before npm publish:
+
+```bash
+npm install github:teikk/agent-skills#v1.1.0 --save-dev
+npx agent-skills init cursor
+```
+
+Full guide: [docs/npm-install.md](docs/npm-install.md).
+
+</details>
+
 <details>
-<summary><b>Claude Code (recommended)</b></summary>
+<summary><b>Claude Code (marketplace)</b></summary>
 
 **Marketplace install:**
 
@@ -67,7 +96,11 @@ claude --plugin-dir /path/to/agent-skills
 <details>
 <summary><b>Cursor</b></summary>
 
-Copy `.cursor/rules/*.mdc` and `.cursor/commands/*.md` into your project, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+```bash
+npm install agent-skills --save-dev && npx agent-skills init cursor
+```
+
+Manual copy: see [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 

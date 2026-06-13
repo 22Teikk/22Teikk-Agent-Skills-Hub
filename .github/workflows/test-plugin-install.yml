@@ -17,8 +17,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Validate all skills
-        run: node scripts/validate-skills.js
+      - name: Validate skills and install CLI
+        run: AGENT_SKILLS_SKIP_POSTINSTALL=1 npm test
 
   validate:
     name: Validate plugin structure
