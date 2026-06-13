@@ -6,9 +6,11 @@ Maintained by [22Teikk](https://github.com/22Teikk) — [22Teikk-Agent-Skills-Hu
 
 ## Quick Start
 
+> **Not on npmjs.org yet.** Install from GitHub (works today). After [npm publish](#publish-to-npmjsorg-maintainers), `npm install teikk-agents-skills` will work too.
+
 ```bash
 # In your app project (not this repo)
-npm install teikk-agents-skills --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
@@ -36,7 +38,7 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "^1.2.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0"
   },
   "teikk-agents-skills": {
     "target": "cursor"
@@ -47,7 +49,7 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 Or use an environment variable:
 
 ```bash
-TEIKK_AGENTS_SKILLS_TARGET=cursor npm install teikk-agents-skills --save-dev
+TEIKK_AGENTS_SKILLS_TARGET=cursor npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
 ```
 
 To disable postinstall (e.g. in CI for this package itself):
@@ -107,16 +109,42 @@ Do not edit lines between the markers manually — re-run `npx teikk-agents-skil
 
 This file is also gitignored. Use it to confirm targets before `uninstall`.
 
-## From GitHub
+## Publish to npmjs.org (maintainers)
 
-Install directly from the repository:
+The package is **not** on [npmjs.org](https://www.npmjs.com/package/teikk-agents-skills) yet. Until you publish, users must install from GitHub (see Quick Start).
+
+One-time setup:
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
+npm login                    # use your npmjs.com account
+npm whoami                   # confirm logged in
+```
+
+Publish from this repo:
+
+```bash
+npm test
+npm publish --access public  # required for unscoped packages on first publish
+git tag -a v1.2.0 -f -m "v1.2.0"
+git push origin v1.2.0 --force
+```
+
+After publish, users can run:
+
+```bash
+npm install teikk-agents-skills --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-Or pin a release tag:
+## Version pins (GitHub)
+
+Install latest from `main`:
+
+```bash
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
+```
+
+Pin a release tag (recommended):
 
 ```bash
 npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
@@ -150,6 +178,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
+| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

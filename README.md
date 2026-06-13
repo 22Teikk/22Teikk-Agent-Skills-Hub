@@ -45,7 +45,7 @@ Skills also activate automatically based on what you're doing — designing an A
 Works with Cursor, Claude Code, Antigravity, Gemini CLI, and OpenCode. Installs IDE-specific config and updates `.gitignore` automatically.
 
 ```bash
-npm install teikk-agents-skills --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
 npx teikk-agents-skills init cursor    # or: claude | antigravity | gemini | opencode | all
 ```
 
@@ -53,11 +53,16 @@ Auto-install on `npm install` — add to your project's `package.json`:
 
 ```json
 {
+  "devDependencies": {
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0"
+  },
   "teikk-agents-skills": { "target": "cursor" }
 }
 ```
 
-From GitHub:
+> **npm registry:** `npm install teikk-agents-skills` returns 404 until the package is [published to npmjs.org](docs/npm-install.md#publish-to-npmjsorg-maintainers). Use the GitHub install above for now.
+
+From GitHub (same as above):
 
 ```bash
 npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
@@ -97,7 +102,7 @@ claude --plugin-dir /path/to/22Teikk-Agent-Skills-Hub
 <summary><b>Cursor</b></summary>
 
 ```bash
-npm install teikk-agents-skills --save-dev && npx teikk-agents-skills init cursor
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev && npx teikk-agents-skills init cursor
 ```
 
 Manual copy: see [docs/cursor-setup.md](docs/cursor-setup.md).
