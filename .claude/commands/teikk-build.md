@@ -37,7 +37,7 @@ Pick the next pending task from the plan. Then:
 4. Implement the minimum code to pass the test (GREEN)
 5. Run the full test suite to check for regressions
 6. Run the build to verify compilation
-7. Commit with a descriptive message (follow the teikk-agents-skills:git-workflow-and-versioning skill)
+7. Commit with a descriptive message (follow the teikk-agents-skills:git-workflow-and-versioning skill.)
 8. Mark the task complete and stop
 
 ## Autonomous: the whole plan (`/teikk-build auto`)
@@ -47,7 +47,7 @@ Pick the next pending task from the plan. Then:
 3. **Plan if needed.** If no `tasks/plan.md`, follow the teikk-agents-skills:planning-and-task-breakdown skill.
 4. **Single checkpoint.** Present the full plan and wait for approval.
 5. **Execute every task in dependency order.** RED → GREEN → regression → build → commit → mark complete. One commit per task.
-6. **Stop and ask** when tests fail, spec is ambiguous, or task is high-risk — follow the teikk-agents-skills:debugging-and-error-recovery skill or `skills/doubt-driven-development/SKILL.md`.
+6. **Stop and ask** when tests fail, spec is ambiguous, or task is high-risk — follow the teikk-agents-skills:debugging-and-error-recovery skill. or `skills/doubt-driven-development/SKILL.md`.
 7. **Summarize at the end.**
 
 If any step fails, follow the teikk-agents-skills:debugging-and-error-recovery skill.

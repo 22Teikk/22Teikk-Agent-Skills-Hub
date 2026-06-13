@@ -21,17 +21,19 @@ docs/         → Setup guides per IDE
 **Define:** interview-me, idea-refine, spec-driven-development
 **Plan:** planning-and-task-breakdown
 **Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, android-ui-kotlin, android-ui-java, android-data-and-concurrency-kotlin, android-data-and-concurrency-java, android-di-and-build, api-and-interface-design, observability-and-instrumentation
-**Verify:** android-testing-and-benchmark-kotlin, android-testing-and-benchmark-java, debugging-and-error-recovery
+**Verify:** android-testing-and-benchmark-kotlin, android-testing-and-benchmark-java, android-e2e-maestro, debugging-and-error-recovery
 **Review:** code-review-and-quality, code-simplification, security-and-hardening
 **Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, shipping-and-launch
 
 ## Commands
 
-14 slash commands — see README.md for workflow guide.
+15 slash commands — see README.md for workflow guide.
 
 Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`
 
 Foundation setup: `/teikk-android-setup` + `/teikk-observability` (also Phase 0 in plans)
+
+E2E (opt-in): `/teikk-e2e` — Maestro YAML + `maestro test` verify. SPEC: `E2E: none` | `E2E: Maestro`.
 
 ## Conventions
 

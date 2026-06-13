@@ -132,3 +132,13 @@ class StartupBenchmark {
 - [ ] Coroutine unit tests use `runTest` and appropriate test schedulers.
 - [ ] UI tests assert element visibility using Compose semantics nodes.
 - [ ] Macrobenchmarks are configured inside a separate module and execute correctly.
+
+### 4. E2E journeys (optional — Maestro)
+
+For multi-screen critical flows only. **Do not use this section for every project.**
+
+- Invoke `/teikk-e2e` or read `skills/android-e2e-maestro/SKILL.md`.
+- Keep unit + Compose component tests in this skill; Maestro covers cross-screen journeys only.
+- Declare in SPEC: `E2E: none` or `E2E: Maestro — flows: [...]`.
+
+## Common Rationalizations

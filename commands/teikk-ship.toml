@@ -34,6 +34,7 @@ Merge with persona findings:
 3. **Observability** — Timber release hygiene, Crashlytics keys, no PII in logs
 4. **Infrastructure** — Env vars, migrations, feature flags, monitoring
 5. **Documentation** — README, ADRs, changelog
+6. **E2E (optional)** — If `.maestro/flows/` exists and SPEC does not say `E2E: none`, follow `skills/android-e2e-maestro/SKILL.md`: run `maestro test .maestro/flows/`. Fail → Recommended fix or Blocker if SPEC declares E2E required. If no `.maestro/` dir, skip silently.
 
 ## Phase C — Decision and rollback
 

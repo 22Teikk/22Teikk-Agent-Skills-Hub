@@ -32,7 +32,8 @@ Task arrives
     │   └── Stakes high / unfamiliar code? ──→ doubt-driven-development
     ├── Writing/running tests? ────────→ test-driven-development
     │   ├── Testing (Kotlin)? ────────→ android-testing-and-benchmark-kotlin
-    │   └── Testing (Java)? ──────────→ android-testing-and-benchmark-java
+    │   ├── Testing (Java)? ──────────→ android-testing-and-benchmark-java
+    │   └── E2E user journeys (Maestro)? → android-e2e-maestro  (/teikk-e2e, opt-in)
     ├── Something broke? ──────────────→ debugging-and-error-recovery
     ├── Reviewing code? ───────────────→ code-review-and-quality
     │   ├── Too complex? ─────────────→ code-simplification
@@ -185,6 +186,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Verify | test-driven-development | Failing test first, then make it pass |
 | Verify | android-testing-and-benchmark-kotlin | Kotlin Unit Testing, Compose UI tests, Macrobenchmark |
 | Verify | android-testing-and-benchmark-java | Java Unit Testing, Espresso UI tests, Macrobenchmark |
+| Verify | android-e2e-maestro | Maestro YAML E2E journeys (opt-in, `/teikk-e2e`) |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
 | Review | code-review-and-quality | Five-axis review with quality gates |
 | Review | code-simplification | Preserve behavior while reducing unnecessary complexity |

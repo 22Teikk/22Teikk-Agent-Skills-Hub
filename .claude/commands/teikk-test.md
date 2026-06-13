@@ -17,3 +17,5 @@ For bug fixes (Prove-It pattern):
 5. Run the full test suite for regressions
 
 For Android UI and performance benchmarks, also read `skills/android-testing-and-benchmark-kotlin/SKILL.md` or `skills/android-testing-and-benchmark-java/SKILL.md`.
+
+**Not for E2E user journeys** — use `/teikk-e2e` (Maestro) when SPEC declares `E2E: Maestro` or for multi-screen smoke tests.

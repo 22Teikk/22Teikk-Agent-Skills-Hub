@@ -46,6 +46,7 @@ The agent should automatically map user intent to skills:
 - Tests / TDD → `test-driven-development`
 - Android tests (Kotlin) → `android-testing-and-benchmark-kotlin`
 - Android tests (Java) → `android-testing-and-benchmark-java`
+- E2E journeys (Maestro, opt-in) → `android-e2e-maestro`
 - Bug / failure / unexpected behavior → `debugging-and-error-recovery`
 
 **Review**

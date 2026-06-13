@@ -109,6 +109,7 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 
 ## Testing Strategy
 [Framework, test locations, coverage requirements, test levels]
+[E2E: none | Maestro — list critical flows and acceptance criteria each flow proves]
 
 ## Boundaries
 - Always: [...]

@@ -132,6 +132,25 @@ public class MainActivityTest {
 }
 ```
 
+## Maestro E2E (optional)
+
+For multi-screen journeys only. See `skills/android-e2e-maestro/SKILL.md` and `/teikk-e2e`.
+
+```yaml
+appId: com.example.app
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Tasks"
+- tapOn:
+    id: "fab_add_task"
+- inputText: "Buy Milk"
+- tapOn: "Save"
+- assertVisible: "Buy Milk"
+```
+
+Prefer `id:` (Compose `testTag`) over `text:`. Verify with `maestro test .maestro/flows/<name>.yaml`.
+
 ## Test Anti-Patterns
 
 | Anti-Pattern | Problem | Better Approach |
