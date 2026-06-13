@@ -1,6 +1,4 @@
----
-description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
----
+# Conduct a five-axis code review — correctness, readability, architecture, security, performance
 
 Read and follow `skills/code-review-and-quality/SKILL.md`.
 

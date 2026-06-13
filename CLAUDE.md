@@ -1,45 +1,46 @@
 # teikk-agents-skills
 
-This is the **teikk-agents-skills** project by [22Teikk](https://github.com/22Teikk) — a collection of production-grade engineering skills for AI coding agents.
+Personal engineering skills pack for AI coding agents. Android-first (Kotlin, Compose, Hilt, Timber).
 
 Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teikk-Agent-Skills-Hub)
 
 ## Project Structure
 
 ```
-skills/       → Core skills (SKILL.md per directory)
-agents/       → Reusable agent personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor)
+skills/       → 28 skills (SKILL.md per directory)
+agents/       → Specialist personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor)
 hooks/        → Session lifecycle hooks
-.claude/commands/ → Slash commands (/teikk-spec, /teikk-planning, /teikk-build, /teikk-test, /teikk-review, /teikk-code-simplify, /teikk-ship; plus /teikk-androidperf specialist audit)
-references/   → Supplementary checklists (testing, performance, security, accessibility)
-docs/         → Setup guides for different tools
+.cursor/      → Rules (4) + commands (14 teikk-*)
+.claude/      → Slash commands + hooks
+references/   → Supplementary checklists
+docs/         → Setup guides per IDE
 ```
 
 ## Skills by Phase
 
 **Define:** interview-me, idea-refine, spec-driven-development
 **Plan:** planning-and-task-breakdown
-**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, android-ui-kotlin, android-ui-java, android-data-and-concurrency-kotlin, android-data-and-concurrency-java, android-di-and-build, api-and-interface-design
+**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, android-ui-kotlin, android-ui-java, android-data-and-concurrency-kotlin, android-data-and-concurrency-java, android-di-and-build, api-and-interface-design, observability-and-instrumentation
 **Verify:** android-testing-and-benchmark-kotlin, android-testing-and-benchmark-java, debugging-and-error-recovery
 **Review:** code-review-and-quality, code-simplification, security-and-hardening
-**Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, observability-and-instrumentation, shipping-and-launch
+**Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, shipping-and-launch
+
+## Commands
+
+14 slash commands — see README.md for workflow guide.
+
+Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`
+
+Foundation setup: `/teikk-android-setup` + `/teikk-observability` (also Phase 0 in plans)
 
 ## Conventions
 
 - Every skill lives in `skills/<name>/SKILL.md`
-- YAML frontmatter with `name` and `description` fields
-- Description starts with what the skill does (third person), followed by trigger conditions ("Use when...")
-- Every skill has: Overview, When to Use, Process, Common Rationalizations, Red Flags, Verification
-- References are in `references/`, not inside skill directories
-- Supporting files only created when content exceeds 100 lines
-
-## Commands
-
-- `./gradlew test` — Not applicable (this is a documentation project)
-- Validate: Check that all SKILL.md files have valid YAML frontmatter with name and description
+- YAML frontmatter with `name` and `description`
+- Spec covers nine areas including Architecture and Observability
+- Android plans require Phase 0 Foundation before feature slices
 
 ## Boundaries
 
-- Always: Follow the skill-anatomy.md format for new skills
+- Always: Follow skill workflows; Hilt + Timber defaults for Android; Version Catalog for deps
 - Never: Add skills that are vague advice instead of actionable processes
-- Never: Duplicate content between skills — reference other skills instead

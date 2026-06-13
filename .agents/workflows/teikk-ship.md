@@ -1,56 +1,59 @@
----
-description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
----
+# Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
 
 Read and follow `skills/shipping-and-launch/SKILL.md`.
 
-`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel against the current change, then merges their reports into a single go/no-go decision with a rollback plan.
+`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 
 ## Phase A — Parallel fan-out
 
-Run three persona reviews concurrently when Antigravity supports parallel agents. Otherwise, run them sequentially and treat outputs as if returned in parallel.
+Spawn three subagents concurrently using the Task tool when available. **Issue all three Task calls in a single assistant turn.**
 
 Adopt each persona from `agents/`:
 
-1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Run a five-axis review on staged changes or recent commits.
-2. **`security-auditor`** — Read `agents/security-auditor.md`. Run a vulnerability and threat-model pass.
-3. **`test-engineer`** — Read `agents/test-engineer.md`. Analyze test coverage gaps.
+1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Five-axis review on staged changes or recent commits.
+2. **`security-auditor`** — Read `agents/security-auditor.md`. OWASP, secrets, auth, dependency CVEs.
+3. **`test-engineer`** — Read `agents/test-engineer.md`. Coverage gaps (happy path, edge, error, concurrency).
 
-Constraints:
-- Personas do not delegate to each other — keep the fan-out flat.
-- Each persona returns only its report to this main session.
+## Phase B — Skill-based ship checks
 
-## Phase B — Merge in main context
+After persona reports, verify against these skills (read and check, do not skip):
 
-Once all three reports are back, synthesize:
+| Check | Skill |
+|-------|-------|
+| No debug logs, telemetry wired | `skills/observability-and-instrumentation/SKILL.md` |
+| README, ADRs updated | `skills/documentation-and-adrs/SKILL.md` |
+| CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` |
+| Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
+| Security hardening | `skills/security-and-hardening/SKILL.md` |
 
-1. **Code Quality** — Aggregate Critical/Important findings and any failing tests, lint, or build output.
-2. **Security** — Promote Critical/High security findings to launch blockers.
-3. **Performance** — Pull from the code review performance axis.
-4. **Accessibility** — Verify keyboard nav, screen reader support, contrast.
-5. **Infrastructure** — Env vars, migrations, monitoring, feature flags.
-6. **Documentation** — README, ADRs, changelog.
+Merge with persona findings:
+
+1. **Code Quality** — Aggregate Critical/Important + failing tests/lint/build
+2. **Security** — Promote Critical/High to blockers
+3. **Observability** — Timber release hygiene, Crashlytics keys, no PII in logs
+4. **Infrastructure** — Env vars, migrations, feature flags, monitoring
+5. **Documentation** — README, ADRs, changelog
 
 ## Phase C — Decision and rollback
 
-Produce a single output:
+Produce:
 
 ```markdown
 ## Ship Decision: GO | NO-GO
 
 ### Blockers (must fix before ship)
-- [Source persona: Critical finding + file:line]
+- [Source: finding + file:line]
 
-### Recommended fixes (should fix before ship)
-- [Source persona: Important finding + file:line]
+### Recommended fixes
+- [Finding + file:line]
 
-### Acknowledged risks (shipping anyway)
+### Acknowledged risks
 - [Risk + mitigation]
 
 ### Rollback plan
-- Trigger conditions: [what signals would prompt rollback]
-- Rollback procedure: [exact steps]
-- Recovery time objective: [target]
+- Trigger conditions: [...]
+- Rollback procedure: [...]
+- Recovery time objective: [...]
 
 ### Specialist reports (full)
 - [code-reviewer report]
@@ -60,8 +63,8 @@ Produce a single output:
 
 ## Rules
 
-1. Phase A personas run in parallel when possible — never skip parallel intent without reason.
-2. Personas do not call each other. The main agent merges in Phase B.
-3. The rollback plan is mandatory before any GO decision.
-4. If any persona returns a Critical finding, default verdict is NO-GO unless the user explicitly accepts the risk.
-5. Skip fan-out only if the change touches 2 files or fewer, the diff is under 50 lines, and it does not touch auth, payments, data access, or config/env.
+1. Phase A personas run in parallel when possible.
+2. Phase B skill checks are mandatory — not optional.
+3. Rollback plan mandatory before GO.
+4. Critical finding → default NO-GO unless user accepts risk explicitly.
+5. Skip fan-out only if ≤2 files, <50 lines, no auth/payments/data/config touch.

@@ -16,4 +16,4 @@ For bug fixes (Prove-It pattern):
 4. Confirm the test passes
 5. Run the full test suite for regressions
 
-For Android UI and performance benchmarks, also invoke android-testing-and-benchmark-kotlin or android-testing-and-benchmark-java.
+For Android UI and performance benchmarks, also read `skills/android-testing-and-benchmark-kotlin/SKILL.md` or `skills/android-testing-and-benchmark-java/SKILL.md`.

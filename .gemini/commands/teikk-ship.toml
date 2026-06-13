@@ -1,60 +1,60 @@
 description = "Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision"
 
 prompt = """
-Invoke the shipping-and-launch skill.
+Read and follow `skills/shipping-and-launch/SKILL.md`.
 
-`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel against the current change, then merges their reports into a single go/no-go decision with a rollback plan. The personas operate independently — no shared state, no ordering — which is what makes parallel execution safe and useful here.
+`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 
 ## Phase A — Parallel fan-out
 
-Spawn three subagents concurrently. Gemini CLI exposes each custom subagent in `.gemini/agents/` as a tool with the same name — so `code-reviewer.md` becomes a `code-reviewer` tool the main agent can call, and `@code-reviewer` works as an explicit invocation in the prompt. **Issue all three subagent tool calls in a single assistant turn so they execute in parallel** — sequential calls defeat the purpose of this command.
+Spawn three subagents concurrently using the Task tool when available. **Issue all three Task calls in a single assistant turn.**
 
-Dispatch each persona by tool name:
+Adopt each persona from `agents/`:
 
-1. **`code-reviewer`** — Run a five-axis review (correctness, readability, architecture, security, performance) on the staged changes or recent commits. Output the standard review template.
-2. **`security-auditor`** — Run a vulnerability and threat-model pass. Check OWASP Top 10, secrets handling, auth/authz, dependency CVEs. Output the standard audit report.
-3. **`test-engineer`** — Analyze test coverage for the change. Identify gaps in happy path, edge cases, error paths, and concurrency scenarios. Output the standard coverage analysis.
+1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Five-axis review on staged changes or recent commits.
+2. **`security-auditor`** — Read `agents/security-auditor.md`. OWASP, secrets, auth, dependency CVEs.
+3. **`test-engineer`** — Read `agents/test-engineer.md`. Coverage gaps (happy path, edge, error, concurrency).
 
-If subagents are unavailable in the current Gemini CLI version, invoke each persona's system prompt sequentially in the main context and treat their outputs as if returned in parallel — the merge phase still works.
+## Phase B — Skill-based ship checks
 
-Constraints (from Gemini CLI's subagent model):
-- Subagents run in isolated context loops and return only their report to this main session.
-- Do not let one persona delegate to another — keep the fan-out flat.
-- For richer multi-agent collaboration where teammates talk to each other instead of just reporting back, see `references/orchestration-patterns.md`.
+After persona reports, verify against these skills (read and check, do not skip):
 
-**Persona resolution.** If you've defined your own `code-reviewer`, `security-auditor`, or `test-engineer` in `.gemini/agents/` or `~/.gemini/agents/`, those take precedence over this plugin's versions — `/teikk-ship` picks up your customizations automatically. This is intentional: plugin subagents sit at the bottom of Gemini CLI's scope priority table, so user-level definitions win by design.
+| Check | Skill |
+|-------|-------|
+| No debug logs, telemetry wired | `skills/observability-and-instrumentation/SKILL.md` |
+| README, ADRs updated | `skills/documentation-and-adrs/SKILL.md` |
+| CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` |
+| Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
+| Security hardening | `skills/security-and-hardening/SKILL.md` |
 
-## Phase B — Merge in main context
+Merge with persona findings:
 
-Once all three reports are back, the main agent (not a sub-persona) synthesizes them:
-
-1. **Code Quality** — Aggregate Critical/Important findings from `code-reviewer` and any failing tests, lint, or build output. Resolve duplicates between reviewers.
-2. **Security** — Promote any Critical/High `security-auditor` findings to launch blockers. Cross-reference with `code-reviewer`'s security axis.
-3. **Performance** — Pull from `code-reviewer`'s performance axis; cross-check Core Web Vitals if applicable.
-4. **Accessibility** — Verify keyboard nav, screen reader support, contrast (not covered by the three personas — handle directly here, or invoke the accessibility checklist).
-5. **Infrastructure** — Env vars, migrations, monitoring, feature flags. Verify directly.
-6. **Documentation** — README, ADRs, changelog. Verify directly.
+1. **Code Quality** — Aggregate Critical/Important + failing tests/lint/build
+2. **Security** — Promote Critical/High to blockers
+3. **Observability** — Timber release hygiene, Crashlytics keys, no PII in logs
+4. **Infrastructure** — Env vars, migrations, feature flags, monitoring
+5. **Documentation** — README, ADRs, changelog
 
 ## Phase C — Decision and rollback
 
-Produce a single output:
+Produce:
 
 ```markdown
 ## Ship Decision: GO | NO-GO
 
 ### Blockers (must fix before ship)
-- [Source persona: Critical finding + file:line]
+- [Source: finding + file:line]
 
-### Recommended fixes (should fix before ship)
-- [Source persona: Important finding + file:line]
+### Recommended fixes
+- [Finding + file:line]
 
-### Acknowledged risks (shipping anyway)
+### Acknowledged risks
 - [Risk + mitigation]
 
 ### Rollback plan
-- Trigger conditions: [what signals would prompt rollback]
-- Rollback procedure: [exact steps]
-- Recovery time objective: [target]
+- Trigger conditions: [...]
+- Rollback procedure: [...]
+- Recovery time objective: [...]
 
 ### Specialist reports (full)
 - [code-reviewer report]
@@ -64,9 +64,9 @@ Produce a single output:
 
 ## Rules
 
-1. The three Phase A personas run in parallel — never sequentially.
-2. Personas do not call each other. The main agent merges in Phase B.
-3. The rollback plan is mandatory before any GO decision.
-4. If any persona returns a Critical finding, the default verdict is NO-GO unless the user explicitly accepts the risk.
-5. **Skip the fan-out only if all of the following are true:** the change touches 2 files or fewer, the diff is under 50 lines, and it does not touch auth, payments, data access, or config/env. Otherwise, default to fan-out. `/teikk-ship` is designed for production-bound changes — when the blast radius is non-trivial, run the parallel review even if the diff looks small.
+1. Phase A personas run in parallel when possible.
+2. Phase B skill checks are mandatory — not optional.
+3. Rollback plan mandatory before GO.
+4. Critical finding → default NO-GO unless user accepts risk explicitly.
+5. Skip fan-out only if ≤2 files, <50 lines, no auth/payments/data/config touch.
 """

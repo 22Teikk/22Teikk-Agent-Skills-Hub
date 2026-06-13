@@ -1,6 +1,4 @@
----
-description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
----
+# Simplify code for clarity and maintainability — reduce complexity without changing behavior
 
 Read and follow `skills/code-simplification/SKILL.md`.
 

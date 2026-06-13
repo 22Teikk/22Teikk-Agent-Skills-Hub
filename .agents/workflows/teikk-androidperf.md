@@ -1,6 +1,4 @@
----
-description: Run an Android performance audit via the android-performance-auditor persona
----
+# Run an Android performance audit via the android-performance-auditor persona
 
 Read and follow `agents/android-performance-auditor.md`.
 

@@ -2,15 +2,13 @@
 description: Run an Android performance audit via the android-performance-auditor persona
 ---
 
-# /teikk-androidperf
+Read and follow `agents/android-performance-auditor.md`.
 
-Run an Android performance audit on your codebase or profiles using the `android-performance-auditor` subagent.
+Run an Android performance audit on the codebase or profiles provided by the user.
 
-## Usage
+The user may pass:
+- The path of source code, components, or diff under review
+- Output from Android Profiler (CPU/Memory/Network traces) or Macrobenchmark results
+- The project stack (Kotlin or Java) for language-specific recommendations
 
-Pass this command:
-- The path of the source code, components, or diff under review.
-- The output files or reports from Android Profiler (CPU/Memory/Network traces) or Macrobenchmark results.
-- Specify the project's stack (Kotlin or Java) to trigger language-specific recommendations.
-
-The subagent will return a detailed performance report outlining critical issues, high/medium/low severity findings, and specific code recommendations.
+Return a detailed performance report with critical issues, severity-classified findings, and specific code recommendations.

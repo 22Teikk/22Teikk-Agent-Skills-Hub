@@ -56,7 +56,22 @@ Implementation order follows the dependency graph bottom-up: build foundations f
 
 ### Step 3: Slice Vertically
 
-Instead of building all the database, then all the API, then all the UI — build one complete feature path at a time:
+Instead of building all the database, then all the API, then all the UI — build one complete feature path at a time.
+
+**For Android projects, Phase 0 (Foundation) must complete before feature slices.** Derive tasks from the spec's Architecture and Observability sections:
+
+```
+Phase 0: Foundation (blocking)
+  - Hilt setup (@HiltAndroidApp, modules, Version Catalog)
+  - Timber + ReleaseLoggingTree (debug strip in release)
+  - Crashlytics init + non-fatal pattern
+  - Room/Retrofit modules (if applicable)
+
+Phase 1+: Vertical feature slices
+  - Each slice: data + domain + UI + tests
+```
+
+Do not start feature UI until Phase 0 passes its checkpoint (build clean, DI graph compiles, Timber planted).
 
 **Bad (horizontal slicing):**
 ```
@@ -154,21 +169,21 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Task List
 
-### Phase 1: Foundation
-- [ ] Task 1: ...
-- [ ] Task 2: ...
+### Phase 0: Foundation (Android / new projects)
+- [ ] Task 0: DI + build (Hilt, Version Catalog) — skill: `android-di-and-build`
+- [ ] Task 1: Observability (Timber, Crashlytics) — skill: `observability-and-instrumentation`
 
 ### Checkpoint: Foundation
-- [ ] Tests pass, builds clean
+- [ ] Hilt compiler clean, Timber planted, build succeeds
 
-### Phase 2: Core Features
+### Phase 1: Core Features
 - [ ] Task 3: ...
 - [ ] Task 4: ...
 
 ### Checkpoint: Core Features
 - [ ] End-to-end flow works
 
-### Phase 3: Polish
+### Phase 2: Polish
 - [ ] Task 5: ...
 - [ ] Task 6: ...
 

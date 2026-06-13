@@ -48,29 +48,35 @@ ASSUMPTIONS I'M MAKING:
 
 Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
 
-**Write a spec document covering these six core areas:**
+**Write a spec document covering these nine core areas:**
 
 1. **Objective** — What are we building and why? Who is the user? What does success look like?
 
-2. **Commands** — Full executable commands with flags, not just tool names.
+2. **Tech Stack** — Language, framework, key libraries with versions. For Android: Kotlin vs Java, Compose vs XML, min/target SDK.
+
+3. **Architecture** — Layering (e.g. MVVM + Clean Architecture), module layout, DI approach (Hilt default for Kotlin Android), navigation pattern.
+
+4. **Observability** — Logging (Timber release hygiene), crash reporting (Crashlytics), analytics events, performance traces. Define before feature work — not at ship time.
+
+5. **Commands** — Full executable commands with flags, not just tool names.
    ```
    Build: ./gradlew assembleDebug
    Test: ./gradlew test
    Lint: ./gradlew lint
    ```
 
-3. **Project Structure** — Where source code lives, where tests go, where docs belong.
+6. **Project Structure** — Where source code lives, where tests go, where docs belong.
    ```
    app/src/main/  → Application source code
    app/src/test/  → Local unit tests
    app/src/androidTest/ → Instrumentation UI tests
    ```
 
-4. **Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of good output.
+7. **Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of good output.
 
-5. **Testing Strategy** — What framework, where tests live, coverage expectations, which test levels for which concerns.
+8. **Testing Strategy** — What framework, where tests live, coverage expectations, which test levels for which concerns.
 
-6. **Boundaries** — Three-tier system:
+9. **Boundaries** — Three-tier system:
    - **Always do:** Run tests before commits, follow naming conventions, validate inputs
    - **Ask first:** Database schema changes, adding dependencies, changing CI config
    - **Never do:** Commit secrets, edit vendor directories, remove failing tests without approval
@@ -85,6 +91,12 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 
 ## Tech Stack
 [Framework, language, key dependencies with versions]
+
+## Architecture
+[Layers, modules, DI (Hilt), navigation, data flow — inherit defaults from SPEC or project rules]
+
+## Observability
+[Timber setup, Crashlytics breadcrumbs/custom keys, analytics events, perf traces — no PII in logs]
 
 ## Commands
 [Build, test, lint, dev — full commands]
@@ -189,7 +201,7 @@ The spec is a living document, not a one-time artifact:
 
 Before proceeding to implementation, confirm:
 
-- [ ] The spec covers all six core areas
+- [ ] The spec covers all nine core areas (including architecture and observability)
 - [ ] The human has reviewed and approved the spec
 - [ ] Success criteria are specific and testable
 - [ ] Boundaries (Always/Ask First/Never) are defined

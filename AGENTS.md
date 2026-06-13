@@ -21,19 +21,44 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 
 The agent should automatically map user intent to skills:
 
-- Feature / new functionality → `spec-driven-development`, then `incremental-implementation`, `test-driven-development`
-- Planning / breakdown → `planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring / simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
+**Define**
+- Underspecified ask / "interview me" → `interview-me`
+- Rough idea needing exploration → `idea-refine`
+- New project / feature / significant change → `spec-driven-development`
+
+**Plan**
+- Spec exists, need tasks → `planning-and-task-breakdown`
+
+**Build**
+- Implementing code → `incremental-implementation` + `test-driven-development`
+- Better context / rules setup → `context-engineering`
+- Verify against official docs → `source-driven-development`
+- High-stakes / irreversible decisions → `doubt-driven-development`
+- API or module boundaries → `api-and-interface-design`
 - UI work (Kotlin) → `android-ui-kotlin`
 - UI work (Java) → `android-ui-java`
 - Concurrency & DB (Kotlin) → `android-data-and-concurrency-kotlin`
 - Concurrency & DB (Java) → `android-data-and-concurrency-java`
-- Testing & Benchmark (Kotlin) → `android-testing-and-benchmark-kotlin`
-- Testing & Benchmark (Java) → `android-testing-and-benchmark-java`
-- DI & Build configs → `android-di-and-build`
+- DI, Gradle, Version Catalog → `android-di-and-build`
+- Logging, Crashlytics, analytics → `observability-and-instrumentation`
+
+**Verify**
+- Tests / TDD → `test-driven-development`
+- Android tests (Kotlin) → `android-testing-and-benchmark-kotlin`
+- Android tests (Java) → `android-testing-and-benchmark-java`
+- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
+
+**Review**
+- Code review → `code-review-and-quality`
+- Refactoring / simplification → `code-simplification`
+- Security → `security-and-hardening`
+
+**Ship**
+- Commits / branching → `git-workflow-and-versioning`
+- CI/CD pipelines → `ci-cd-and-automation`
+- Documentation / ADRs → `documentation-and-adrs`
+- Deprecation / migration → `deprecation-and-migration`
+- Deploy / launch checklist → `shipping-and-launch`
 
 ### Lifecycle Mapping (Implicit Commands)
 
@@ -41,12 +66,12 @@ OpenCode does not support slash commands like `/teikk-spec` or `/teikk-planning`
 
 Instead, the agent must internally follow this lifecycle:
 
-- DEFINE → `spec-driven-development`
-- PLAN → `planning-and-task-breakdown`
-- BUILD → `incremental-implementation` + `test-driven-development`
-- VERIFY → `debugging-and-error-recovery`
-- REVIEW → `code-review-and-quality`
-- SHIP → `shipping-and-launch`
+- **DEFINE** → `interview-me` (if unclear) → `idea-refine` (if exploring) → `spec-driven-development`
+- **PLAN** → `planning-and-task-breakdown` (Phase 0 Foundation for Android: Hilt + observability before features)
+- **BUILD** → `incremental-implementation` + `test-driven-development` + domain skills (android-*, api, observability as needed)
+- **VERIFY** → `debugging-and-error-recovery`, `android-testing-and-benchmark-*`
+- **REVIEW** → `code-review-and-quality`, `code-simplification`, `security-and-hardening`
+- **SHIP** → `observability-and-instrumentation`, `documentation-and-adrs`, `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch`
 
 ### Execution Model
 
