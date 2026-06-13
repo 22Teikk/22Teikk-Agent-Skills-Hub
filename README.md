@@ -111,31 +111,12 @@ gemini skills install ./agent-skills/skills/
 </details>
 
 <details>
-<summary><b>Windsurf</b></summary>
-
-Add skill contents to your Windsurf rules configuration. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
-
-</details>
-
-<details>
 <summary><b>OpenCode</b></summary>
 
 Uses agent-driven skill execution via AGENTS.md and the `skill` tool.
 
 See [docs/opencode-setup.md](docs/opencode-setup.md).
 
-</details>
-
-<details>
-<summary><b>GitHub Copilot</b></summary>
-
-Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`. See [docs/copilot-setup.md](docs/copilot-setup.md).
-
-</details>
-
-<details>
-  <summary><b>Kiro IDE & CLI </b></summary>
-  Skills for Kiro reside under ".kiro/skills/" and can be stored under Project or Global level. Kiro also supports Agents.md. See Kiro docs at https://kiro.dev/docs/skills/
 </details>
 
 <details>
