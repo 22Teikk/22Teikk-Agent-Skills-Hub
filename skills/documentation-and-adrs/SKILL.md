@@ -198,17 +198,17 @@ One-paragraph description of what this project does.
 
 ## Quick Start
 1. Clone the repo
-2. Install dependencies: `npm install`
-3. Set up environment: `cp .env.example .env`
-4. Run the dev server: `npm run dev`
+2. Open in Android Studio
+3. Set up local.properties if required
+4. Run `./gradlew assembleDebug` to build
 
 ## Commands
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm test` | Run tests |
-| `npm run build` | Production build |
-| `npm run lint` | Run linter |
+| `./gradlew assembleDebug` | Build application |
+| `./gradlew test` | Run local unit tests |
+| `./gradlew connectedAndroidTest` | Run UI tests |
+| `./gradlew lint` | Run linter |
 
 ## Architecture
 Brief overview of the project structure and key design decisions.

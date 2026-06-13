@@ -16,4 +16,4 @@ For bug fixes (Prove-It pattern):
 4. Confirm the test passes
 5. Run the full test suite for regressions
 
-For browser-related issues, also invoke agent-skills:browser-testing-with-devtools to verify with Chrome DevTools MCP.
+For Android UI and performance benchmarks, also invoke android-testing-and-benchmark-kotlin or android-testing-and-benchmark-java.

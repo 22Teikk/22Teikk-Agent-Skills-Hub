@@ -66,7 +66,7 @@ Before deploy:       shipping-and-launch
 
 Don't load all skills at once — it wastes context. Load skills relevant to the current task:
 
-- Working on UI? Load `frontend-ui-engineering`
+- Working on UI? Load `android-ui-kotlin` or `android-ui-java`
 - Debugging? Load `debugging-and-error-recovery`
 - Setting up CI? Load `ci-cd-and-automation`
 
@@ -96,7 +96,7 @@ The `agents/` directory contains pre-configured agent personas:
 | `code-reviewer.md` | Five-axis code review |
 | `test-engineer.md` | Test strategy and writing |
 | `security-auditor.md` | Vulnerability detection |
-| `web-performance-auditor.md` | Core Web Vitals & performance audit (via `/webperf`) |
+| `android-performance-auditor.md` | App Startup and Frame Rendering performance audit (via `/androidperf`) |
 
 Load an agent definition when you need specialized review. For example, ask your coding agent to "review this change using the code-reviewer agent persona" and provide the agent definition.
 
@@ -113,7 +113,7 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 | `/test` | test-driven-development |
 | `/review` | code-review-and-quality |
 | `/ship` | shipping-and-launch |
-| `/webperf` | web-performance-auditor (specialist agent, web apps only) |
+| `/androidperf` | android-performance-auditor (specialist agent, Android apps only) |
 
 ## Using References
 
@@ -122,9 +122,9 @@ The `references/` directory contains supplementary checklists:
 | Reference | Use With |
 |-----------|----------|
 | `testing-patterns.md` | test-driven-development |
-| `performance-checklist.md` | performance-optimization |
+| `performance-checklist.md` | android-performance-auditor |
 | `security-checklist.md` | security-and-hardening |
-| `accessibility-checklist.md` | frontend-ui-engineering |
+| `accessibility-checklist.md` | android-ui-kotlin / android-ui-java |
 
 Load a reference when you need detailed patterns beyond what the skill covers.
 

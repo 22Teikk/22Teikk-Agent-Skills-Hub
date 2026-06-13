@@ -6,9 +6,9 @@ This is the agent-skills project — a collection of production-grade engineerin
 
 ```
 skills/       → Core skills (SKILL.md per directory)
-agents/       → Reusable agent personas (code-reviewer, test-engineer, security-auditor, web-performance-auditor)
+agents/       → Reusable agent personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor)
 hooks/        → Session lifecycle hooks
-.claude/commands/ → Slash commands (/spec, /plan, /build, /test, /review, /code-simplify, /ship; plus /webperf specialist audit)
+.claude/commands/ → Slash commands (/spec, /plan, /build, /test, /review, /code-simplify, /ship; plus /androidperf specialist audit)
 references/   → Supplementary checklists (testing, performance, security, accessibility)
 docs/         → Setup guides for different tools
 ```
@@ -17,9 +17,9 @@ docs/         → Setup guides for different tools
 
 **Define:** interview-me, idea-refine, spec-driven-development
 **Plan:** planning-and-task-breakdown
-**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, frontend-ui-engineering, api-and-interface-design
-**Verify:** browser-testing-with-devtools, debugging-and-error-recovery
-**Review:** code-review-and-quality, code-simplification, security-and-hardening, performance-optimization
+**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, android-ui-kotlin, android-ui-java, android-data-and-concurrency-kotlin, android-data-and-concurrency-java, android-di-and-build, api-and-interface-design
+**Verify:** android-testing-and-benchmark-kotlin, android-testing-and-benchmark-java, debugging-and-error-recovery
+**Review:** code-review-and-quality, code-simplification, security-and-hardening
 **Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, observability-and-instrumentation, shipping-and-launch
 
 ## Conventions
@@ -33,7 +33,7 @@ docs/         → Setup guides for different tools
 
 ## Commands
 
-- `npm test` — Not applicable (this is a documentation project)
+- `./gradlew test` — Not applicable (this is a documentation project)
 - Validate: Check that all SKILL.md files have valid YAML frontmatter with name and description
 
 ## Boundaries

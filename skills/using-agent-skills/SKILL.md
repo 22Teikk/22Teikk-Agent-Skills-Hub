@@ -21,18 +21,22 @@ Task arrives
     ├── New project/feature/change? ──→ spec-driven-development
     ├── Have a spec, need tasks? ──────→ planning-and-task-breakdown
     ├── Implementing code? ────────────→ incremental-implementation
-    │   ├── UI work? ─────────────────→ frontend-ui-engineering
+    │   ├── UI work (Kotlin)? ────────→ android-ui-kotlin
+    │   ├── UI work (Java)? ──────────→ android-ui-java
+    │   ├── Data & DB (Kotlin)? ──────→ android-data-and-concurrency-kotlin
+    │   ├── Data & DB (Java)? ────────→ android-data-and-concurrency-java
+    │   ├── DI & Build? ──────────────→ android-di-and-build
     │   ├── API work? ────────────────→ api-and-interface-design
     │   ├── Need better context? ─────→ context-engineering
     │   ├── Need doc-verified code? ───→ source-driven-development
     │   └── Stakes high / unfamiliar code? ──→ doubt-driven-development
     ├── Writing/running tests? ────────→ test-driven-development
-    │   └── Browser-based? ───────────→ browser-testing-with-devtools
+    │   ├── Testing (Kotlin)? ────────→ android-testing-and-benchmark-kotlin
+    │   └── Testing (Java)? ──────────→ android-testing-and-benchmark-java
     ├── Something broke? ──────────────→ debugging-and-error-recovery
     ├── Reviewing code? ───────────────→ code-review-and-quality
     │   ├── Too complex? ─────────────→ code-simplification
-    │   ├── Security concerns? ───────→ security-and-hardening
-    │   └── Performance concerns? ────→ performance-optimization
+    │   └── Security concerns? ───────→ security-and-hardening
     ├── Committing/branching? ─────────→ git-workflow-and-versioning
     ├── CI/CD pipeline work? ──────────→ ci-cd-and-automation
     ├── Deprecating/migrating? ────────→ deprecation-and-migration
@@ -172,15 +176,19 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Build | source-driven-development | Verify against official docs before implementing |
 | Build | doubt-driven-development | Adversarial fresh-context review of every non-trivial decision |
 | Build | context-engineering | Right context at the right time |
-| Build | frontend-ui-engineering | Production-quality UI with accessibility |
+| Build | android-ui-kotlin | Compose UI layout and state management |
+| Build | android-ui-java | XML View layouts and ListAdapter |
+| Build | android-data-and-concurrency-kotlin | Coroutines, Flow, Room, Retrofit, Serialization |
+| Build | android-data-and-concurrency-java | RxJava, CompletableFuture, Room, Retrofit |
+| Build | android-di-and-build | Hilt, Gradle KTS, Version Catalog, CI/CD |
 | Build | api-and-interface-design | Stable interfaces with clear contracts |
 | Verify | test-driven-development | Failing test first, then make it pass |
-| Verify | browser-testing-with-devtools | Chrome DevTools MCP for runtime verification |
+| Verify | android-testing-and-benchmark-kotlin | Kotlin Unit Testing, Compose UI tests, Macrobenchmark |
+| Verify | android-testing-and-benchmark-java | Java Unit Testing, Espresso UI tests, Macrobenchmark |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
 | Review | code-review-and-quality | Five-axis review with quality gates |
 | Review | code-simplification | Preserve behavior while reducing unnecessary complexity |
 | Review | security-and-hardening | OWASP prevention, input validation, least privilege |
-| Review | performance-optimization | Measure first, optimize only what matters |
 | Ship | git-workflow-and-versioning | Atomic commits, clean history |
 | Ship | ci-cd-and-automation | Automated quality gates on every change |
 | Ship | deprecation-and-migration | Remove old systems and migrate users safely |

@@ -1,309 +1,192 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: Prepares production launches. Use when preparing to deploy to Google Play Store or Firebase App Distribution. Use when you need a pre-launch checklist, when setting up mobile monitoring (Crashlytics/Vitals), when planning a staged rollout, or when defining a remote rollback/kill-switch strategy.
 ---
 
-# Shipping and Launch
+# Shipping and Launch (Android)
 
 ## Overview
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+Guidelines for shipping Android applications safely. Mobile deployments are unique: once an APK or AAB is downloaded to a user's device, it cannot be instantly recalled. Therefore, launches require rigorous pre-release QA, staged rollouts, and runtime kill-switches (feature flags) to mitigate risks.
 
 ## When to Use
 
-- Deploying a feature to production for the first time
-- Releasing a significant change to users
-- Migrating data or infrastructure
-- Opening a beta or early access program
-- Any deployment that carries risk (all of them)
+- Releasing a new app version to Google Play Store (Production or Testing tracks)
+- Deploying a build to Firebase App Distribution for QA / Beta testers
+- Enabling a new feature dynamically via Remote Config
+- Any release containing database migrations (Room) or structural SDK updates
 
 ## The Pre-Launch Checklist
 
-### Code Quality
+### 1. Code Quality & Build
+- [ ] All unit, integration, and Compose/Espresso tests pass locally and in CI.
+- [ ] Build succeeds in release mode with no warnings or errors.
+- [ ] Proguard/R8 rules are tested to ensure no classes or models are incorrectly stripped.
+- [ ] No temporary debugging log statements (`Log.d`, `println`) or mock data in production code.
 
-- [ ] All tests pass (unit, integration, e2e)
-- [ ] Build succeeds with no warnings
-- [ ] Lint and type checking pass
-- [ ] Code reviewed and approved
-- [ ] No TODO comments that should be resolved before launch
-- [ ] No `console.log` debugging statements in production code
-- [ ] Error handling covers expected failure modes
+### 2. Android Security & Permissions
+- [ ] Keystore credentials and API keys are not committed to git (stored in `local.properties` or CI secrets).
+- [ ] No unnecessary permissions requested in `AndroidManifest.xml`.
+- [ ] All exported components (`android:exported="true"`) are protected by appropriate permissions.
+- [ ] Releases are signed using the official release key (or Play App Signing).
 
-### Security
+### 3. Mobile Performance & Database
+- [ ] App startup time and frame rendering (jank) verified using Macrobenchmarks.
+- [ ] No database operations (Room) or network operations (Retrofit) run on the Main (UI) Thread.
+- [ ] Images, videos, and static assets are compressed and optimized.
+- [ ] Room database migrations (`Migration` classes) are fully tested (no migration crash).
 
-- [ ] No secrets in code or version control
-- [ ] `npm audit` shows no critical or high vulnerabilities
-- [ ] Input validation on all user-facing endpoints
-- [ ] Authentication and authorization checks in place
-- [ ] Security headers configured (CSP, HSTS, etc.)
-- [ ] Rate limiting on authentication endpoints
-- [ ] CORS configured to specific origins (not wildcard)
+### 4. Accessibility
+- [ ] Content descriptions are set for all decorative and interactive images in Compose/XML.
+- [ ] Touch target sizes are at least 48x48 dp.
+- [ ] Support for TalkBack screen reader verified.
+- [ ] Contrast ratios and dynamic text scaling (font sizes) adapt correctly.
 
-### Performance
+### 5. Distribution & Release Configuration
+- [ ] App version code and version name updated in `build.gradle.kts` (or Version Catalog).
+- [ ] Target SDK level is compliant with the latest Google Play policies.
+- [ ] Google Play Console store listing, privacy policy, and classification details are updated.
 
-- [ ] Core Web Vitals within "Good" thresholds
-- [ ] No N+1 queries in critical paths
-- [ ] Images optimized (compression, responsive sizes, lazy loading)
-- [ ] Bundle size within budget
-- [ ] Database queries have appropriate indexes
-- [ ] Caching configured for static assets and repeated queries
+---
 
-### Accessibility
+## Feature Flag Strategy (Remote Config)
 
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] Screen reader can convey page content and structure
-- [ ] Color contrast meets WCAG 2.1 AA (4.5:1 for text)
-- [ ] Focus management correct for modals and dynamic content
-- [ ] Error messages are descriptive and associated with form fields
-- [ ] No accessibility warnings in axe-core or Lighthouse
+Use feature flags to decouple APK/AAB deployment from feature activation. If a feature crashes the app, you can disable it instantly without waiting for a Google Play update.
 
-### Infrastructure
-
-- [ ] Environment variables set in production
-- [ ] Database migrations applied (or ready to apply)
-- [ ] DNS and SSL configured
-- [ ] CDN configured for static assets
-- [ ] Logging and error reporting configured
-- [ ] Health check endpoint exists and responds
-
-### Documentation
-
-- [ ] README updated with any new setup requirements
-- [ ] API documentation current
-- [ ] ADRs written for any architectural decisions
-- [ ] Changelog updated
-- [ ] User-facing documentation updated (if applicable)
-
-## Feature Flag Strategy
-
-Ship behind feature flags to decouple deployment from release:
-
-```typescript
-// Feature flag check
-const flags = await getFeatureFlags(userId);
-
-if (flags.taskSharing) {
-  // New feature: task sharing
-  return <TaskSharingPanel task={task} />;
+```kotlin
+// Remote Config feature flag implementation
+class FeatureToggle(private val remoteConfig: FirebaseRemoteConfig) {
+    fun isTaskSharingEnabled(): Boolean {
+        return remoteConfig.getBoolean("task_sharing_enabled")
+    }
 }
 
-// Default: existing behavior
-return null;
+// In your Compose UI or Fragment
+if (featureToggle.isTaskSharingEnabled()) {
+    TaskSharingScreen()
+} else {
+    DefaultTaskScreen()
+}
 ```
 
-**Feature flag lifecycle:**
+### Feature Flag Lifecycle
+1. **Deploy with flag OFF** → Feature code is in the APK but inactive.
+2. **Enable for internal testers** → Toggle the flag for internal QA users in production.
+3. **Staged rollout via flag** → 5% → 25% → 50% → 100% of users in the remote config console.
+4. **Monitor metrics** → Watch Firebase Crashlytics and Play Console for regressions.
+5. **Clean up code** → Once fully rolled out and stable, remove the flag and dead code paths.
+
+---
+
+## Staged Rollout (Google Play Console)
+
+Never release a new app version to 100% of users at once. Use Play Store's staged rollout feature:
 
 ```
-1. DEPLOY with flag OFF     → Code is in production but inactive
-2. ENABLE for team/beta     → Internal testing in production environment
-3. GRADUAL ROLLOUT          → 5% → 25% → 50% → 100% of users
-4. MONITOR at each stage    → Watch error rates, performance, user feedback
-5. CLEAN UP                 → Remove flag and dead code path after full rollout
-```
-
-**Rules:**
-- Every feature flag has an owner and an expiration date
-- Clean up flags within 2 weeks of full rollout
-- Don't nest feature flags (creates exponential combinations)
-- Test both flag states (on and off) in CI
-
-## Staged Rollout
-
-### The Rollout Sequence
-
-```
-1. DEPLOY to staging
-   └── Full test suite in staging environment
-   └── Manual smoke test of critical flows
-
-2. DEPLOY to production (feature flag OFF)
-   └── Verify deployment succeeded (health check)
-   └── Check error monitoring (no new errors)
-
-3. ENABLE for team (flag ON for internal users)
-   └── Team uses the feature in production
-   └── 24-hour monitoring window
-
-4. CANARY rollout (flag ON for 5% of users)
-   └── Monitor error rates, latency, user behavior
-   └── Compare metrics: canary vs. baseline
-   └── 24-48 hour monitoring window
-   └── Advance only if all thresholds pass (see table below)
-
-5. GRADUAL increase (25% -> 50% -> 100%)
-   └── Same monitoring at each step
-   └── Ability to roll back to previous percentage at any point
-
-6. FULL rollout (flag ON for all users)
-   └── Monitor for 1 week
-   └── Clean up feature flag
+[Release to 100% Staging/Internal Track]
+    │
+    ▼
+[Release to 1% - 5% Production Users]
+    │  └── Monitor Crashlytics for 24-48 hours
+    ▼
+[Release to 10% - 20% Production Users]
+    │  └── Monitor for ANRs and slow rendering in Play Console Vitals
+    ▼
+[Release to 50% Production Users]
+    │  └── Monitor business and engagement metrics
+    ▼
+[Full Release to 100% Users]
 ```
 
 ### Rollout Decision Thresholds
 
-Use these thresholds to decide whether to advance, hold, or roll back at each stage:
+| Metric | Advance (green) | Hold / Investigate (yellow) | Halt Rollout (red) |
+|--------|-----------------|-----------------------------|--------------------|
+| Crash-Free Users | > 99.9% | 99.5% - 99.9% | < 99.5% |
+| ANR Rate | < 0.47% (Play threshold)| 0.47% - 1.0% | > 1.0% |
+| Slow Rendering | < 2.0% of frames | 2.0% - 5.0% | > 5.0% |
+| Custom Exceptions | None reported | Low volume | High spike of critical reports |
 
-| Metric | Advance (green) | Hold and investigate (yellow) | Roll back (red) |
-|--------|-----------------|-------------------------------|-----------------|
-| Error rate | Within 10% of baseline | 10-100% above baseline | >2x baseline |
-| P95 latency | Within 20% of baseline | 20-50% above baseline | >50% above baseline |
-| Client JS errors | No new error types | New errors at <0.1% of sessions | New errors at >0.1% of sessions |
-| Business metrics | Neutral or positive | Decline <5% (may be noise) | Decline >5% |
+---
 
-### When to Roll Back
-
-Roll back immediately if:
-- Error rate increases by more than 2x baseline
-- P95 latency increases by more than 50%
-- User-reported issues spike
-- Data integrity issues detected
-- Security vulnerability discovered
-
-## Monitoring and Observability
+## Monitoring and Observability (Mobile-Specific)
 
 ### What to Monitor
-
 ```
-Application metrics:
-├── Error rate (total and by endpoint)
-├── Response time (p50, p95, p99)
-├── Request volume
-├── Active users
-└── Key business metrics (conversion, engagement)
-
-Infrastructure metrics:
-├── CPU and memory utilization
-├── Database connection pool usage
-├── Disk space
-├── Network latency
-└── Queue depth (if applicable)
-
-Client metrics:
-├── Core Web Vitals (LCP, INP, CLS)
-├── JavaScript errors
-├── API error rates from client perspective
-└── Page load time
+Firebase Crashlytics & Play Console:
+├── Unhandled crashes (fatal exceptions)
+├── ANRs (Application Not Responding)
+├── Custom non-fatal exceptions (recorded via Firebase)
+├── App Startup Latency (Cold, Warm, Hot)
+└── Slow rendering & Frozen frames (jank)
 ```
 
-### Error Reporting
+### Error and Analytics Reporting
 
-```typescript
-// Set up error boundary with reporting
-class ErrorBoundary extends React.Component {
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Report to error tracking service
-    reportError(error, {
-      componentStack: info.componentStack,
-      userId: getCurrentUser()?.id,
-      page: window.location.pathname,
-    });
-  }
+Instrument your app using Firebase Crashlytics to catch bugs before they escalate:
 
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback onRetry={() => this.setState({ hasError: false })} />;
+```kotlin
+// Record a non-fatal exception with custom diagnostic keys
+try {
+    performNetworkSync()
+} catch (e: Exception) {
+    FirebaseCrashlytics.getInstance().apply {
+        setCustomKey("sync_type", "periodic")
+        setCustomKey("user_tier", user.tier.name)
+        recordException(e)
     }
-    return this.props.children;
-  }
 }
-
-// Server-side error reporting
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  reportError(err, {
-    method: req.method,
-    url: req.url,
-    userId: req.user?.id,
-  });
-
-  // Don't expose internals to users
-  res.status(500).json({
-    error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' },
-  });
-});
 ```
 
-### Post-Launch Verification
+---
 
-In the first hour after launch:
+## Rollback Strategy for Mobile
 
-```
-1. Check health endpoint returns 200
-2. Check error monitoring dashboard (no new error types)
-3. Check latency dashboard (no regression)
-4. Test the critical user flow manually
-5. Verify logs are flowing and readable
-6. Confirm rollback mechanism works (dry run if possible)
-```
+Since you cannot force users to delete the app or downgrade instantly, "rolling back" on mobile consists of:
 
-## Rollback Strategy
-
-Every deployment needs a rollback plan before it happens:
+1. **Remote Kill-Switch (Primary)**: Toggle the feature flag to `false` in the Firebase Console. This takes effect within minutes on user devices.
+2. **Halt Play Store Rollout**: If the staged rollout (e.g. at 5%) shows regressions, pause the rollout in the Google Play Console to prevent further downloads.
+3. **Emergency Hotfix Release (Secondary)**: Revert the bug commit in git, increment the version code, build a new APK/AAB, and submit it to the Play Store for expedited review.
 
 ```markdown
-## Rollback Plan for [Feature/Release]
+## Rollback Plan for Version [X.Y.Z]
 
 ### Trigger Conditions
-- Error rate > 2x baseline
-- P95 latency > [X]ms
-- User reports of [specific issue]
+- Crash-free rate falls below 99.5%
+- Crashlytics reports fatal regression in [Feature]
+- Play Console reports significant increase in ANRs
 
 ### Rollback Steps
-1. Disable feature flag (if applicable)
-   OR
-1. Deploy previous version: `git revert <commit> && git push`
-2. Verify rollback: health check, error monitoring
-3. Communicate: notify team of rollback
-
-### Database Considerations
-- Migration [X] has a rollback: `npx prisma migrate rollback`
-- Data inserted by new feature: [preserved / cleaned up]
-
-### Time to Rollback
-- Feature flag: < 1 minute
-- Redeploy previous version: < 5 minutes
-- Database rollback: < 15 minutes
+1. Turn OFF Remote Config flag `feature_x_enabled` in Firebase.
+2. If the update is in a staged rollout, click "Halt Rollout" in Google Play Console.
+3. For hard crashes outside feature flags, push hotfix build [X.Y.Z+1] to Play Store.
+4. Notify the team and update release notes.
 ```
-## See Also
-
-- For security pre-launch checks, see `references/security-checklist.md`
-- For performance pre-launch checklist, see `references/performance-checklist.md`
-- For accessibility verification before launch, see `references/accessibility-checklist.md`
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
+| "This change is so small, we can release to 100% immediately" | Small changes can interact with device fragmentation (different OS versions, screen sizes) in unexpected ways. Always stage the rollout. |
+| "A crash-free rate of 98% is fine" | An app with a 98% crash-free rate will be heavily downranked in the Play Store. Aim for at least 99.9% crash-free users. |
+| "We will add Crashlytics logs in the next version" | A crash without logs or keys is almost impossible to debug on a user's remote device. Instrument before launch. |
 
 ## Red Flags
 
-- Deploying without a rollback plan
-- No monitoring or error reporting in production
-- Big-bang releases (everything at once, no staging)
-- Feature flags with no expiration or owner
-- No one monitoring the deploy for the first hour
-- Production environment configuration done by memory, not code
-- "It's Friday afternoon, let's ship it"
+- Friday afternoon production releases (Google Play review queues might take longer, leaving users stuck with bugs over the weekend).
+- Committing signing configs (e.g. `keystore.properties`) containing release passwords to git.
+- Releasing a Room database schema change without testing migrations or providing a fallback.
+- No remote kill-switch configured for major new features.
 
 ## Verification
 
-Before deploying:
+### Before Launching:
+- [ ] Staged rollout plan is defined (e.g. starting at 1% or 5%).
+- [ ] Remote Config fallback values are verified in the app.
+- [ ] Proguard mappings (`mapping.txt`) are generated and uploaded to Crashlytics.
+- [ ] Testing track (Internal/Beta) has been verified by QA.
 
-- [ ] Pre-launch checklist completed (all sections green)
-- [ ] Feature flag configured (if applicable)
-- [ ] Rollback plan documented
-- [ ] Monitoring dashboards set up
-- [ ] Team notified of deployment
-
-After deploying:
-
-- [ ] Health check returns 200
-- [ ] Error rate is normal
-- [ ] Latency is normal
-- [ ] Critical user flow works
-- [ ] Logs are flowing
-- [ ] Rollback tested or verified ready
+### After Launching:
+- [ ] Monitor Firebase Crashlytics Realtime dashboard for the first 2 hours.
+- [ ] Check Play Console Android Vitals dashboard for ANRs and rendering issues.
+- [ ] Verify that custom events and non-fatal errors are logged correctly.

@@ -1,28 +1,26 @@
 ---
 name: source-driven-development
-description: Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.
+description: Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any Android framework, Jetpack library, or SDK where correctness matters.
 ---
 
-# Source-Driven Development
+# Source-Driven Development (Android)
 
 ## Overview
 
-Every framework-specific code decision must be backed by official documentation. Don't implement from memory — verify, cite, and let the user see your sources. Training data goes stale, APIs get deprecated, best practices evolve. This skill ensures the user gets code they can trust because every pattern traces back to an authoritative source they can check.
+Every Android-specific code decision must be backed by official documentation. Don't implement from memory — verify, cite, and let the user see your sources. Training data goes stale, Android SDK APIs get deprecated, and Google/Kotlin best practices evolve (e.g. View-based XML to Jetpack Compose, RxJava to Coroutines Flow).
 
 ## When to Use
 
-- The user wants code that follows current best practices for a given framework
-- Building boilerplate, starter code, or patterns that will be copied across a project
-- The user explicitly asks for documented, verified, or "correct" implementation
-- Implementing features where the framework's recommended approach matters (forms, routing, data fetching, state management, auth)
-- Reviewing or improving code that uses framework-specific patterns
-- Any time you are about to write framework-specific code from memory
+- The user wants code that follows current best practices for a given Jetpack library or SDK version.
+- Building boilerplate, custom UI components, database repositories, or network service configurations.
+- Implementing features where Android's recommended approach matters (State management, Compose navigation, Activity Results, Dependency Injection, Room migrations).
+- Reviewing or improving code that uses framework-specific patterns.
+- Any time you are about to write Android API code from memory.
 
 **When NOT to use:**
 
-- Correctness does not depend on a specific version (renaming variables, fixing typos, moving files)
-- Pure logic that works the same across all versions (loops, conditionals, data structures)
-- The user explicitly wants speed over verification ("just do it quickly")
+- Correctness does not depend on a specific version (renaming variables, fixing typos, moving files).
+- Pure logic that works the same across all versions (loops, standard collections, math logic).
 
 ## The Process
 
@@ -37,83 +35,74 @@ DETECT ──→ FETCH ──→ IMPLEMENT ──→ CITE
 
 ### Step 1: Detect Stack and Versions
 
-Read the project's dependency file to identify exact versions:
+Read the Android project's build and dependency files to identify exact library versions:
 
 ```
-package.json    → Node/React/Vue/Angular/Svelte
-composer.json   → PHP/Symfony/Laravel
-requirements.txt / pyproject.toml → Python/Django/Flask
-go.mod          → Go
-Cargo.toml      → Rust
-Gemfile         → Ruby/Rails
+libs.versions.toml       → Android Version Catalog (dependencies and plugin versions)
+build.gradle.kts         → Kotlin Gradle script (compileSdk, targetSdk, dependencies)
+build.gradle             → Groovy Gradle script (compileSdk, targetSdk, dependencies)
+settings.gradle.kts      → Gradle repositories and project structure
 ```
 
 State what you found explicitly:
 
 ```
 STACK DETECTED:
-- React 19.1.0 (from package.json)
-- Vite 6.2.0
-- Tailwind CSS 4.0.3
+- Kotlin 1.9.22 (from libs.versions.toml)
+- Jetpack Compose 1.6.0 (Compose Compiler version / BOM)
+- Hilt 2.50
+- Retrofit 2.9.0
 → Fetching official docs for the relevant patterns.
 ```
 
-If versions are missing or ambiguous, **ask the user**. Don't guess — the version determines which patterns are correct.
+If versions are missing or ambiguous, **ask the user**. Don't guess — the version determines which patterns and APIs are correct.
 
 ### Step 2: Fetch Official Documentation
 
-Fetch the specific documentation page for the feature you're implementing. Not the homepage, not the full docs — the relevant page.
+Fetch the specific documentation page for the feature you're implementing.
 
 **Source hierarchy (in order of authority):**
 
 | Priority | Source | Example |
 |----------|--------|---------|
-| 1 | Official documentation | react.dev, docs.djangoproject.com, symfony.com/doc |
-| 2 | Official blog / changelog | react.dev/blog, nextjs.org/blog |
-| 3 | Web standards references | MDN, web.dev, html.spec.whatwg.org |
-| 4 | Browser/runtime compatibility | caniuse.com, node.green |
+| 1 | Official Android Guides | developer.android.com/guide, developer.android.com/jetpack |
+| 2 | Official API Reference | developer.android.com/reference, kotlinlang.org/api |
+| 3 | Android/Kotlin Blogs | android-developers.googleblog.com, blog.jetbrains.com/kotlin |
+| 4 | Web/Language Standards | kotlinlang.org/docs |
 
 **Not authoritative — never cite as primary sources:**
-
 - Stack Overflow answers
-- Blog posts or tutorials (even popular ones)
+- Medium posts, tutorials, or dev.to blogs (unless written by official Google/Kotlin developers)
 - AI-generated documentation or summaries
-- Your own training data (that is the whole point — verify it)
+- Your own training data (verify it first)
 
 **Be precise with what you fetch:**
-
 ```
-BAD:  Fetch the React homepage
-GOOD: Fetch react.dev/reference/react/useActionState
+BAD:  Fetch the developer.android.com homepage
+GOOD: Fetch developer.android.com/reference/androidx/activity/result/ActivityResultLauncher
 
-BAD:  Search "django authentication best practices"
-GOOD: Fetch docs.djangoproject.com/en/6.0/topics/auth/
+BAD:  Search "android activity results tutorial"
+GOOD: Fetch developer.android.com/training/basics/intents/result
 ```
-
-After fetching, extract the key patterns and note any deprecation warnings or migration guidance.
-
-When official sources conflict with each other (e.g. a migration guide contradicts the API reference), surface the discrepancy to the user and verify which pattern actually works against the detected version.
 
 ### Step 3: Implement Following Documented Patterns
 
 Write code that matches what the documentation shows:
-
-- Use the API signatures from the docs, not from memory
-- If the docs show a new way to do something, use the new way
-- If the docs deprecate a pattern, don't use the deprecated version
-- If the docs don't cover something, flag it as unverified
+- Use the API signatures from the docs, not from memory.
+- If the docs show a new way to do something, use the new way.
+- If the docs deprecate an API, don't use it (e.g. use `registerForActivityResult` instead of the deprecated `startActivityForResult`).
 
 **When docs conflict with existing project code:**
 
 ```
 CONFLICT DETECTED:
-The existing codebase uses useState for form loading state,
-but React 19 docs recommend useActionState for this pattern.
-(Source: react.dev/reference/react/useActionState)
+The existing codebase uses startActivityForResult to pick an image,
+but Android Jetpack Activity docs recommend registerForActivityResult / ActivityResultContracts.
+(Source: developer.android.com/training/basics/intents/result)
 
 Options:
-A) Use the modern pattern (useActionState) — consistent with current docs
-B) Match existing code (useState) — consistent with codebase
+A) Use the modern Jetpack Activity Results API — consistent with current docs
+B) Match existing code (startActivityForResult) — consistent with codebase
 → Which approach do you prefer?
 ```
 
@@ -121,74 +110,58 @@ Surface the conflict. Don't silently pick one.
 
 ### Step 4: Cite Your Sources
 
-Every framework-specific pattern gets a citation. The user must be able to verify every decision.
+Every Android API or Jetpack pattern gets a citation.
 
 **In code comments:**
 
-```typescript
-// React 19 form handling with useActionState
-// Source: https://react.dev/reference/react/useActionState#usage
-const [state, formAction, isPending] = useActionState(submitOrder, initialState);
+```kotlin
+// Launch Activity for Result using modern Activity Results API
+// Source: https://developer.android.com/training/basics/intents/result#launch
+val pickContactLauncher = registerForActivityResult(
+    ActivityResultContracts.PickContact()
+) { contactUri ->
+    // Handle the contact URI
+}
 ```
 
 **In conversation:**
 
 ```
-I'm using useActionState instead of manual useState for the
-form submission state. React 19 replaced the manual
-isPending/setIsPending pattern with this hook.
+I'm using registerForActivityResult instead of the deprecated
+startActivityForResult / onActivityResult pattern. Jetpack Activity
+now decouples the result contract from the Activity class itself.
 
-Source: https://react.dev/blog/2024/12/05/react-19#actions
-"useTransition now supports async functions [...] to handle
-pending states automatically"
+Source: https://developer.android.com/training/basics/intents/result
+"The Activity Result APIs provide a robust, type-safe contract
+to register for a result and handle it."
 ```
-
-**Citation rules:**
-
-- Full URLs, not shortened
-- Prefer deep links with anchors where possible (e.g. `/useActionState#usage` over `/useActionState`) — anchors survive doc restructuring better than top-level pages
-- Quote the relevant passage when it supports a non-obvious decision
-- Include browser/runtime support data when recommending platform features
-- If you cannot find documentation for a pattern, say so explicitly:
-
-```
-UNVERIFIED: I could not find official documentation for this
-pattern. This is based on training data and may be outdated.
-Verify before using in production.
-```
-
-Honesty about what you couldn't verify is more valuable than false confidence.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "I'm confident about this API" | Confidence is not evidence. Training data contains outdated patterns that look correct but break against current versions. Verify. |
-| "Fetching docs wastes tokens" | Hallucinating an API wastes more. The user debugs for an hour, then discovers the function signature changed. One fetch prevents hours of rework. |
-| "The docs won't have what I need" | If the docs don't cover it, that's valuable information — the pattern may not be officially recommended. |
-| "I'll just mention it might be outdated" | A disclaimer doesn't help. Either verify and cite, or clearly flag it as unverified. Hedging is the worst option. |
-| "This is a simple task, no need to check" | Simple tasks with wrong patterns become templates. The user copies your deprecated form handler into ten components before discovering the modern approach exists. |
+| "I'm confident about this API" | Confidence is not evidence. Jetpack libraries evolve quickly, deprecating older practices (e.g., Accompanist permissions moving to official Compose). Verify. |
+| "Fetching docs wastes tokens" | Hallucinating an API wastes more. The user debugs a compilation or crash error, only to find the class was relocated in a newer library version. |
+| "The docs won't have what I need" | If the docs don't cover it, the pattern may not be officially supported or recommended. |
+| "This is a simple task, no need to check" | Simple tasks with wrong patterns become copy-paste templates. The user copies your deprecated API calls into ten other components. |
 
 ## Red Flags
 
-- Writing framework-specific code without checking the docs for that version
-- Using "I believe" or "I think" about an API instead of citing the source
-- Implementing a pattern without knowing which version it applies to
-- Citing Stack Overflow or blog posts instead of official documentation
-- Using deprecated APIs because they appear in training data
-- Not reading `package.json` / dependency files before implementing
-- Delivering code without source citations for framework-specific decisions
-- Fetching an entire docs site when only one page is relevant
+- Writing Android SDK code without checking the docs for that API version.
+- Using "I believe" or "I think" about a library API instead of citing the source.
+- Citing Stack Overflow or blog posts instead of official Google/Kotlin documentation.
+- Using deprecated APIs because they appear in training data.
+- Not reading `libs.versions.toml` or `build.gradle.kts` before implementing.
+- Delivering code without source citations for Android-specific decisions.
 
 ## Verification
 
-After implementing with source-driven development:
+After implementing:
 
-- [ ] Framework and library versions were identified from the dependency file
-- [ ] Official documentation was fetched for framework-specific patterns
-- [ ] All sources are official documentation, not blog posts or training data
-- [ ] Code follows the patterns shown in the current version's documentation
-- [ ] Non-trivial decisions include source citations with full URLs
-- [ ] No deprecated APIs are used (checked against migration guides)
-- [ ] Conflicts between docs and existing code were surfaced to the user
-- [ ] Anything that could not be verified is explicitly flagged as unverified
+- [ ] Gradle / Version Catalog versions were identified.
+- [ ] Official documentation was fetched for Android/Jetpack patterns.
+- [ ] All sources are official documentation, not random blog posts or training data.
+- [ ] Code follows the patterns shown in the current version's documentation.
+- [ ] Non-trivial decisions include source citations with full URLs.
+- [ ] No deprecated APIs are used (e.g., checked against compiler warnings / Android Lint).
+- [ ] Conflicts between docs and existing code were surfaced to the user.

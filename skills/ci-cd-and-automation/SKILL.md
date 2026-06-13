@@ -30,21 +30,19 @@ Pull Request Opened
     │
     ▼
 ┌─────────────────┐
-│   LINT CHECK     │  eslint, prettier
+│   LINT           │  linter/detekt
 │   ↓ pass         │
-│   TYPE CHECK     │  tsc --noEmit
+│   STATIC ANALYSIS│  static check
 │   ↓ pass         │
-│   UNIT TESTS     │  jest/vitest
+│   UNIT TESTS     │  unit test run
 │   ↓ pass         │
-│   BUILD          │  npm run build
+│   BUILD          │  build/compile
 │   ↓ pass         │
-│   INTEGRATION    │  API/DB tests
+│   INTEGRATION    │  integration tests
 │   ↓ pass         │
-│   E2E (optional) │  Playwright/Cypress
+│   UI TEST (opt)  │  UI/Espresso/Compose
 │   ↓ pass         │
-│   SECURITY AUDIT │  npm audit
-│   ↓ pass         │
-│   BUNDLE SIZE    │  bundlesize check
+│   SECURITY AUDIT │  dependency check
 └─────────────────┘
     │
     ▼
@@ -73,65 +71,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Lint
-        run: npm run lint
-
-      - name: Type check
-        run: npx tsc --noEmit
+        run: ./gradlew lint
 
       - name: Test
-        run: npm test -- --coverage
+        run: ./gradlew test
 
       - name: Build
-        run: npm run build
-
-      - name: Security audit
-        run: npm audit --audit-level=high
+        run: ./gradlew assembleDebug
 ```
 
-### With Database Integration Tests
+### With Local Integration Tests
 
 ```yaml
-  integration:
+  integration-tests:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: ci_user
-          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Run migrations
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://ci_user:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/testdb
-      - name: Integration tests
-        run: npm run test:integration
-        env:
-          DATABASE_URL: postgresql://ci_user:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/testdb
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Run Integration Tests
+        run: ./gradlew testDebugUnitTest --tests "*IntegrationTest"
 ```
 
 > **Note:** Even for CI-only test databases, use GitHub Secrets for credentials rather than hardcoding values. This builds good habits and prevents accidental reuse of test credentials in other contexts.
@@ -139,26 +113,20 @@ jobs:
 ### E2E Tests
 
 ```yaml
-  e2e:
-    runs-on: ubuntu-latest
+  ui-tests:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Build
-        run: npm run build
-      - name: Run E2E tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: failure()
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Run instrumentation tests
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          name: playwright-report
-          path: playwright-report/
+          api-level: 29
+          script: ./gradlew connectedDebugAndroidTest
 ```
 
 ## Feeding CI Failures Back to Agents
@@ -184,7 +152,7 @@ Agent fixes → pushes → CI runs again
 **Key patterns:**
 
 ```
-Lint failure → Agent runs `npm run lint --fix` and commits
+Lint failure → Agent runs `./gradlew lint` (or formatting tasks) and commits
 Type error  → Agent reads the error location and fixes the type
 Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies
@@ -288,7 +256,7 @@ CI should never have production secrets. Use separate secrets for CI testing.
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: gradle
     directory: /
     schedule:
       interval: weekly
@@ -313,7 +281,7 @@ When the pipeline exceeds 10 minutes, apply these strategies in order of impact:
 ```
 Slow CI pipeline?
 ├── Cache dependencies
-│   └── Use actions/cache or setup-node cache option for node_modules
+│   └── Use actions/cache or setup-java cache option for Gradle cache
 ├── Run jobs in parallel
 │   └── Split lint, typecheck, test, build into separate parallel jobs
 ├── Only run what changed
@@ -333,28 +301,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npm run lint
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npx tsc --noEmit
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with: { java-version: '17', distribution: 'temurin', cache: 'gradle' }
+      - run: ./gradlew lint
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npm test -- --coverage
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with: { java-version: '17', distribution: 'temurin', cache: 'gradle' }
+      - run: ./gradlew test
 ```
 
 ## Common Rationalizations

@@ -39,10 +39,10 @@ Start with a high-level vision. Ask the human clarifying questions until require
 
 ```
 ASSUMPTIONS I'M MAKING:
-1. This is a web application (not native mobile)
-2. Authentication uses session-based cookies (not JWT)
-3. The database is PostgreSQL (based on existing Prisma schema)
-4. We're targeting modern browsers only (no IE11)
+1. This is a native Android application (not hybrid/cross-platform)
+2. Target SDK is Android 14 (API 34) with minimum SDK 24 (Android 7.0)
+3. Programming language is Kotlin using Jetpack Compose (not Java/XML views)
+4. Local storage is Room database and EncryptedSharedPreferences
 → Correct me now or I'll proceed with these.
 ```
 
@@ -54,20 +54,16 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 
 2. **Commands** — Full executable commands with flags, not just tool names.
    ```
-   Build: npm run build
-   Test: npm test -- --coverage
-   Lint: npm run lint --fix
-   Dev: npm run dev
+   Build: ./gradlew assembleDebug
+   Test: ./gradlew test
+   Lint: ./gradlew lint
    ```
 
 3. **Project Structure** — Where source code lives, where tests go, where docs belong.
    ```
-   src/           → Application source code
-   src/components → React components
-   src/lib        → Shared utilities
-   tests/         → Unit and integration tests
-   e2e/           → End-to-end tests
-   docs/          → Documentation
+   app/src/main/  → Application source code
+   app/src/test/  → Local unit tests
+   app/src/androidTest/ → Instrumentation UI tests
    ```
 
 4. **Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of good output.

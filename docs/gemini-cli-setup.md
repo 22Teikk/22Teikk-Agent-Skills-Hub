@@ -74,20 +74,15 @@ Install these as skills so they activate only when relevant:
 
 - `test-driven-development` — Activates when implementing logic or fixing bugs
 - `spec-driven-development` — Activates when starting a new project or feature
-- `frontend-ui-engineering` — Activates when building UI
+- `android-ui-kotlin` / `android-ui-java` — Activates when building UI
 - `security-and-hardening` — Activates during security reviews
-- `performance-optimization` — Activates during performance work
+- `android-performance-auditor` — Activates during performance work
 
 ## Advanced Configuration
 
-### MCP Integration
+### Tooling Integration
 
-Many skills in this pack leverage [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) tools to interact with the environment. For example:
-
-- `browser-testing-with-devtools` uses the `chrome-devtools` MCP extension.
-- `performance-optimization` can benefit from performance-related MCP tools.
-
-To enable these, ensure you have the relevant MCP extensions installed in your Gemini CLI configuration (`~/.gemini/config.json`).
+Many skills in this pack leverage Android development tools to interact with the environment (e.g. adb, profiling, layout inspection). Ensure you have standard Android tooling installed.
 
 ### Session Hooks
 

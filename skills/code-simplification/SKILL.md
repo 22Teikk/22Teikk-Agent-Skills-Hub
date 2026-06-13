@@ -270,27 +270,30 @@ def process(data):
     return do_work(data)
 ```
 
-### React / JSX
+### Jetpack Compose
 
-```tsx
+```kotlin
 // SIMPLIFY: Verbose conditional rendering
 // Before
-function UserBadge({ user }: Props) {
-  if (user.isAdmin) {
-    return <Badge variant="admin">Admin</Badge>;
-  } else {
-    return <Badge variant="default">User</Badge>;
-  }
+@Composable
+fun UserBadge(user: User) {
+    if (user.isAdmin) {
+        Badge(variant = BadgeVariant.Admin) { Text("Admin") }
+    } else {
+        Badge(variant = BadgeVariant.Default) { Text("User") }
+    }
 }
 // After
-function UserBadge({ user }: Props) {
-  const variant = user.isAdmin ? 'admin' : 'default';
-  const label = user.isAdmin ? 'Admin' : 'User';
-  return <Badge variant={variant}>{label}</Badge>;
+@Composable
+fun UserBadge(user: User) {
+    val variant = if (user.isAdmin) BadgeVariant.Admin else BadgeVariant.Default
+    val label = if (user.isAdmin) "Admin" else "User"
+    Badge(variant = variant) { Text(label) }
 }
 
-// SIMPLIFY: Prop drilling through intermediate components
-// Before — consider whether context or composition solves this better.
+// SIMPLIFY: Deep state hoisting / parameter drilling
+// Before — passing callbacks through multiple intermediate composables.
+// Consider utilizing composition patterns, exposing slot APIs, or standard State/ViewModel design.
 // This is a judgment call — flag it, don't auto-refactor.
 ```
 

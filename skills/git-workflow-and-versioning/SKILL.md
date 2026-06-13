@@ -220,32 +220,17 @@ git diff --staged
 git diff --staged | grep -i "password\|secret\|api_key\|token"
 
 # 3. Run tests
-npm test
+./gradlew test
 
 # 4. Run linting
-npm run lint
-
-# 5. Run type checking
-npx tsc --noEmit
-```
-
-Automate this with git hooks:
-
-```json
-// package.json (using lint-staged + husky)
-{
-  "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md}": ["prettier --write"]
-  }
-}
+./gradlew lint
 ```
 
 ## Handling Generated Files
 
-- **Commit generated files** only if the project expects them (e.g., `package-lock.json`, Prisma migrations)
-- **Don't commit** build output (`dist/`, `.next/`), environment files (`.env`), or IDE config (`.vscode/settings.json` unless shared)
-- **Have a `.gitignore`** that covers: `node_modules/`, `dist/`, `.env`, `.env.local`, `*.pem`
+- **Commit generated files** only if the project expects them (e.g., `gradle-wrapper.jar`, `libs.versions.toml`)
+- **Don't commit** build output (`build/`), environment secrets, local user configurations (`local.properties`), or IDE personal configs (`.idea/workspace.xml`)
+- **Have a `.gitignore`** that covers: `build/`, `.gradle/`, `local.properties`, `*.apk`, `*.aab`
 
 ## Using Git for Debugging
 
@@ -284,7 +269,7 @@ git log --grep="validation" --oneline
 - Commit messages like "fix", "update", "misc"
 - Formatting changes mixed with behavior changes
 - No `.gitignore` in the project
-- Committing `node_modules/`, `.env`, or build artifacts
+- Committing `.gradle/`, `build/`, `local.properties`, or build artifacts
 - Long-lived branches that diverge significantly from main
 - Force-pushing to shared branches
 

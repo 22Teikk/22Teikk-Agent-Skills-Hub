@@ -13,6 +13,6 @@
     "./agents/code-reviewer.md",
     "./agents/security-auditor.md",
     "./agents/test-engineer.md",
-    "./agents/web-performance-auditor.md"
+    "./agents/android-performance-auditor.md"
   ]
 }

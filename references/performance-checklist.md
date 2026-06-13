@@ -1,153 +1,59 @@
-# Performance Checklist
+# Android Performance Checklist
 
-Quick reference checklist for web application performance. Use alongside the `performance-optimization` skill.
+Quick reference checklist for Android application performance. Use alongside the corresponding `android-*` skills.
 
 ## Table of Contents
-
-- [Core Web Vitals Targets](#core-web-vitals-targets)
-- [TTFB Diagnosis](#ttfb-diagnosis)
-- [Frontend Checklist](#frontend-checklist)
-- [Backend Checklist](#backend-checklist)
-- [Measurement Commands](#measurement-commands)
+- [App Startup Optimization](#app-startup-optimization)
+- [UI & Rendering Performance](#ui-rendering-performance)
+- [Data & DB Performance](#data-db-performance)
+- [Network & Serialization Performance](#network-serialization-performance)
+- [Measurement & Profiling](#measurement-profiling)
 - [Common Anti-Patterns](#common-anti-patterns)
 
-## Core Web Vitals Targets
+## App Startup Optimization
+- [ ] **Application class**: Move non-critical initialization blocks out of `Application.onCreate()`. Use lazy initialization or background threads.
+- [ ] **App Startup Library**: Leverage `androidx.startup` to initialize dependencies in a structured, deferred way.
+- [ ] **Baseline Profiles**: Generate Baseline Profiles to pre-compile critical user journeys, reducing cold startup time.
+- [ ] **Splash Screen API**: Utilize `androidx.core:core-splashscreen` to avoid blank screens during early process initialization.
 
-| Metric | Good | Needs Work | Poor |
-|--------|------|------------|------|
-| LCP (Largest Contentful Paint) | ≤ 2.5s | ≤ 4.0s | > 4.0s |
-| INP (Interaction to Next Paint) | ≤ 200ms | ≤ 500ms | > 500ms |
-| CLS (Cumulative Layout Shift) | ≤ 0.1 | ≤ 0.25 | > 0.25 |
+## UI & Rendering Performance
+- [ ] **Jetpack Compose Recomposition**:
+  - Keep Composables stateless using State Hoisting.
+  - Use stable/immutable data models (e.g. `@Stable`, `@Immutable`).
+  - Wrap unstable parameters in `remember` or derived states.
+  - Use `key` in `LazyColumn`/`LazyRow` items to prevent full recomposition of lists.
+- [ ] **XML Layouts**:
+  - Keep layout hierarchies flat. Use `ConstraintLayout` as the root to avoid nested layout passes.
+  - Avoid layout weights in long lists or deeply nested structures.
+  - Use `<merge>` and `<include>` tags to optimize layout recycling.
+- [ ] **Image Rendering**:
+  - Load images asynchronously using Coil with memory and disk cache configured.
+  - Set explicit dimension limits on image holders to prevent size re-measurements.
 
-## TTFB Diagnosis
+## Data & DB Performance
+- [ ] **Room Database**:
+  - Never run database queries or transactions on the main UI thread.
+  - Use `@Transaction` to combine multiple operations into a single atomic disk operation.
+  - Use pagination (e.g., Paging 3 library) for large database tables instead of loading entire tables.
+- [ ] **Concurrency Threads**:
+  - For Kotlin: Route I/O operations to `Dispatchers.IO` and UI updates to `Dispatchers.Main`.
+  - For Java: Use RxJava `subscribeOn(Schedulers.io())` and `observeOn(AndroidSchedulers.mainThread())`.
 
-When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
+## Network & Serialization Performance
+- [ ] **OkHttp Client**: Configure connection pooling, read/write timeouts, and cache interceptors.
+- [ ] **Data Serialization**:
+  - Prefer `kotlinx.serialization` (Kotlin) or optimized JSON parsers over slow reflection-based libraries.
+- [ ] **Data Payloads**: Use gzip compression on APIs and ensure response bodies only contain required fields.
 
-- [ ] **DNS resolution** slow → add `<link rel="dns-prefetch">` or `<link rel="preconnect">` for known origins
-- [ ] **TCP/TLS handshake** slow → enable HTTP/2, consider edge deployment, verify keep-alive
-- [ ] **Server processing** slow → profile backend, check slow queries, add caching
-
-## Frontend Checklist
-
-### Images
-- [ ] Images use modern formats (WebP, AVIF)
-- [ ] Images are responsively sized (`srcset` and `sizes`)
-- [ ] Images and `<source>` elements have explicit `width` and `height` (prevents CLS in art direction)
-- [ ] Below-the-fold images use `loading="lazy"` and `decoding="async"`
-- [ ] Hero/LCP images use `fetchpriority="high"` and no lazy loading
-
-### JavaScript
-- [ ] Bundle size under 200KB gzipped (initial load)
-- [ ] Code splitting with dynamic `import()` for routes and heavy features
-- [ ] Tree shaking enabled (verify dependency ships ESM and marks `sideEffects: false`)
-- [ ] No blocking JavaScript in `<head>` (use `defer` or `async`)
-- [ ] Heavy computation offloaded to Web Workers (if applicable)
-- [ ] `React.memo()` on expensive components that re-render with same props
-- [ ] `useMemo()` / `useCallback()` only where profiling shows benefit
-- [ ] Long tasks (> 50ms) broken up to keep the main thread available — main lever for INP
-- [ ] `yieldToMain` pattern used inside long-running loops so input events can run between chunks
-- [ ] Modern scheduling APIs used where available: `scheduler.yield()` (preferred), `scheduler.postTask()` with priorities, `isInputPending()` to yield only when needed
-- [ ] `requestIdleCallback` for deferrable, non-urgent work (analytics flush, prefetch, warmup)
-- [ ] Non-critical work deferred out of event handlers (e.g. analytics, logging) so the response to the interaction is not delayed
-- [ ] Third-party scripts loaded with `async` / `defer`, audited for size, and fronted by a facade when heavy (chat widgets, embeds)
-
-### CSS
-- [ ] Critical CSS inlined or preloaded
-- [ ] No render-blocking CSS for non-critical styles
-- [ ] No CSS-in-JS runtime cost in production (use extraction)
-
-### Fonts
-- [ ] Limited to 2–3 font families, 2–3 weights each (every additional weight is another request)
-- [ ] WOFF2 format only (smallest, universal support — skip WOFF/TTF/EOT)
-- [ ] Self-hosted when possible (third-party font CDNs add DNS + TCP + TLS round-trips)
-- [ ] LCP-critical fonts preloaded: `<link rel="preload" as="font" type="font/woff2" crossorigin>`
-- [ ] `font-display: swap` (or `optional` for non-critical) to avoid FOIT blocking render
-- [ ] Subsetted via `unicode-range` to ship only the glyphs each page needs
-- [ ] Variable fonts considered when multiple weights/styles are required (one file replaces many)
-- [ ] Fallback font metrics adjusted with `size-adjust`, `ascent-override`, `descent-override` to reduce CLS on font swap
-- [ ] System font stack considered before any custom font
-
-### Network
-- [ ] Static assets cached with long `max-age` + content hashing
-- [ ] API responses cached where appropriate (`Cache-Control`)
-- [ ] HTTP/2 or HTTP/3 enabled
-- [ ] Resources preconnected (`<link rel="preconnect">`) for known origins
-- [ ] `fetchpriority` used on critical non-image resources (e.g., key `<link rel="preload">`, above-the-fold `<script>`) — not only on `<img>`
-- [ ] No unnecessary redirects
-
-### Rendering
-- [ ] No layout thrashing (forced synchronous layouts)
-- [ ] Animations use `transform` and `opacity` (GPU-accelerated)
-- [ ] Long lists use virtualization (e.g., `react-window`)
-- [ ] No unnecessary full-page re-renders
-- [ ] Off-screen sections use `content-visibility: auto` with `contain-intrinsic-size` to skip layout/paint of non-visible areas
-- [ ] No `unload` event handlers and no `Cache-Control: no-store` on HTML responses — preserves back/forward cache (bfcache) eligibility
-
-## Backend Checklist
-
-### Database
-- [ ] No N+1 query patterns (use eager loading / joins)
-- [ ] Queries have appropriate indexes
-- [ ] List endpoints paginated (never `SELECT * FROM table`)
-- [ ] Connection pooling configured
-- [ ] Slow query logging enabled
-
-### API
-- [ ] Response times < 200ms (p95)
-- [ ] No synchronous heavy computation in request handlers
-- [ ] Bulk operations instead of loops of individual calls
-- [ ] Response compression (gzip/brotli)
-- [ ] Appropriate caching (in-memory, Redis, CDN)
-
-### Infrastructure
-- [ ] CDN for static assets
-- [ ] Server located close to users (or edge deployment)
-- [ ] Horizontal scaling configured (if needed)
-- [ ] Health check endpoint for load balancer
-
-## Measurement Commands
-
-### INP field data and DevTools workflow
-
-1. **Field data first** — check [CrUX Vis](https://developer.chrome.com/docs/crux/vis) or your RUM tool for real-user INP before optimising
-2. **Identify slow interactions** — open DevTools → Performance panel → record while interacting; look for long tasks triggered by clicks/keystrokes
-3. **Test on mid-range Android** — INP issues often only surface on slower hardware; use a real device or DevTools CPU throttling (4×–6× slowdown)
-
-```bash
-# Lighthouse CLI
-npx lighthouse https://localhost:3000 --output json --output-path ./report.json
-
-# Bundle analysis
-npx webpack-bundle-analyzer stats.json
-# or for Vite:
-npx vite-bundle-visualizer
-
-# Check bundle size
-npx bundlesize
-
-# Web Vitals in code
-import { onLCP, onINP, onCLS } from 'web-vitals';
-onLCP(console.log);
-onINP(console.log);
-onCLS(console.log);
-
-# INP with interaction-level detail (attribution build)
-import { onINP } from 'web-vitals/attribution';
-onINP(({ value, attribution }) => {
-  const { interactionTarget, inputDelay, processingDuration, presentationDelay } = attribution;
-  console.log({ value, interactionTarget, inputDelay, processingDuration, presentationDelay });
-});
-```
+## Measurement & Profiling
+- [ ] **Android Studio Profiler**: Use CPU Profiler to identify main thread locks, and Memory Profiler to track object allocations and leaks.
+- [ ] **Macrobenchmark**: Implement Jetpack Macrobenchmark tests to measure startup time and frame overrun (jank).
 
 ## Common Anti-Patterns
 
 | Anti-Pattern | Impact | Fix |
 |---|---|---|
-| N+1 queries | Linear DB load growth | Use joins, includes, or batch loading |
-| Unbounded queries | Memory exhaustion, timeouts | Always paginate, add LIMIT |
-| Missing indexes | Slow reads as data grows | Add indexes for filtered/sorted columns |
-| Layout thrashing | Jank, dropped frames | Batch DOM reads, then batch writes |
-| Unoptimized images | Slow LCP, wasted bandwidth | Use WebP, responsive sizes, lazy load |
-| Large bundles | Slow Time to Interactive | Code split, tree shake, audit deps |
-| Blocking main thread | Poor INP, unresponsive UI | Chunk long tasks with `scheduler.yield()` / `yieldToMain`, offload to Web Workers |
-| Memory leaks | Growing memory, eventual crash | Clean up listeners, intervals, refs |
+| Main Thread Disk/Network I/O | ANR (App Not Responding) crashes | Route calls to `Dispatchers.IO` / `Schedulers.io()` |
+| Deeply Nested Views (XML) | Slow layout passes, dropped frames | Flat layouts using `ConstraintLayout` |
+| Broad Compose Recompositions | High CPU usage, battery drain | Stabilize models, use `key` in lists, lift state |
+| Memory Leaks (static context) | OOM (Out of Memory) crashes | Avoid storing references to `Activity` or `Context` statically |

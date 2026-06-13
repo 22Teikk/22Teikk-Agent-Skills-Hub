@@ -44,26 +44,23 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 # Project: [Name]
 
 ## Tech Stack
-- React 18, TypeScript 5, Vite, Tailwind CSS 4
-- Node.js 22, Express, PostgreSQL, Prisma
+- Kotlin, Coroutines, Jetpack Compose, Hilt
+- Java, RxJava, Retrofit, Room
 
 ## Commands
-- Build: `npm run build`
-- Test: `npm test`
-- Lint: `npm run lint --fix`
-- Dev: `npm run dev`
-- Type check: `npx tsc --noEmit`
+- Build: `./gradlew assembleDebug`
+- Test: `./gradlew test`
+- Lint: `./gradlew lint`
 
 ## Code Conventions
-- Functional components with hooks (no class components)
-- Named exports (no default exports)
-- colocate tests next to source: `Button.tsx` → `Button.test.tsx`
-- Use `cn()` utility for conditional classNames
-- Error boundaries at route level
+- MVVM + Clean Architecture pattern
+- Keep Composables stateless using State Hoisting
+- Avoid static context references to prevent memory leaks
+- Use Hilt for dependency injection
 
 ## Boundaries
 - Never commit .env files or secrets
-- Never add dependencies without checking bundle size impact
+- Never add dependencies without using Version Catalog
 - Ask before modifying database schema
 - Always run tests before committing
 
@@ -182,8 +179,8 @@ For richer context, use Model Context Protocol servers:
 | MCP Server | What It Provides |
 |-----------|-----------------|
 | **Context7** | Auto-fetches relevant documentation for libraries |
-| **Chrome DevTools** | Live browser state, DOM, console, network |
-| **PostgreSQL** | Direct database schema and query results |
+| **Android Device/Emulator** | Logcat logs, Layout Inspector view hierarchy, network logs |
+| **SQLite/Room Inspector** | Direct database schema and local query results |
 | **Filesystem** | Project file access and search |
 | **GitHub** | Issue, PR, and repository context |
 

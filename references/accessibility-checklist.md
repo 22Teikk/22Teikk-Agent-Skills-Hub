@@ -1,160 +1,93 @@
-# Accessibility Checklist
+# Android Accessibility Checklist
 
-Quick reference for WCAG 2.1 AA compliance. Use alongside the `frontend-ui-engineering` skill.
+Quick reference for Android accessibility standards. Use alongside the corresponding `android-ui-*` skills.
 
 ## Table of Contents
-
 - [Essential Checks](#essential-checks)
-- [Common HTML Patterns](#common-html-patterns)
+- [Jetpack Compose Patterns](#jetpack-compose-patterns)
+- [XML View Patterns](#xml-view-patterns)
 - [Testing Tools](#testing-tools)
-- [Quick Reference: ARIA Live Regions](#quick-reference-aria-live-regions)
 - [Common Anti-Patterns](#common-anti-patterns)
 
 ## Essential Checks
 
-### Keyboard Navigation
-- [ ] All interactive elements focusable via Tab key
-- [ ] Focus order follows visual/logical order
-- [ ] Focus is visible (outline/ring on focused elements)
-- [ ] Custom widgets have keyboard support (Enter to activate, Escape to close)
-- [ ] No keyboard traps (user can always Tab away from a component)
-- [ ] Skip-to-content link at top of page - visible (at least) on keyboard focus
-- [ ] Modals trap focus while open, return focus on close
+### 1. Screen Reader Compatibility (TalkBack)
+- [ ] Every non-text element (images, icons, buttons) has a meaningful content description.
+- [ ] Decorative graphics have content description set to null (so TalkBack skips them).
+- [ ] Group related items (e.g. icon + text label) into a single focusable target to simplify navigation.
 
-### Screen Readers
-- [ ] All images have `alt` text (or `alt=""` for decorative images)
-- [ ] All form inputs have associated labels (`<label>` or `aria-label`)
-- [ ] Buttons and links have descriptive text (not "Click here")
-- [ ] Icon-only buttons have `aria-label`
-- [ ] Page has one `<h1>` and headings don't skip levels
-- [ ] Dynamic content changes announced (`aria-live` regions)
-- [ ] Tables have `<th>` headers with scope
+### 2. Touch Target Sizes
+- [ ] All interactive elements (buttons, checkboxes, text links) have touch targets of at least **48dp x 48dp** (to support users with motor impairment).
+- [ ] Add touch target padding if the visual element is smaller than 48dp.
 
-### Visual
-- [ ] Text contrast ≥ 4.5:1 (normal text) or ≥ 3:1 (large text, 18px+)
-- [ ] UI components contrast ≥ 3:1 against background
-- [ ] Color is not the only way to convey information
-- [ ] Text resizable to 200% without breaking layout
-- [ ] No content that flashes more than 3 times per second
+### 3. Screen Focus Order
+- [ ] Keyboard and switch access focus transitions follow a logical, natural sequence (top-to-bottom, start-to-end).
+- [ ] Custom focus traversal is configured when default ordering is not logical.
 
-### Forms
-- [ ] Every input has a visible label
-- [ ] Required fields indicated (not by color alone)
-- [ ] Error messages specific and associated with the field
-- [ ] Error state visible by more than color (icon, text, border)
-- [ ] Form submission errors summarized and focusable
-- [ ] Known fields use autocomplete (for example `type="email" autocomplete="email"`)
+### 4. Color & Contrast
+- [ ] Contrast ratio between text and its background is at least 4.5:1.
+- [ ] Color is never the only way to convey state or crucial information (add helper text or icons).
 
-### Content
-- [ ] Language declared (`<html lang="en">`)
-- [ ] Page has a descriptive `<title>`
-- [ ] Links distinguish from surrounding text (not by color alone)
-- [ ] Touch targets ≥ 44x44px on mobile
-- [ ] Meaningful empty states (not blank screens)
+## Jetpack Compose Patterns
 
-## Common HTML Patterns
-
-### Buttons vs. Links
-
-```html
-<!-- Use <button> for actions -->
-<button onClick={handleDelete}>Delete Task</button>
-
-<!-- Use <a> for navigation -->
-<a href="/tasks/123">View Task</a>
-
-<!-- NEVER use div/span as buttons -->
-<div onClick={handleDelete}>Delete</div>  <!-- BAD -->
+### 1. Content Descriptions
+```kotlin
+Icon(
+    imageVector = Icons.Default.Close,
+    contentDescription = stringResource(R.string.close_button_description)
+)
 ```
 
-### Form Labels
+### 2. Custom Semantics & Click Labels
+- Use custom click labels to describe actions to screen readers.
 
-```html
-<!-- Explicit label association -->
-<label htmlFor="email">Email address</label>
-<input id="email" type="email" required />
-
-<!-- Implicit wrapping -->
-<label>
-  Email address
-  <input type="email" required />
-</label>
-
-<!-- Hidden label (visible label preferred) -->
-<input type="search" aria-label="Search tasks" />
+```kotlin
+Modifier.semantics {
+    onClick(label = "Opens the task detail screen", action = null)
+}
 ```
 
-### ARIA Roles
+### 3. Merging Semantics
+- Merge child elements into a single focusable container.
 
-```html
-<!-- Navigation -->
-<nav aria-label="Main navigation">...</nav>
-<nav aria-label="Footer links">...</nav>
-
-<!-- Status messages -->
-<div role="status" aria-live="polite">Task saved</div>
-
-<!-- Alert messages -->
-<div role="alert">Error: Title is required</div>
-
-<!-- Modal dialogs -->
-<dialog aria-modal="true" aria-labelledby="dialog-title">
-  <h2 id="dialog-title">Confirm Delete</h2>
-  ...
-</dialog>
-
-<!-- Loading states -->
-<div aria-busy="true" aria-label="Loading tasks">
-  <Spinner />
-</div>
+```kotlin
+Row(
+    modifier = Modifier
+        .clickable(onClick = { /* Action */ })
+        .clearAndSetSemantics {
+            contentDescription = "Task: Buy Groceries, Pending"
+        }
+) {
+    Icon(Icons.Default.Pending, contentDescription = null)
+    Text("Buy Groceries")
+}
 ```
 
-### Accessible Lists
+## XML View Patterns
 
-```html
-<ul role="list" aria-label="Tasks">
-  <li>
-    <input type="checkbox" id="task-1" aria-label="Complete: Buy groceries" />
-    <label htmlFor="task-1">Buy groceries</label>
-  </li>
-</ul>
+### 1. Content Descriptions
+```xml
+<ImageButton
+    android:id="@+id/btn_close"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:src="@drawable/ic_close"
+    android:contentDescription="@string/close_button_description" />
 ```
+
+### 2. Grouping Views
+- Use `android:focusable="true"` on parent layouts and set `android:focusable="false"` on child elements to merge them for screen readers.
 
 ## Testing Tools
-
-```bash
-# Automated audit
-npx axe-core          # Programmatic accessibility testing
-npx pa11y             # CLI accessibility checker
-
-# In browser
-# Chrome DevTools → Lighthouse → Accessibility
-# Chrome DevTools → Elements → Accessibility tree
-
-# Screen reader testing
-# macOS: VoiceOver (Cmd + F5)
-# Windows: NVDA (free) or JAWS
-# Linux: Orca
-```
-
-## Quick Reference: ARIA Live Regions
-
-| Value | Behavior | Use For |
-|-------|----------|---------|
-| `aria-live="polite"` | Announced at next pause | Status updates, saved confirmations |
-| `aria-live="assertive"` | Announced immediately | Errors, time-sensitive alerts |
-| `role="status"` | Same as `polite` | Status messages |
-| `role="alert"` | Same as `assertive` | Error messages |
+- **Accessibility Scanner**: Download Google's Accessibility Scanner app to scan screens for contrast, target size, and label issues.
+- **TalkBack**: Turn on TalkBack in Android Settings -> Accessibility to manually navigate screens.
+- **Layout Inspector**: Verify screen hierarchy and semantics mapping inside Android Studio.
 
 ## Common Anti-Patterns
 
 | Anti-Pattern | Problem | Fix |
 |---|---|---|
-| `div` as button | Not focusable, no keyboard support | Use `<button>` |
-| Missing `alt` text | Images invisible to screen readers | Add descriptive `alt` |
-| Color-only states | Invisible to color-blind users | Add icons, text, or patterns |
-| Autoplaying media | Disorienting, can't be stopped | Add controls, don't autoplay |
-| Custom dropdown with no ARIA | Unusable by keyboard/screen reader | Use native `<select>` or proper ARIA listbox |
-| Removing focus outlines | Users can't see where they are | Style outlines, don't remove them |
-| Empty links/buttons | "Link" announced with no description | Add text or `aria-label` |
-| `tabindex > 0` | Breaks natural tab order | Use `tabindex="0"` or `-1` only |
+| ImageButton without label | TalkBack announces "Unlabelled Button" | Add `contentDescription` |
+| Small touch targets (< 48dp) | Hard for users to tap | Expand clickable area using padding |
+| Red/Green state indication only | Color-blind users cannot distinguish states | Add helper text or state icons |
+| Splitting descriptive elements | Text label and value read as separate items | Group views or merge Compose semantics |

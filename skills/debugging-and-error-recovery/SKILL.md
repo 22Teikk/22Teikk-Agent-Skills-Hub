@@ -56,10 +56,10 @@ Can you reproduce the failure?
 Cannot reproduce on demand:
 ├── Timing-dependent?
 │   ├── Add timestamps to logs around the suspected area
-│   ├── Try with artificial delays (setTimeout, sleep) to widen race windows
+│   ├── Try with artificial delays (delay(), Thread.sleep()) to widen race windows
 │   └── Run under load or concurrency to increase collision probability
 ├── Environment-dependent?
-│   ├── Compare Node/browser versions, OS, environment variables
+│   ├── Compare JVM/Android SDK/emulator versions, OS, build variables
 │   ├── Check for differences in data (empty vs populated database)
 │   └── Try reproducing in CI where the environment is clean
 ├── State-dependent?
@@ -75,13 +75,10 @@ Cannot reproduce on demand:
 For test failures:
 ```bash
 # Run the specific failing test
-npm test -- --grep "test name"
+./gradlew test --tests "com.example.tasks.SpecificTestClass.testName"
 
-# Run with verbose output
-npm test -- --verbose
-
-# Run in isolation (rules out test pollution)
-npm test -- --testPathPattern="specific-file" --runInBand
+# Run with full stacktrace
+./gradlew test --stacktrace
 ```
 
 ### Step 2: Localize
@@ -105,7 +102,7 @@ git bisect start
 git bisect bad                    # Current commit is broken
 git bisect good <known-good-sha> # This commit worked
 # Git will checkout midpoint commits; run your test at each
-git bisect run npm test -- --grep "failing test"
+git bisect run ./gradlew test --tests "FailingTestClass"
 ```
 
 ### Step 3: Reduce
@@ -157,16 +154,16 @@ After fixing, verify the complete scenario:
 
 ```bash
 # Run the specific test
-npm test -- --grep "specific test"
+./gradlew test --tests "SpecificTestClass"
 
 # Run the full test suite (check for regressions)
-npm test
+./gradlew test
 
 # Build the project (check for type/compilation errors)
-npm run build
+./gradlew assembleDebug
 
 # Manual spot check if applicable
-npm run dev  # Verify in browser
+# Run on emulator/device and monitor Logcat
 ```
 
 ## Error-Specific Patterns
@@ -192,8 +189,8 @@ Build fails:
 ├── Type error → Read the error, check the types at the cited location
 ├── Import error → Check the module exists, exports match, paths are correct
 ├── Config error → Check build config files for syntax/schema issues
-├── Dependency error → Check package.json, run npm install
-└── Environment error → Check Node version, OS compatibility
+├── Dependency error → Check build.gradle.kts / Version Catalog, sync project
+└── Environment error → Check Java version, Gradle wrapper compatibility
 ```
 
 ### Runtime Error Triage

@@ -44,9 +44,9 @@ Add these to `.cursor/rules/`:
 For phase-specific work, create additional rule files as needed:
 
 - `spec-development.md` -> `spec-driven-development/SKILL.md`
-- `frontend-ui.md` -> `frontend-ui-engineering/SKILL.md`
+- `android-ui.md` -> `android-ui-kotlin/SKILL.md` (or `android-ui-java/SKILL.md`)
 - `security.md` -> `security-and-hardening/SKILL.md`
-- `performance.md` -> `performance-optimization/SKILL.md`
+- `android-performance.md` -> `agents/android-performance-auditor.md`
 
 Add these to `.cursor/rules/` when working on relevant tasks, then remove when done to manage context limits.
 
@@ -55,4 +55,4 @@ Add these to `.cursor/rules/` when working on relevant tasks, then remove when d
 1. **Don't load all skills at once** - Cursor has context limits. Load 2-3 essential skills as rules and add phase-specific skills as needed.
 2. **Reference skills explicitly** - Tell Cursor "Follow the test-driven-development rules for this change" to ensure it reads the loaded rules.
 3. **Use agents for review** - Copy `agents/code-reviewer.md` content and tell Cursor to "review this diff using this code review framework."
-4. **Load references on demand** - When working on performance, add `performance.md` to `.cursor/rules/` or paste the checklist content directly.
+4. **Load references on demand** - When working on performance, add `android-performance.md` to `.cursor/rules/` or paste the checklist content directly.

@@ -1,236 +1,142 @@
 # Testing Patterns Reference
 
-Quick reference for common testing patterns across the stack. Use alongside the `test-driven-development` skill.
+Quick reference for common testing patterns in Android development. Use alongside the `android-testing-and-benchmark-*` skills.
 
 ## Table of Contents
-
-- [Test Structure (Arrange-Act-Assert)](#test-structure-arrange-act-assert)
-- [Test Naming Conventions](#test-naming-conventions)
-- [Common Assertions](#common-assertions)
-- [Mocking Patterns](#mocking-patterns)
-- [React/Component Testing](#reactcomponent-testing)
-- [API / Integration Testing](#api--integration-testing)
-- [E2E Testing (Playwright)](#e2e-testing-playwright)
+- [Kotlin Unit Testing (MockK)](#kotlin-unit-testing-mockk)
+- [Java Unit Testing (Mockito)](#java-unit-testing-mockito)
+- [Compose UI Testing (Kotlin)](#compose-ui-testing-kotlin)
+- [Espresso UI Testing (Java/XML)](#espresso-ui-testing-javaxml)
 - [Test Anti-Patterns](#test-anti-patterns)
 
-## Test Structure (Arrange-Act-Assert)
+## Kotlin Unit Testing (MockK)
 
-```typescript
-it('describes expected behavior', () => {
-  // Arrange: Set up test data and preconditions
-  const input = { title: 'Test Task', priority: 'high' };
+### Standard Test Structure
+Use the Arrange-Act-Assert pattern for unit testing ViewModels and repositories.
 
-  // Act: Perform the action being tested
-  const result = createTask(input);
+```kotlin
+@OptIn(ExperimentalCoroutinesApi::class)
+class TaskRepositoryTest {
+    private val apiService = mockk<TaskApiService>()
+    private val taskDao = mockk<TaskDao>(relaxed = true)
+    
+    private lateinit var repository: TaskRepositoryImpl
 
-  // Assert: Verify the outcome
-  expect(result.title).toBe('Test Task');
-  expect(result.priority).toBe('high');
-  expect(result.status).toBe('pending');
-});
+    @Test
+    fun getTasks_fetchesFromApiAndSavesToDb() = runTest {
+        // Arrange
+        val remoteTasks = listOf(TaskDto("1", "Buy Milk", false))
+        coEvery { apiService.fetchTasks() } returns remoteTasks
+        repository = TaskRepositoryImpl(apiService, taskDao)
+
+        // Act
+        val result = repository.getTasks()
+
+        // Assert
+        assertEquals(1, result.size)
+        assertEquals("Buy Milk", result[0].title)
+        coVerify(exactly = 1) { taskDao.insertTasks(any()) }
+    }
+}
 ```
 
-## Test Naming Conventions
+## Java Unit Testing (Mockito)
 
-```typescript
-// Pattern: [unit] [expected behavior] [condition]
-describe('TaskService.createTask', () => {
-  it('creates a task with default pending status', () => {});
-  it('throws ValidationError when title is empty', () => {});
-  it('trims whitespace from title', () => {});
-  it('generates a unique ID for each task', () => {});
-});
+### Schedulers Override & Assertions
+When testing Java RxJava-based systems, override Schedulers to run synchronously.
+
+```java
+public class TaskViewModelTest {
+
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
+    private GetTasksUseCase getTasksUseCase;
+    private TaskViewModel viewModel;
+
+    @Before
+    public void setUp() {
+        getTasksUseCase = Mockito.mock(GetTasksUseCase.class);
+        
+        RxAndroidPlugins.setInitMainThreadSchedulerHandler(scheduler -> Schedulers.trampoline());
+        RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+    }
+
+    @Test
+    public void loadTasks_success_postsToLiveData() {
+        // Arrange
+        List<Task> tasks = Collections.singletonList(new Task("1", "Clean Room", false));
+        Mockito.when(getTasksUseCase.execute()).thenReturn(Single.just(tasks));
+        viewModel = new TaskViewModel(getTasksUseCase);
+
+        // Act
+        viewModel.loadTasks();
+
+        // Assert
+        assertEquals(tasks, viewModel.getTasksLiveData().getValue());
+    }
+}
 ```
 
-## Common Assertions
+## Compose UI Testing (Kotlin)
 
-```typescript
-// Equality
-expect(result).toBe(expected);           // Strict equality (===)
-expect(result).toEqual(expected);        // Deep equality (objects/arrays)
-expect(result).toStrictEqual(expected);  // Deep equality + type matching
+### Node Interaction & Finding Elements
+Use semantic selectors to interact with Jetpack Compose elements.
 
-// Truthiness
-expect(result).toBeTruthy();
-expect(result).toBeFalsy();
-expect(result).toBeNull();
-expect(result).toBeDefined();
-expect(result).toBeUndefined();
+```kotlin
+class TaskItemTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
-// Numbers
-expect(result).toBeGreaterThan(5);
-expect(result).toBeLessThanOrEqual(10);
-expect(result).toBeCloseTo(0.3, 5);      // Floating point
+    @Test
+    fun taskItem_showsTitleAndHandlesClicks() {
+        var clicked = false
+        val task = Task("1", "Practice Piano", false)
 
-// Strings
-expect(result).toMatch(/pattern/);
-expect(result).toContain('substring');
+        composeTestRule.setContent {
+            TaskItem(task = task, onClick = { clicked = true })
+        }
 
-// Arrays / Objects
-expect(array).toContain(item);
-expect(array).toHaveLength(3);
-expect(object).toHaveProperty('key', 'value');
+        // Assert title displayed
+        composeTestRule.onNodeWithText("Practice Piano").assertIsDisplayed()
 
-// Errors
-expect(() => fn()).toThrow();
-expect(() => fn()).toThrow(ValidationError);
-expect(() => fn()).toThrow('specific message');
-
-// Async
-await expect(asyncFn()).resolves.toBe(value);
-await expect(asyncFn()).rejects.toThrow(Error);
+        // Perform click and assert event triggered
+        composeTestRule.onNodeWithText("Practice Piano").performClick()
+        assertTrue(clicked)
+    }
+}
 ```
 
-## Mocking Patterns
+## Espresso UI Testing (Java/XML)
 
-### Mock Functions
+### Action & View Assertions
+Interact with XML layouts and RecyclerViews.
 
-```typescript
-const mockFn = jest.fn();
-mockFn.mockReturnValue(42);
-mockFn.mockResolvedValue({ data: 'test' });
-mockFn.mockImplementation((x) => x * 2);
+```java
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class MainActivityTest {
 
-expect(mockFn).toHaveBeenCalled();
-expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
-expect(mockFn).toHaveBeenCalledTimes(3);
-```
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
-### Mock Modules
+    @Test
+    public void clickAddTaskButton_opensDialog() {
+        // Click floating action button
+        onView(withId(R.id.fab_add_task)).perform(click());
 
-```typescript
-// Mock an entire module
-jest.mock('./database', () => ({
-  query: jest.fn().mockResolvedValue([{ id: 1, title: 'Test' }]),
-}));
-
-// Mock specific exports
-jest.mock('./utils', () => ({
-  ...jest.requireActual('./utils'),
-  generateId: jest.fn().mockReturnValue('test-id'),
-}));
-```
-
-### Mock at Boundaries Only
-
-```
-Mock these:                    Don't mock these:
-├── Database calls             ├── Internal utility functions
-├── HTTP requests              ├── Business logic
-├── File system operations     ├── Data transformations
-├── External API calls         ├── Validation functions
-└── Time/Date (when needed)    └── Pure functions
-```
-
-## React/Component Testing
-
-```tsx
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-
-describe('TaskForm', () => {
-  it('submits the form with entered data', async () => {
-    const onSubmit = jest.fn();
-    render(<TaskForm onSubmit={onSubmit} />);
-
-    // Find elements by accessible role/label (not test IDs)
-    await screen.findByRole('textbox', { name: /title/i });
-    fireEvent.change(screen.getByRole('textbox', { name: /title/i }), {
-      target: { value: 'New Task' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: /create/i }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({ title: 'New Task' });
-    });
-  });
-
-  it('shows validation error for empty title', async () => {
-    render(<TaskForm onSubmit={jest.fn()} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /create/i }));
-
-    expect(await screen.findByText(/title is required/i)).toBeInTheDocument();
-  });
-});
-```
-
-## API / Integration Testing
-
-```typescript
-import request from 'supertest';
-import { app } from '../src/app';
-
-describe('POST /api/tasks', () => {
-  it('creates a task and returns 201', async () => {
-    const response = await request(app)
-      .post('/api/tasks')
-      .send({ title: 'Test Task' })
-      .set('Authorization', `Bearer ${testToken}`)
-      .expect(201);
-
-    expect(response.body).toMatchObject({
-      id: expect.any(String),
-      title: 'Test Task',
-      status: 'pending',
-    });
-  });
-
-  it('returns 422 for invalid input', async () => {
-    const response = await request(app)
-      .post('/api/tasks')
-      .send({ title: '' })
-      .set('Authorization', `Bearer ${testToken}`)
-      .expect(422);
-
-    expect(response.body.error.code).toBe('VALIDATION_ERROR');
-  });
-
-  it('returns 401 without authentication', async () => {
-    await request(app)
-      .post('/api/tasks')
-      .send({ title: 'Test' })
-      .expect(401);
-  });
-});
-```
-
-## E2E Testing (Playwright)
-
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('user can create and complete a task', async ({ page }) => {
-  // Navigate and authenticate
-  await page.goto('/');
-  await page.fill('[name="email"]', 'test@example.com');
-  await page.fill('[name="password"]', 'testpass123');
-  await page.click('button:has-text("Log in")');
-
-  // Create a task
-  await page.click('button:has-text("New Task")');
-  await page.fill('[name="title"]', 'Buy groceries');
-  await page.click('button:has-text("Create")');
-
-  // Verify task appears
-  await expect(page.locator('text=Buy groceries')).toBeVisible();
-
-  // Complete the task
-  await page.click('[aria-label="Complete Buy groceries"]');
-  await expect(page.locator('text=Buy groceries')).toHaveCSS(
-    'text-decoration-line', 'line-through'
-  );
-});
+        // Check if add task dialog header is shown
+        onView(withText("Add New Task")).check(matches(isDisplayed()));
+    }
+}
 ```
 
 ## Test Anti-Patterns
 
 | Anti-Pattern | Problem | Better Approach |
 |---|---|---|
-| Testing implementation details | Breaks on refactor | Test inputs/outputs |
-| Snapshot everything | No one reviews snapshot diffs | Assert specific values |
-| Shared mutable state | Tests pollute each other | Setup/teardown per test |
-| Testing third-party code | Wastes time, not your bug | Mock the boundary |
-| Skipping tests to pass CI | Hides real bugs | Fix or delete the test |
-| Using `test.skip` permanently | Dead code | Remove or fix it |
-| Overly broad assertions | Doesn't catch regressions | Be specific |
-| No async error handling | Swallowed errors, false passes | Always `await` async tests |
+| Mocking everything | Green tests but app crashes at runtime | Use real database/Room in local tests when possible |
+| Leaking Main Schedulers | Multithreading race conditions in Java/RxJava tests | Override Schedulers with `Schedulers.trampoline()` |
+| Thread.sleep in UI tests | Tests become slow and flaky | Use Compose wait/IdlingResources for async updates |
+| Direct View/State manipulation | Doesn't simulate real user actions | Simulate interactions via Compose Nodes or Espresso |
