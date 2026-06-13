@@ -1,14 +1,12 @@
----
-description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
----
+# Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
 
 Read and follow `skills/shipping-and-launch/SKILL.md`.
 
-`/ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel against the current change, then merges their reports into a single go/no-go decision with a rollback plan.
+`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel against the current change, then merges their reports into a single go/no-go decision with a rollback plan.
 
 ## Phase A — Parallel fan-out
 
-Run three persona reviews concurrently when Antigravity supports parallel agents. Otherwise, run them sequentially and treat outputs as if returned in parallel.
+Spawn three subagents concurrently using the Task tool when available. **Issue all three Task calls in a single assistant turn** so they execute in parallel. If subagents are unavailable, run persona prompts sequentially and treat outputs as if returned in parallel.
 
 Adopt each persona from `agents/`:
 

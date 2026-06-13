@@ -1,20 +1,29 @@
 # Using agent-skills with Cursor
 
+Cursor supports two workspace layers: **Rules** (always-on behavior) and **Commands** (lifecycle slash workflows).
+
 ## Setup
 
-### Option 1: Rules Directory (Recommended)
-
-Cursor loads project rules from `.cursor/rules/` as `.mdc` files with YAML frontmatter:
+### Option 1: Rules + Commands (Recommended)
 
 ```bash
-mkdir -p .cursor/rules
+mkdir -p .cursor/rules .cursor/commands
 
-cp /path/to/agent-skills/.cursor/rules/test-driven-development.mdc .cursor/rules/
-cp /path/to/agent-skills/.cursor/rules/code-review-and-quality.mdc .cursor/rules/
-cp /path/to/agent-skills/.cursor/rules/incremental-implementation.mdc .cursor/rules/
+# Always-on engineering rules
+cp /path/to/agent-skills/.cursor/rules/*.mdc .cursor/rules/
+
+# Lifecycle slash commands
+cp /path/to/agent-skills/.cursor/commands/teikk-*.md .cursor/commands/
+
+# Skill routing (optional — for strict lifecycle enforcement)
+cp /path/to/agent-skills/AGENTS.md .
+cp -r /path/to/agent-skills/skills .
+cp -r /path/to/agent-skills/agents .
 ```
 
-**Rule file format:**
+**Open this repo in Cursor** — the bundled `.cursor/` config loads automatically.
+
+### Rules (`.cursor/rules/*.mdc`)
 
 ```markdown
 ---
@@ -32,7 +41,31 @@ globs: **/*.{kt,java}      # optional — apply when matching files are open
 | `alwaysApply: true` | Loaded in every conversation |
 | `globs` | File pattern — rule applies when matching files are open (`alwaysApply: false`) |
 
-Rules with `alwaysApply: true` are injected automatically. File-scoped rules activate when you work on matching paths.
+### Commands (`.cursor/commands/*.md`)
+
+Cursor slash commands — equivalent to Antigravity workflows. Plain markdown; the first `#` heading is the command description.
+
+```markdown
+# Break work into small verifiable tasks
+
+Read and follow `skills/planning-and-task-breakdown/SKILL.md`.
+...
+```
+
+Save as `.cursor/commands/teikk-planning.md` → invoke with `/teikk-planning` in chat.
+
+| Command | File | Skill / persona |
+|---------|------|-----------------|
+| `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
+| `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
+| `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |
+| `/teikk-test` | `teikk-test.md` | test-driven-development |
+| `/teikk-review` | `teikk-review.md` | code-review-and-quality |
+| `/teikk-code-simplify` | `teikk-code-simplify.md` | code-simplification |
+| `/teikk-ship` | `teikk-ship.md` | shipping-and-launch + parallel personas |
+| `/teikk-androidperf` | `teikk-androidperf.md` | android-performance-auditor |
+
+> All commands use the **`teikk-` prefix** to avoid conflicts with Cursor built-in slash commands.
 
 ### Option 2: .cursorrules File
 
@@ -77,15 +110,17 @@ Remove phase-specific rules when done to manage context limits.
 
 ## Usage Tips
 
-1. **Don't load all skills at once** — Cursor has context limits. Keep 2–3 essential rules with `alwaysApply: true`; add phase-specific rules as needed.
-2. **Reference rules explicitly** — Tell Cursor "Follow the test-driven-development rules for this change."
-3. **Use agents for review** — Reference `agents/code-reviewer.md` for structured review.
-4. **Verify in UI** — Open **Cursor Settings → Rules** to confirm rules are discovered and scoped correctly.
+1. **Don't load all skills at once** — Keep 2–3 essential rules with `alwaysApply: true`; add phase-specific rules as needed.
+2. **Use slash commands for lifecycle** — Type `/teikk-spec` to start a spec, `/teikk-planning` to break work down, `/teikk-build` to implement incrementally.
+3. **Reference rules explicitly** — Tell Cursor "Follow the test-driven-development rules for this change."
+4. **Use agents for review** — `/teikk-ship` references `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md`.
+5. **Verify in UI** — Open **Cursor Settings → Rules** to confirm rules are discovered and scoped correctly.
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
 | Rules not loading | Use `.mdc` extension, not `.md` |
+| Commands not in `/` menu | Confirm files are in `.cursor/commands/` with `#` heading |
 | Rule never triggers | Set `alwaysApply: true`, or add matching `globs` |
 | Too much context | Set `alwaysApply: false` on non-essential rules |

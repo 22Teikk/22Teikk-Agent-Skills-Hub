@@ -12,7 +12,7 @@ Skills encode the workflows, quality gates, and best practices that senior engin
  │ Idea │ ───▶ │ Spec │ ───▶ │ Code │ ───▶ │ Test │ ───▶ │  QA  │ ───▶ │  Go  │
  │Refine│      │  PRD │      │ Impl │      │Debug │      │ Gate │      │ Live │
  └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
-  /spec          /plan          /build        /test         /review       /ship
+  /teikk-spec    /teikk-planning  /teikk-build  /teikk-test  /teikk-review  /teikk-ship
 ```
 
 ---
@@ -23,15 +23,15 @@ Skills encode the workflows, quality gates, and best practices that senior engin
 
 | What you're doing | Command | Key principle |
 |-------------------|---------|---------------|
-| Define what to build | `/spec` | Spec before code |
-| Plan how to build it | `/plan` | Small, atomic tasks |
-| Build incrementally | `/build` | One slice at a time |
-| Prove it works | `/test` | Tests are proof |
-| Review before merge | `/review` | Improve code health |
-| Simplify the code | `/code-simplify` | Clarity over cleverness |
-| Ship to production | `/ship` | Faster is safer |
+| Define what to build | `/teikk-spec` | Spec before code |
+| Plan how to build it | `/teikk-planning` | Small, atomic tasks |
+| Build incrementally | `/teikk-build` | One slice at a time |
+| Prove it works | `/teikk-test` | Tests are proof |
+| Review before merge | `/teikk-review` | Improve code health |
+| Simplify the code | `/teikk-code-simplify` | Clarity over cleverness |
+| Ship to production | `/teikk-ship` | Faster is safer |
 
-Want fewer manual steps once the spec exists? **`/build auto`** generates the plan and implements every task in a single approved pass — you approve the plan once, then it runs autonomously. It removes the human stepping *between* tasks, not the verification: every task is still test-driven and committed individually, and it pauses on failures or risky steps.
+Want fewer manual steps once the spec exists? **`/teikk-build auto`** generates the plan and implements every task in a single approved pass — you approve the plan once, then it runs autonomously. It removes the human stepping *between* tasks, not the verification: every task is still test-driven and committed individually, and it pauses on failures or risky steps.
 
 Skills also activate automatically based on what you're doing — designing an API triggers `api-and-interface-design`, building Android UI triggers `android-ui-kotlin` or `android-ui-java`, and so on.
 
@@ -67,7 +67,7 @@ claude --plugin-dir /path/to/agent-skills
 <details>
 <summary><b>Cursor</b></summary>
 
-Copy `.cursor/rules/*.mdc` into your project, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
+Copy `.cursor/rules/*.mdc` and `.cursor/commands/*.md` into your project, or reference the full `skills/` directory. See [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 
@@ -203,7 +203,7 @@ Pre-configured specialist personas for targeted reviews:
 | [code-reviewer](agents/code-reviewer.md) | Senior Staff Engineer | Five-axis code review with "would a staff engineer approve this?" standard |
 | [test-engineer](agents/test-engineer.md) | QA Specialist | Test strategy, coverage analysis, and the Prove-It pattern |
 | [security-auditor](agents/security-auditor.md) | Security Engineer | Vulnerability detection, threat modeling, OWASP assessment |
-| [android-performance-auditor](agents/android-performance-auditor.md) | Android Performance Engineer | App Startup and Frame Rendering audits; run it via `/androidperf` |
+| [android-performance-auditor](agents/android-performance-auditor.md) | Android Performance Engineer | App Startup and Frame Rendering audits; run it via `/teikk-androidperf` |
 
 ---
 
@@ -287,13 +287,15 @@ agent-skills/
 ├── agents/                            # 4 specialist personas
 ├── references/                        # 4 supplementary checklists
 ├── hooks/                             # Session lifecycle hooks
-├── .cursor/rules/                     # 3 essential rules (.mdc, Cursor)
+├── .cursor/                           # Rules + commands (Cursor)
+│   ├── rules/                         #   3 essential .mdc rules
+│   └── commands/                      #   8 teikk-* lifecycle slash commands
 ├── .agents/                           # Rules + workflows (Antigravity 2.0)
 │   ├── rules/                         #   Always-on engineering rules
-│   └── workflows/                     #   8 lifecycle slash commands
-├── .claude/commands/                  # 7 slash commands (Claude Code)
-├── .gemini/commands/                  # 7 slash commands (Gemini CLI)
-├── commands/                          # 8 slash commands (Antigravity CLI)
+│   └── workflows/                     #   8 teikk-* lifecycle slash commands
+├── .claude/commands/                  # 8 teikk-* slash commands (Claude Code)
+├── .gemini/commands/                  # 8 teikk-* slash commands (Gemini CLI)
+├── commands/                          # 8 teikk-* slash commands (Antigravity CLI)
 ├── plugin.json                        # Antigravity plugin manifest
 └── docs/                              # Setup guides per tool
 ```

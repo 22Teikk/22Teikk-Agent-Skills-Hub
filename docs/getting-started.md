@@ -96,7 +96,7 @@ The `agents/` directory contains pre-configured agent personas:
 | `code-reviewer.md` | Five-axis code review |
 | `test-engineer.md` | Test strategy and writing |
 | `security-auditor.md` | Vulnerability detection |
-| `android-performance-auditor.md` | App Startup and Frame Rendering performance audit (via `/androidperf`) |
+| `android-performance-auditor.md` | App Startup and Frame Rendering performance audit (via `/teikk-androidperf`) |
 
 Load an agent definition when you need specialized review. For example, ask your coding agent to "review this change using the code-reviewer agent persona" and provide the agent definition.
 
@@ -106,14 +106,14 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 
 | Command | Skill Invoked |
 |---------|---------------|
-| `/spec` | spec-driven-development |
-| `/plan` | planning-and-task-breakdown |
-| `/build` | incremental-implementation + test-driven-development |
-| `/build auto` | planning-and-task-breakdown → incremental-implementation + test-driven-development (whole plan, one approval) |
-| `/test` | test-driven-development |
-| `/review` | code-review-and-quality |
-| `/ship` | shipping-and-launch |
-| `/androidperf` | android-performance-auditor (specialist agent, Android apps only) |
+| `/teikk-spec` | spec-driven-development |
+| `/teikk-planning` | planning-and-task-breakdown |
+| `/teikk-build` | incremental-implementation + test-driven-development |
+| `/teikk-build auto` | planning-and-task-breakdown → incremental-implementation + test-driven-development (whole plan, one approval) |
+| `/teikk-test` | test-driven-development |
+| `/teikk-review` | code-review-and-quality |
+| `/teikk-ship` | shipping-and-launch |
+| `/teikk-androidperf` | android-performance-auditor (specialist agent, Android apps only) |
 
 ## Using References
 
@@ -130,7 +130,7 @@ Load a reference when you need detailed patterns beyond what the skill covers.
 
 ## Spec and task artifacts
 
-The `/spec` and `/plan` commands create working artifacts (`SPEC.md`, `tasks/plan.md`, `tasks/todo.md`). Treat them as **living documents** while the work is in progress:
+The `/teikk-spec` and `/teikk-planning` commands create working artifacts (`SPEC.md`, `tasks/plan.md`, `tasks/todo.md`). Treat them as **living documents** while the work is in progress:
 
 - Keep them in version control during development so the human and the agent have a shared source of truth.
 - Update them when scope or decisions change.

@@ -11,7 +11,7 @@ Antigravity 2.0 discovers project configuration automatically:
 | Path | Purpose |
 |------|---------|
 | `.agents/rules/` | Always-on or model-triggered behavior guidelines |
-| `.agents/workflows/` | Slash commands (`/spec`, `/build`, `/ship`, …) |
+| `.agents/workflows/` | Slash commands (`/teikk-spec`, `/teikk-build`, `/teikk-ship`, …) |
 | `AGENTS.md` (repo root) | Skill routing and lifecycle mapping |
 
 **Use this repo as-is** — open it in Antigravity and the bundled `.agents/` config loads automatically.
@@ -24,7 +24,7 @@ mkdir -p .agents/rules .agents/workflows
 cp /path/to/agent-skills/.agents/rules/*.md .agents/rules/
 
 # Lifecycle slash commands
-cp /path/to/agent-skills/.agents/workflows/*.md .agents/workflows/
+cp /path/to/agent-skills/.agents/workflows/teikk-*.md .agents/workflows/
 
 # Skill routing (required for strict lifecycle enforcement)
 cp /path/to/agent-skills/AGENTS.md .
@@ -67,16 +67,16 @@ These three rules are bundled in `.agents/rules/` with `activation: always_on`:
 
 | Command | Workflow file | Skill / persona |
 |---------|---------------|-----------------|
-| `/spec` | `spec.md` | spec-driven-development |
-| `/planning` | `planning.md` | planning-and-task-breakdown |
-| `/build` | `build.md` | incremental-implementation + TDD |
-| `/test` | `test.md` | test-driven-development |
-| `/review` | `review.md` | code-review-and-quality |
-| `/code-simplify` | `code-simplify.md` | code-simplification |
-| `/ship` | `ship.md` | shipping-and-launch + parallel personas |
-| `/androidperf` | `androidperf.md` | android-performance-auditor |
+| `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
+| `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
+| `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |
+| `/teikk-test` | `teikk-test.md` | test-driven-development |
+| `/teikk-review` | `teikk-review.md` | code-review-and-quality |
+| `/teikk-code-simplify` | `teikk-code-simplify.md` | code-simplification |
+| `/teikk-ship` | `teikk-ship.md` | shipping-and-launch + parallel personas |
+| `/teikk-androidperf` | `teikk-androidperf.md` | android-performance-auditor |
 
-> Use **`/planning`** instead of `/plan` — Antigravity has a built-in plan command that conflicts with this lifecycle.
+> All commands use the **`teikk-` prefix** to avoid conflicts with Antigravity built-in slash commands.
 
 ### Phase-Specific Rules (Load on Demand)
 
@@ -94,8 +94,8 @@ Set `activation: model_decision` (or configure via **Customizations → Rules**)
 
 1. **Don't load all skills at once** — Antigravity has context limits. Keep 2–3 essential rules always on; add phase-specific rules as needed.
 2. **Reference skills explicitly** — Tell the agent "Follow the test-driven-development rules for this change" to ensure it reads loaded rules.
-3. **Use workflows for lifecycle phases** — Type `/spec` to start a spec, `/planning` to break work down, `/build` to implement incrementally.
-4. **Use personas for review** — Workflows reference `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md` for `/ship`.
+3. **Use workflows for lifecycle phases** — Type `/teikk-spec` to start a spec, `/teikk-planning` to break work down, `/teikk-build` to implement incrementally.
+4. **Use personas for review** — Workflows reference `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md` for `/teikk-ship`.
 5. **Global preferences** — Personal coding standards that apply to every project live in `~/.gemini/GEMINI.md`.
 
 ## Verify Setup
@@ -103,7 +103,7 @@ Set `activation: model_decision` (or configure via **Customizations → Rules**)
 In Antigravity chat:
 
 1. Open **Customizations → Rules** — confirm the three essential rules appear under Workspace.
-2. Type `/` — autocomplete should list `/spec`, `/planning`, `/build`, `/test`, `/review`, `/ship`, and others.
+2. Type `/teikk` — autocomplete should list `/teikk-spec`, `/teikk-planning`, `/teikk-build`, `/teikk-test`, `/teikk-review`, `/teikk-ship`, and others.
 3. Ask the agent to "follow AGENTS.md skill routing" — it should invoke skills from `skills/` instead of improvising.
 
 ## Troubleshooting
@@ -111,6 +111,5 @@ In Antigravity chat:
 | Issue | Fix |
 |-------|-----|
 | Rules not loading | Confirm files are in `.agents/rules/` (not `.agent/rules/` unless using legacy path) |
-| `/plan` runs wrong workflow | Use `/planning` instead |
-| Workflows missing | Confirm `.md` files are in `.agents/workflows/` with YAML frontmatter |
+| Workflows missing | Confirm `teikk-*.md` files are in `.agents/workflows/` with YAML frontmatter |
 | Skills not found | Copy `skills/` and `AGENTS.md` into the project, or install the CLI plugin |

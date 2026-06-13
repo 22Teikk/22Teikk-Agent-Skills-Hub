@@ -8,7 +8,7 @@ This is the agent-skills project — a collection of production-grade engineerin
 skills/       → Core skills (SKILL.md per directory)
 agents/       → Reusable agent personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor)
 hooks/        → Session lifecycle hooks
-.claude/commands/ → Slash commands (/spec, /plan, /build, /test, /review, /code-simplify, /ship; plus /androidperf specialist audit)
+.claude/commands/ → Slash commands (/teikk-spec, /teikk-planning, /teikk-build, /teikk-test, /teikk-review, /teikk-code-simplify, /teikk-ship; plus /teikk-androidperf specialist audit)
 references/   → Supplementary checklists (testing, performance, security, accessibility)
 docs/         → Setup guides for different tools
 ```

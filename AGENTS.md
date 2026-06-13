@@ -37,7 +37,7 @@ The agent should automatically map user intent to skills:
 
 ### Lifecycle Mapping (Implicit Commands)
 
-OpenCode does not support slash commands like `/spec` or `/plan`.
+OpenCode does not support slash commands like `/teikk-spec` or `/teikk-planning`.
 
 Instead, the agent must internally follow this lifecycle:
 
@@ -77,11 +77,11 @@ This repo has three composable layers. They have different jobs and should not b
 
 - **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
 - **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The *who*.
-- **Slash commands** (`.claude/commands/*.md`) — user-facing entry points. The *when*. The orchestration layer.
+- **Slash commands** (`.claude/commands/teikk-*.md`) — user-facing entry points. The *when*. The orchestration layer.
 
 Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
 
-The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
+The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/teikk-ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
 
 See [agents/README.md](agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
 

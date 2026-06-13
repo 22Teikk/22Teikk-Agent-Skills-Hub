@@ -14,7 +14,7 @@ Instead, we achieve parity through:
 
 This creates an **agent-driven workflow** where skills are selected and executed automatically.
 
-While it is possible to recreate `/spec`, `/plan`, and other commands in OpenCode, this integration intentionally uses an agent-driven approach instead:
+While it is possible to recreate `/teikk-spec`, `/teikk-planning`, and other commands in OpenCode, this integration intentionally uses an agent-driven approach instead:
 
 - Skills are selected automatically based on intent
 - Workflows are enforced via `AGENTS.md`
@@ -83,7 +83,7 @@ The development lifecycle is encoded implicitly:
 - REVIEW → `code-review-and-quality`
 - SHIP → `shipping-and-launch`
 
-This replaces slash commands like `/spec`, `/plan`, etc.
+This replaces slash commands like `/teikk-spec`, `/teikk-planning`, etc.
 
 ---
 

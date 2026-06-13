@@ -2,7 +2,7 @@
 description: Run an Android performance audit via the android-performance-auditor persona
 ---
 
-# /androidperf
+# /teikk-androidperf
 
 Run an Android performance audit on your codebase or profiles using the `android-performance-auditor` subagent.
 
