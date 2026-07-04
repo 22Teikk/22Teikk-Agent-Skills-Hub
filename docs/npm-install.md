@@ -1,6 +1,6 @@
 # npm Install
 
-Install **teikk-agents-skills** into any project with npm. The CLI copies IDE-specific config into your repo and appends a managed block to `.gitignore` so installed files and workflow artifacts stay out of version control.
+Install **teikk-agents-skills** into any project with npm. The CLI syncs skills and configurations to a global directory (`~/.teikk-agents-skills/`), creates symlinks in your project, and appends a managed block to `.gitignore` so symlinked folders stay out of version control. Only project-specific artifacts (`SPEC.md`, `tasks/`) remain as physical local files.
 
 Maintained by [22Teikk](https://github.com/22Teikk) — [22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teikk-Agent-Skills-Hub).
 
@@ -10,20 +10,20 @@ Maintained by [22Teikk](https://github.com/22Teikk) — [22Teikk-Agent-Skills-Hu
 
 ```bash
 # In your app project (not this repo)
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
 npx teikk-agents-skills init cursor
 ```
 
 Replace `cursor` with your IDE / CLI:
 
-| Target | IDE / CLI | What gets installed |
-|--------|-----------|---------------------|
-| `cursor` | [Cursor](cursor-setup.md) | `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `AGENTS.md` |
-| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `AGENTS.md` |
-| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `AGENTS.md` |
-| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/commands/`, `.gemini/skills/` |
-| `opencode` | [OpenCode](opencode-setup.md) | `AGENTS.md`, `skills/`, `.opencode/skills` → `../skills` |
-| `all` | Every target above | Merged install for multi-tool teams |
+| Target | IDE / CLI | What gets symlinked (pointing to `~/.teikk-agents-skills/`) |
+|--------|-----------|-----------------------------------------------------------|
+| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
+| `claude` | [Claude Code](getting-started.md) | `.claude/`, `hooks/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
+| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
+| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/` (with `.gemini/skills` symlink) |
+| `opencode` | [OpenCode](opencode-setup.md) | `AGENTS.md`, `skills/`, `agents/`, and `.opencode/skills` symlink |
+| `all` | Every target above | Merged symlinks for multi-tool teams |
 
 List targets:
 
@@ -38,7 +38,7 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub"
   },
   "teikk-agents-skills": {
     "target": "cursor"
@@ -49,7 +49,7 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 Or use an environment variable:
 
 ```bash
-TEIKK_AGENTS_SKILLS_TARGET=cursor npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
+TEIKK_AGENTS_SKILLS_TARGET=cursor npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
 ```
 
 To disable postinstall (e.g. in CI for this package itself):
@@ -72,7 +72,7 @@ npx teikk-agents-skills uninstall
 
 ## `.gitignore` management
 
-`init` and `update` append (or replace) a marked block in your project's `.gitignore`:
+`init` and `update` append (or replace) a marked block in your project's `.gitignore`. These paths (except for local artifacts like `SPEC.md` and `tasks/`) represent symlinks to the global directory, keeping them completely out of your repository:
 
 ```gitignore
 # BEGIN teikk-agents-skills (managed by npm — do not edit)
@@ -100,7 +100,7 @@ Do not edit lines between the markers manually — re-run `npx teikk-agents-skil
 
 ```json
 {
-  "version": "1.2.0",
+  "version": "1.5.0",
   "targets": ["cursor"],
   "installedAt": "2026-06-13T09:00:00.000Z",
   "package": "teikk-agents-skills"
@@ -125,8 +125,8 @@ Publish from this repo:
 ```bash
 npm test
 npm publish --access public  # required for unscoped packages on first publish
-git tag -a v1.2.0 -f -m "v1.2.0"
-git push origin v1.2.0 --force
+git tag -a v1.5.0 -f -m "v1.5.0"
+git push origin v1.5.0 --force
 ```
 
 After publish, users can run:
@@ -144,10 +144,10 @@ Install latest from `main`:
 npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
 ```
 
-Pin a release tag (recommended):
+Pin a release branch or installation (recommended):
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
 npx teikk-agents-skills init cursor
 ```
 
@@ -178,7 +178,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
-| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.2.0 --save-dev` |
+| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

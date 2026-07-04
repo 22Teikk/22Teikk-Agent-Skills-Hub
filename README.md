@@ -10,19 +10,21 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 
 ---
 
-## Install (Cursor)
+## Install
+
+All skills, agents, and references are stored globally in `~/.teikk-agents-skills/` and symlinked to your project. Your repository remains clean — only project-specific files like `SPEC.md` and `tasks/` are stored physically.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.4.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-Auto-install on `npm install` — add to your Android project's `package.json`:
+Auto-install on `npm install` — add to your project's `package.json`:
 
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.4.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0"
   },
   "teikk-agents-skills": { "target": "cursor" }
 }
