@@ -17,17 +17,21 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 - Never implement directly if a skill applies
 - Always follow the skill instructions exactly (do not partially apply them)
 
-### Intent → Skill Mapping
+### Intent → Skill / Persona Mapping
 
-The agent should automatically map user intent to skills:
+The agent should automatically map user intent to skills and personas:
 
 **Define**
 - Underspecified ask / "interview me" → `interview-me`
 - Rough idea needing exploration → `idea-refine`
 - New project / feature / significant change → `spec-driven-development`
+- Platform selection (native vs cross-platform) → `mobile-app-developer` persona
 
 **Plan**
 - Spec exists, need tasks → `planning-and-task-breakdown`
+- Android projects: Phase 0 = Hilt + observability before features
+- iOS projects: Phase 0 = SPM setup + SwiftLint + logging before features
+- Flutter projects: Phase 0 = flavor config + Riverpod/BLoC + logging before features
 
 **Build**
 - Implementing code → `incremental-implementation` + `test-driven-development`
@@ -35,30 +39,40 @@ The agent should automatically map user intent to skills:
 - Verify against official docs → `source-driven-development`
 - High-stakes / irreversible decisions → `doubt-driven-development`
 - API or module boundaries → `api-and-interface-design`
-- UI work (Kotlin) → `android-ui-kotlin`
-- UI work (Java) → `android-ui-java`
+- UI work (Kotlin/Compose) → `android-ui-kotlin` + `kotlin-specialist` persona
+- UI work (Java/XML) → `android-ui-java`
 - Concurrency & DB (Kotlin) → `android-data-and-concurrency-kotlin`
 - Concurrency & DB (Java) → `android-data-and-concurrency-java`
-- DI, Gradle, Version Catalog → `android-di-and-build`
+- DI, Gradle, Version Catalog (Android) → `android-di-and-build`
+- iOS / SwiftUI feature → `swift-expert` persona
+- Flutter feature → `flutter-expert` persona
 - Logging, Crashlytics, analytics → `observability-and-instrumentation`
+- Cross-platform shared patterns (push, deep link, offline) → `mobile-app-developer` persona
 
 **Verify**
 - Tests / TDD → `test-driven-development`
 - Android tests (Kotlin) → `android-testing-and-benchmark-kotlin`
 - Android tests (Java) → `android-testing-and-benchmark-java`
-- E2E journeys (Maestro, opt-in) → `android-e2e-maestro`
+- iOS tests (XCTest / XCUITest) → `swift-expert` persona
+- Flutter tests (widget / integration_test) → `flutter-expert` persona
+- E2E journeys — Android (Maestro, opt-in) → `android-e2e-maestro`
+- E2E journeys — iOS (XCUITest) → `swift-expert` persona
+- E2E journeys — Flutter (integration_test) → `flutter-expert` persona
+- UI/UX flow testing, spacing audits → `ui-ux-tester` persona
 - Bug / failure / unexpected behavior → `debugging-and-error-recovery`
+- Android performance (startup, jank) → `android-performance-auditor` persona
 
 **Review**
-- Code review → `code-review-and-quality`
+- Code review → `code-review-and-quality` + `code-reviewer` persona
 - Refactoring / simplification → `code-simplification`
-- Security → `security-and-hardening`
+- Security → `security-and-hardening` + `security-auditor` persona
 
 **Ship**
 - Commits / branching → `git-workflow-and-versioning`
 - CI/CD pipelines → `ci-cd-and-automation`
 - Documentation / ADRs → `documentation-and-adrs`
 - Deprecation / migration → `deprecation-and-migration`
+- Store submission readiness (both platforms) → `mobile-app-developer` persona
 - Deploy / launch checklist → `shipping-and-launch`
 
 ### Lifecycle Mapping (Implicit Commands)
@@ -67,12 +81,19 @@ OpenCode does not support slash commands like `/teikk-spec` or `/teikk-planning`
 
 Instead, the agent must internally follow this lifecycle:
 
-- **DEFINE** → `interview-me` (if unclear) → `idea-refine` (if exploring) → `spec-driven-development`
-- **PLAN** → `planning-and-task-breakdown` (Phase 0 Foundation for Android: Hilt + observability before features)
-- **BUILD** → `incremental-implementation` + `test-driven-development` + domain skills (android-*, api, observability as needed)
-- **VERIFY** → `debugging-and-error-recovery`, `android-testing-and-benchmark-*`
+- **DEFINE** → `interview-me` (if unclear) → `idea-refine` (if exploring) → `mobile-app-developer` persona (if platform choice needed) → `spec-driven-development`
+- **PLAN** → `planning-and-task-breakdown`
+  - Android Phase 0: Hilt + observability before features
+  - iOS Phase 0: SPM + SwiftLint + logging before features
+  - Flutter Phase 0: flavor config + state management + logging before features
+- **BUILD** → `incremental-implementation` + `test-driven-development` + domain skills/personas:
+  - Android: `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
+  - iOS: `swift-expert`
+  - Flutter: `flutter-expert`
+  - Shared mobile: `mobile-app-developer`, `observability-and-instrumentation`, `api-and-interface-design`
+- **VERIFY** → `debugging-and-error-recovery`, platform test skills, `ui-ux-tester` persona for flow/UX testing
 - **REVIEW** → `code-review-and-quality`, `code-simplification`, `security-and-hardening`
-- **SHIP** → `observability-and-instrumentation`, `documentation-and-adrs`, `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch`
+- **SHIP** → `mobile-app-developer` (store readiness), `observability-and-instrumentation`, `documentation-and-adrs`, `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch`
 
 ### Execution Model
 

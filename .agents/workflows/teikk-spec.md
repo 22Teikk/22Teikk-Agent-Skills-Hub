@@ -1,17 +1,24 @@
-# Start spec-driven development — write a structured specification before writing code
+---
+description: Start spec-driven development — write a structured specification before writing code
+---
 
-Read and follow `skills/spec-driven-development/SKILL.md`.
+Invoke the teikk-agents-skills:spec-driven-development skill.
 
 Begin by understanding what the user wants to build. Ask clarifying questions about:
 1. The objective and target users
 2. Core features and acceptance criteria
-3. Tech stack (language, framework, min/target SDK for Android)
-4. Architecture (layers, modules, DI — Hilt default for Kotlin Android)
-5. Observability (Timber, Crashlytics, analytics — define before coding)
-6. Boundaries (always do / ask first / never do)
+3. **Platform** — Android (Kotlin/Compose), iOS (Swift/SwiftUI), Flutter, or cross-platform? If unsure, invoke `agents/mobile-app-developer.md` to evaluate trade-offs first
+4. Tech stack defaults by platform:
+   - Android → Kotlin + Compose, Hilt, Room, Timber/Crashlytics
+   - iOS → Swift + SwiftUI, SPM, Core Data / SwiftData, os_log + Crashlytics
+   - Flutter → Dart + Flutter 3, Riverpod or BLoC, GoRouter, logging plugin
+5. Architecture (layers, modules, DI framework)
+6. Observability (logging, crash reporting, analytics — define before coding)
+7. E2E testing opt-in: `E2E: none` (default) | `E2E: Maestro` (Android) | `E2E: XCUITest` (iOS) | `E2E: integration_test` (Flutter)
+8. Boundaries (always do / ask first / never do)
 
 Generate a spec covering all nine core areas from the skill: objective, tech stack, architecture, observability, commands, project structure, code style, testing strategy, and boundaries.
 
-For vague Android requests, surface assumptions explicitly (Kotlin + Compose, Hilt, Room, etc.) and ask the user to confirm or correct before writing the spec.
+Surface any platform assumptions explicitly and ask the user to confirm or correct before writing the spec.
 
 Save the spec as `SPEC.md` in the project root and confirm with the user before proceeding.

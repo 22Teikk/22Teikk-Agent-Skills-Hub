@@ -3,6 +3,8 @@ description = "Run TDD workflow — write failing tests, implement, verify. For 
 prompt = """
 Read and follow `skills/test-driven-development/SKILL.md`.
 
+Read SPEC.md to determine the platform before routing tests:
+
 For new features:
 1. Write tests that describe the expected behavior (they should FAIL)
 2. Implement the code to make them pass
@@ -15,7 +17,14 @@ For bug fixes (Prove-It pattern):
 4. Confirm the test passes
 5. Run the full test suite for regressions
 
-For Android UI and performance benchmarks, also read `skills/android-testing-and-benchmark-kotlin/SKILL.md` or `skills/android-testing-and-benchmark-java/SKILL.md`.
+## Platform routing
 
-**Not for E2E user journeys** — use `/teikk-e2e` (Maestro) when SPEC declares `E2E: Maestro` or for multi-screen smoke tests.
+| Platform | Test frameworks | Also read |
+|----------|----------------|-----------|
+| Android (Kotlin) | JUnit 5, MockK, Turbine, ComposeTestRule | `skills/android-testing-and-benchmark-kotlin/SKILL.md` |
+| Android (Java) | JUnit 4, Mockito, Espresso | `skills/android-testing-and-benchmark-java/SKILL.md` |
+| iOS | XCTest, XCTestExpectation, async throws | `agents/swift-expert.md` |
+| Flutter | `flutter_test`, WidgetTester, Mocktail | `agents/flutter-expert.md` |
+
+**Not for E2E user journeys** — use `/teikk-e2e` when SPEC declares E2E opt-in or for multi-screen smoke tests.
 """

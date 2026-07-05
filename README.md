@@ -36,6 +36,37 @@ Setup guides: [docs/](docs/)
 
 ---
 
+## Uninstall
+
+### CLI (recommended)
+
+```bash
+npx teikk-agents-skills uninstall
+```
+
+Removes all installed config files (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`, etc.), cleans the managed `.gitignore` block, and removes the manifest.
+
+### Then remove the npm package
+
+```bash
+npm uninstall teikk-agents-skills
+```
+
+### Manual removal
+
+If you installed without npm, delete the symlinked/copied directories and remove the `# >>> teikk-agents-skills` block from `.gitignore`:
+
+```bash
+rm -rf ~/.teikk-agents-skills/
+# In your project:
+rm -rf .cursor/rules/ .cursor/commands/ .claude/ .agents/ .gemini/ .opencode/ .serena/
+# Edit .gitignore — remove the managed block between:
+#   # >>> teikk-agents-skills ...
+#   # <<< teikk-agents-skills
+```
+
+---
+
 ## Workflow — which command when
 
 ### Typical new feature
@@ -43,48 +74,51 @@ Setup guides: [docs/](docs/)
 ```
 /teikk-interview     ← ask unclear? skip if you know what you want
 /teikk-idea          ← exploring options? skip if direction is clear
-/teikk-spec          ← lock WHAT + stack + arch + observability + E2E: none|Maestro
-/teikk-planning      ← break into tasks (Phase 0: Hilt + Timber first)
+/teikk-spec          ← lock WHAT + platform (Android/iOS/Flutter) + stack + arch + observability + E2E opt-in
+/teikk-planning      ← break into tasks (Phase 0: platform foundation first)
 /teikk-build         ← one task at a time
 /teikk-build auto    ← approve plan once, agent runs all tasks
-/teikk-test          ← TDD unit + Compose component (not E2E)
-/teikk-e2e           ← opt-in Maestro journeys (when SPEC says so)
+/teikk-test          ← TDD unit + Compose/XCTest/widget tests (not E2E)
+/teikk-e2e           ← opt-in E2E: Maestro (Android) | XCUITest (iOS) | integration_test (Flutter)
+/teikk-ux-test       ← exhaustive UI/UX flow testing and defect report
 /teikk-review        ← before merge
-/teikk-ship          ← go/no-go + optional Maestro if .maestro/ exists
+/teikk-ship          ← go/no-go + store readiness + optional E2E
 ```
 
 ### Setup & specialists
 
 | Command | When |
 |---------|------|
-| `/teikk-android-setup` | New project — Hilt, Version Catalog, Gradle |
-| `/teikk-observability` | Timber, Crashlytics, analytics, perf traces |
+| `/teikk-android-setup` | New Android project — Hilt, Version Catalog, Gradle |
+| `/teikk-ios-setup` | New iOS project — SPM, SwiftLint, logging, Crashlytics |
+| `/teikk-flutter-setup` | New Flutter project — flavors, Riverpod/BLoC, GoRouter, logging |
+| `/teikk-observability` | Timber/Crashlytics/analytics/perf traces (any platform) |
 | `/teikk-ci` | GitHub Actions / quality gates |
 | `/teikk-docs` | ADRs, README updates |
 | `/teikk-code-simplify` | Code works but too complex |
-| `/teikk-androidperf` | Startup / jank audit |
+| `/teikk-androidperf` | Startup / jank audit (Android) |
 
 ---
 
-## E2E (Maestro) — opt-in
+## E2E — opt-in, platform-aware
 
-- Declare in SPEC: `E2E: none` (default) or `E2E: Maestro — flows: [...]`
-- `/teikk-e2e` — agent reads UI source → writes `.maestro/flows/*.yaml` → runs `maestro test`
-- `/teikk-ship` — runs Maestro only if `.maestro/flows/` exists and SPEC ≠ `E2E: none`
+- Declare in SPEC: `E2E: none` (default) | `E2E: Maestro` (Android) | `E2E: XCUITest` (iOS) | `E2E: integration_test` (Flutter)
+- `/teikk-e2e` — platform-aware: Maestro YAML (Android), XCUITest Swift (iOS), `integration_test` Dart (Flutter)
+- `/teikk-ship` — runs the correct E2E suite if SPEC declares it and test artifacts exist
 - Not part of `/teikk-build` or `/teikk-test` (too slow for TDD loop)
 
-Skill: `skills/android-e2e-maestro/SKILL.md`
+Android Maestro skill: `skills/android-e2e-maestro/SKILL.md`
 
 ---
 
-## All commands (15)
+## All commands (18)
 
 | Phase | Command |
 |-------|---------|
 | Define | `/teikk-interview`, `/teikk-idea`, `/teikk-spec` |
 | Plan | `/teikk-planning` |
-| Build | `/teikk-build`, `/teikk-android-setup`, `/teikk-observability` |
-| Verify | `/teikk-test`, `/teikk-e2e` |
+| Build | `/teikk-build`, `/teikk-android-setup`, `/teikk-ios-setup`, `/teikk-flutter-setup`, `/teikk-observability` |
+| Verify | `/teikk-test`, `/teikk-e2e`, `/teikk-ux-test` |
 | Review | `/teikk-review`, `/teikk-code-simplify` |
 | Ship | `/teikk-ship`, `/teikk-ci`, `/teikk-docs` |
 | Audit | `/teikk-androidperf` |
@@ -97,10 +131,12 @@ Skill: `skills/android-e2e-maestro/SKILL.md`
 
 ```
 skills/          29 workflow skills (SKILL.md each)
-agents/          code-reviewer, test-engineer, security-auditor, android-performance-auditor
-.cursor/         rules (4) + slash commands (15)
-.claude/         slash commands + hooks
-.agents/         Antigravity rules + workflows
+agents/          9 personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor,
+                 kotlin-specialist, swift-expert, flutter-expert, mobile-app-developer, ui-ux-tester)
+.cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (18)
+.claude/         slash commands (18) + hooks
+.agents/         Antigravity rules (3) + workflows (18)
+commands/        OpenCode TOML commands (18)
 references/      testing, security, performance, accessibility checklists
 ```
 

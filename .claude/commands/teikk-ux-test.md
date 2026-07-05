@@ -1,0 +1,14 @@
+---
+description: Run exhaustive UI/UX testing on a documented feature or flow via the ui-ux-tester persona
+---
+
+Read and follow `agents/ui-ux-tester.md`.
+
+Run exhaustive UI and UX testing on the target application or flow. The user may pass:
+- A path to the documentation, SPEC.md section, or feature description to test
+- A specific flow name to isolate (default: test all documented flows)
+- The application type: web app (Chrome MCP), desktop (Computer Use), or mobile (describe target)
+
+Return a structured defect report with severity classification, visual evidence, and specific fix recommendations.
+
+**Not a substitute for `/teikk-test`** (unit/widget) or `/teikk-e2e` (automated journey verification). Use this for human-perspective UX evaluation — spacing audits, confusing states, broken flows that automation misses.

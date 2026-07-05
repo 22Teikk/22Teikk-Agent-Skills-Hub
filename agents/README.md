@@ -2,12 +2,17 @@
 
 Specialist personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, etc.).
 
-| Persona | Role | Best for |
-|---------|------|----------|
-| [code-reviewer](code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge |
-| [security-auditor](security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit |
-| [test-engineer](test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern |
-| [android-performance-auditor](android-performance-auditor.md) | Android Performance Engineer | App Startup, frame jank, memory profiling, benchmarks |
+| Persona | Role | Best for | Phase |
+|---------|------|----------|-------|
+| [code-reviewer](code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge | REVIEW |
+| [security-auditor](security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit | REVIEW |
+| [test-engineer](test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern | VERIFY |
+| [android-performance-auditor](android-performance-auditor.md) | Android Performance Engineer | App Startup, frame jank, memory profiling, benchmarks | VERIFY |
+| [kotlin-specialist](kotlin-specialist.md) | Android Kotlin Developer | Compose UI, coroutines/Flow, Hilt DI, Room — Android only | BUILD |
+| [swift-expert](swift-expert.md) | iOS Swift Developer | SwiftUI, async/await, Core Data — iOS/macOS only | BUILD |
+| [flutter-expert](flutter-expert.md) | Flutter Developer | Cross-platform mobile widgets, Riverpod/BLoC, performance | BUILD |
+| [mobile-app-developer](mobile-app-developer.md) | Cross-platform Mobile Architect | Native vs cross-platform decisions, store readiness, shared patterns | DEFINE / SPEC |
+| [ui-ux-tester](ui-ux-tester.md) | QA & UX Researcher | Exhaustive flow testing, spacing audits, defect reports | VERIFY |
 
 ## How personas relate to skills and commands
 
@@ -30,18 +35,26 @@ Pick this when you want one perspective on the current change and the user is in
 - "Are there security issues in `auth.ts`?" → invoke `security-auditor` directly
 - "What tests are missing for the checkout flow?" → invoke `test-engineer` directly
 - "Audit startup time of the home activity" → invoke `android-performance-auditor` directly
+- "Build the settings screen with Compose" → invoke `kotlin-specialist` directly
+- "Implement the onboarding flow in SwiftUI" → invoke `swift-expert` directly
+- "Fix the recomposition issue in the feed widget" → invoke `flutter-expert` directly
+- "Should we go native or Flutter for this feature?" → invoke `mobile-app-developer` directly
+- "Test every documented flow and find UI bugs" → invoke `ui-ux-tester` directly
 
 ### Slash command (single persona behind it)
 Pick this when there's a repeatable workflow you'd otherwise re-explain every time.
 
 - `/teikk-review` → wraps `code-reviewer` with the project's review skill
-- `/teikk-test` → wraps `test-engineer` with TDD skill
-- `/teikk-androidperf` → wraps `android-performance-auditor` for performance-focused audits on Android apps
+- `/teikk-test` → wraps `test-engineer` with TDD skill (platform-routed: Android/iOS/Flutter)
+- `/teikk-androidperf` → wraps `android-performance-auditor` for Android-specific audits
+- `/teikk-ios-setup` → wraps `swift-expert` context for iOS Phase 0 Foundation
+- `/teikk-flutter-setup` → wraps `flutter-expert` context for Flutter Phase 0 Foundation
+- `/teikk-ux-test` → wraps `ui-ux-tester` for exhaustive flow testing and defect report
 
 ### Slash command (orchestrator — fan-out)
 Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
 
-- `/teikk-ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision
+- `/teikk-ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` + `ui-ux-tester` in parallel, then synthesizes their reports into a go/no-go decision with store readiness check via `mobile-app-developer`
 
 This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 
