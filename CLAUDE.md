@@ -6,12 +6,19 @@ Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teik
 
 ## Project Structure
 
+Primary targets: **Claude Code**, **Antigravity (IDE + CLI)**, **OpenCode**. Cursor and Gemini CLI are also supported.
+
 ```
-skills/       → 28 skills (SKILL.md per directory)
-agents/       → Specialist personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor)
+skills/       → 29 skills (SKILL.md per directory)
+agents/       → 9 specialist personas (code-reviewer, test-engineer, security-auditor,
+                android-performance-auditor, kotlin-specialist, swift-expert,
+                flutter-expert, mobile-app-developer, ui-ux-tester)
 hooks/        → Session lifecycle hooks
-.cursor/      → Rules (4) + commands (14 teikk-*)
-.claude/      → Slash commands + hooks
+.claude/      → Slash commands (18)                 [Claude Code]
+.agents/      → Rules (6) + workflows (18)          [Antigravity]
+commands/     → TOML slash commands (18)            [OpenCode / Antigravity CLI]
+.cursor/      → Rules (6) + commands (18)           [Cursor]
+.gemini/      → TOML commands (18)                  [Gemini CLI]
 references/   → Supplementary checklists
 docs/         → Setup guides per IDE
 ```
@@ -27,7 +34,7 @@ docs/         → Setup guides per IDE
 
 ## Commands
 
-15 slash commands — see README.md for workflow guide.
+18 slash commands — see README.md for workflow guide.
 
 Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`
 
@@ -41,6 +48,8 @@ E2E (opt-in): `/teikk-e2e` — Maestro YAML + `maestro test` verify. SPEC: `E2E:
 - YAML frontmatter with `name` and `description`
 - Spec covers nine areas including Architecture and Observability
 - Android plans require Phase 0 Foundation before feature slices
+- **All workflow output goes under `.teikk/`** (SPEC.md, tasks/, spec/, maestro/flows/, cache/) — one gitignored dir, no scatter
+- **Install is additive** — symlinks land beside user files (`.claude/commands/` only, never the whole `.claude/`); it never deletes user config
 
 ## Boundaries
 

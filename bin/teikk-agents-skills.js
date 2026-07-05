@@ -82,6 +82,12 @@ function runInit(args) {
     process.stderr.write(`  - ${item}\n`);
   }
   process.stderr.write(`Updated .gitignore (${result.gitignorePatterns.length} patterns)\n`);
+  if (result.skipped && result.skipped.length) {
+    process.stderr.write('Left untouched (your own files — not overwritten):\n');
+    for (const item of result.skipped) {
+      process.stderr.write(`  - ${item}\n`);
+    }
+  }
 }
 
 function runUpdate(args) {

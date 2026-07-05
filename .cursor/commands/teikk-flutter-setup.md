@@ -1,6 +1,5 @@
-description = "Set up Flutter foundation — flavor config, state management, logging, Crashlytics"
+# Set up Flutter foundation — flavor config, state management, logging, Crashlytics
 
-prompt = """
 Read `agents/flutter-expert.md`.
 
 Use at Flutter project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work.
@@ -33,4 +32,3 @@ flutter build apk --flavor dev
 ```
 
 After completion, update `.teikk/tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.
-"""

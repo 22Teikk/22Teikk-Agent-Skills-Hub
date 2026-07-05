@@ -10,5 +10,5 @@ Deliverables:
 - Version Catalog for all dependencies (no hardcoded versions)
 - `./gradlew assembleDebug` + `./gradlew test` pass
 
-After completion, update `tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.
+After completion, update `.teikk/tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.
 """

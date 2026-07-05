@@ -33,4 +33,4 @@ flutter test
 flutter build apk --flavor dev
 ```
 
-After completion, update `tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.
+After completion, update `.teikk/tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.

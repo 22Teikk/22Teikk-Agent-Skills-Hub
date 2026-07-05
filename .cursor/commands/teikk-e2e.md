@@ -1,24 +1,46 @@
-# Write and verify Maestro E2E flows for critical user journeys (opt-in)
+# Write and verify E2E tests for critical user journeys (opt-in). Platform-aware: Maestro (Android), XCUITest (iOS), integration_test (Flutter).
+
+**Opt-in only.** Do not run unless SPEC declares an E2E strategy or the user explicitly requests a flow.
+
+Read .teikk/SPEC.md to determine platform and E2E opt-in value, then follow the matching workflow:
+
+## Android — Maestro
 
 Read and follow `skills/android-e2e-maestro/SKILL.md`.
 
-**Opt-in only.** Do not run for projects where SPEC says `E2E: none` unless the user explicitly requests a flow.
-
-## Workflow
-
-1. **Gate** — Read SPEC.md (or user message) for the acceptance criterion. Confirm multi-screen journey warrants Maestro, not `/teikk-test`.
-2. **Gather selectors** — Read Composable/layout/navigation source for `testTag`, strings, routes. Do not guess labels.
-3. **Write YAML** — Save to `.maestro/flows/<snake_case>.yaml` with correct `appId` from `build.gradle.kts`.
-4. **Install app** — `./gradlew installDebug` (if not already on device/emulator).
-5. **Verify** — `maestro test .maestro/flows/<flow>.yaml` (or all flows in `.maestro/flows/`). Fix and re-run until pass.
+1. **Gate** — Confirm SPEC says `E2E: Maestro`. Verify the journey warrants Maestro, not `/teikk-test`.
+2. **Gather selectors** — Read Composable source for `testTag`, strings, routes. Do not guess labels.
+3. **Write YAML** — Save to `.teikk/maestro/flows/<snake_case>.yaml` with correct `appId` from `build.gradle.kts`.
+4. **Install app** — `./gradlew installDebug`.
+5. **Verify** — `maestro test .teikk/maestro/flows/<flow>.yaml`. Fix and re-run until pass.
 6. **Report** — Criterion covered, file path, command run, pass/fail.
 
-If Maestro CLI or emulator unavailable: write YAML, document exact verify commands, stop without claiming pass.
+## iOS — XCUITest
+
+Read `agents/swift-expert.md` for context.
+
+1. **Gate** — Confirm SPEC says `E2E: XCUITest`.
+2. **Gather identifiers** — Read SwiftUI view source for `.accessibilityIdentifier` values.
+3. **Write test** — Create `<Feature>UITests.swift` in the UI test target using `XCUIApplication`.
+4. **Run** — `xcodebuild test -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16'`.
+5. **Report** — Criterion covered, test class, pass/fail.
+
+If Xcode / simulator unavailable: write the test file, document verify command, stop without claiming pass.
+
+## Flutter — integration_test
+
+Read `agents/flutter-expert.md` for context.
+
+1. **Gate** — Confirm SPEC says `E2E: integration_test`.
+2. **Gather finders** — Read widget source for `Key`, `find.byType`, `find.text` targets.
+3. **Write test** — Create `integration_test/<feature>_test.dart` using `IntegrationTestWidgetsFlutterBinding`.
+4. **Run** — `flutter test integration_test/<feature>_test.dart` on a connected device or emulator.
+5. **Report** — Criterion covered, file path, command run, pass/fail.
 
 ## Arguments
 
 - No args — user describes journey, or pick next flow from plan/SPEC `E2E` section.
-- Flow name — e.g. `create_task` → write/update `.maestro/flows/create_task.yaml`.
-- `all` — run `maestro test .maestro/flows/` without writing new files.
+- Flow name — write/update that specific flow file.
+- `all` — run all existing E2E flows for the detected platform without writing new files.
 
-Do not invoke during `/teikk-build` unless the active plan task explicitly says Maestro E2E.
+Do not invoke during `/teikk-build` unless the active plan task explicitly says E2E.

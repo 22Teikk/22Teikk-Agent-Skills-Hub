@@ -1,6 +1,6 @@
 # npm Install
 
-Install **teikk-agents-skills** into any project with npm. The CLI syncs skills and configurations to a global directory (`~/.teikk-agents-skills/`), creates symlinks in your project, and appends a managed block to `.gitignore` so symlinked folders stay out of version control. Only project-specific artifacts (`SPEC.md`, `tasks/`) remain as physical local files.
+Install **teikk-agents-skills** into any project with npm. The CLI syncs skills and configurations to a global directory (`~/.teikk-agents-skills/`), creates symlinks in your project, and appends a managed block to `.gitignore` so symlinked folders stay out of version control. All workflow output lands in one physical `.teikk/` directory.
 
 Maintained by [22Teikk](https://github.com/22Teikk) — [22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teikk-Agent-Skills-Hub).
 
@@ -19,7 +19,7 @@ Replace `cursor` with your IDE / CLI:
 | Target | IDE / CLI | What gets symlinked (pointing to `~/.teikk-agents-skills/`) |
 |--------|-----------|-----------------------------------------------------------|
 | `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
-| `claude` | [Claude Code](getting-started.md) | `.claude/`, `hooks/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
+| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
 | `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
 | `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/` (with `.gemini/skills` symlink) |
 | `opencode` | [OpenCode](opencode-setup.md) | `AGENTS.md`, `skills/`, `agents/`, and `.opencode/skills` symlink |
@@ -72,25 +72,20 @@ npx teikk-agents-skills uninstall
 
 ## `.gitignore` management
 
-`init` and `update` append (or replace) a marked block in your project's `.gitignore`. These paths (except for local artifacts like `SPEC.md` and `tasks/`) represent symlinks to the global directory, keeping them completely out of your repository:
+`init` and `update` append (or replace) a marked block in your project's `.gitignore`. Most paths are symlinks to the global directory; `.teikk/` is the one physical directory where every workflow writes its output. All of it stays out of your repository:
 
 ```gitignore
 # BEGIN teikk-agents-skills (managed by npm — do not edit)
 .cursor/
+.teikk/
 AGENTS.md
-skills/
 agents/
 references/
-SPEC.md
-docs/SPEC.md
-spec/
-tasks/
-.claude/.simplify-ignore-cache/
-.claude/sdd-cache/
+skills/
 # END teikk-agents-skills
 ```
 
-Patterns depend on the installed target(s). The block always includes **workflow artifacts** your agent may create later (`SPEC.md`, `tasks/`, hook caches, etc.) so they stay local even before they exist.
+Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/SPEC.md`, `.teikk/tasks/`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
 
 Do not edit lines between the markers manually — re-run `npx teikk-agents-skills update` after changing targets.
 
@@ -100,7 +95,7 @@ Do not edit lines between the markers manually — re-run `npx teikk-agents-skil
 
 ```json
 {
-  "version": "1.5.0",
+  "version": "2.0.0",
   "targets": ["cursor"],
   "installedAt": "2026-06-13T09:00:00.000Z",
   "package": "teikk-agents-skills"
@@ -125,8 +120,8 @@ Publish from this repo:
 ```bash
 npm test
 npm publish --access public  # required for unscoped packages on first publish
-git tag -a v1.5.0 -f -m "v1.5.0"
-git push origin v1.5.0 --force
+git tag -a v2.0.0 -f -m "v2.0.0"
+git push origin v2.0.0 --force
 ```
 
 After publish, users can run:
@@ -178,7 +173,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
-| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev` |
+| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

@@ -21,4 +21,4 @@ Generate a spec covering all nine core areas from the skill: objective, tech sta
 
 Surface any platform assumptions explicitly and ask the user to confirm or correct before writing the spec.
 
-Save the spec as `SPEC.md` in the project root and confirm with the user before proceeding.
+Save the spec as `.teikk/SPEC.md` (the tool auto-creates and gitignores `.teikk/`) and confirm with the user before proceeding.

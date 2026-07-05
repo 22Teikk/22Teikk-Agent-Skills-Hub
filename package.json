@@ -1,7 +1,7 @@
 {
   "name": "teikk-agents-skills",
-  "version": "1.5.0",
-  "description": "Production-grade engineering skills for AI coding agents by 22Teikk — install into Cursor, Claude Code, Antigravity, Gemini CLI, or OpenCode.",
+  "version": "2.0.0",
+  "description": "Production-grade engineering skills for AI coding agents by 22Teikk — install into Claude Code, Antigravity, or OpenCode (also Cursor and Gemini CLI).",
   "license": "MIT",
   "author": "22Teikk <https://github.com/22Teikk>",
   "repository": {
@@ -39,12 +39,14 @@
     "agents/",
     "references/",
     "hooks/",
-    "AGENTS.md"
+    "AGENTS.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "node scripts/validate-skills.js && node scripts/test-install.js",
-    "validate": "node scripts/validate-skills.js"
+    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/test-install.js",
+    "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js",
+    "sync": "node scripts/sync-targets.js --write"
   },
   "engines": {
     "node": ">=18"

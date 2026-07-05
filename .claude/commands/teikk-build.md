@@ -6,7 +6,7 @@ Invoke the teikk-agents-skills:incremental-implementation skill alongside `skill
 
 ## Skill routing (before each task)
 
-Read the SPEC.md to determine the project platform, then match the task to the right skill and persona:
+Read the .teikk/SPEC.md to determine the project platform, then match the task to the right skill and persona:
 
 | Task touches | Platform | Also read / invoke |
 |--------------|----------|--------------------|
@@ -47,9 +47,9 @@ Pick the next pending task from the plan. Then:
 
 ## Autonomous: the whole plan (`/teikk-build auto`)
 
-1. **Require a spec.** Look for `SPEC.md`, `docs/SPEC.md`, or `spec/*`. If none exists, stop — tell the user to run `/teikk-spec` first.
+1. **Require a spec.** Look for `.teikk/SPEC.md` or `.teikk/spec/*` (fall back to a legacy `SPEC.md`/`docs/SPEC.md` at the repo root if present). If none exists, stop — tell the user to run `/teikk-spec` first.
 2. **Establish a clean baseline.** Run `git status --porcelain`. Stop if uncommitted changes exist outside planning artifacts.
-3. **Plan if needed.** If no `tasks/plan.md`, follow the teikk-agents-skills:planning-and-task-breakdown skill.
+3. **Plan if needed.** If no `.teikk/tasks/plan.md`, follow the teikk-agents-skills:planning-and-task-breakdown skill.
 4. **Single checkpoint.** Present the full plan and wait for approval.
 5. **Execute every task in dependency order.** RED → GREEN → regression → build → commit → mark complete. One commit per task.
 6. **Stop and ask** when tests fail, spec is ambiguous, or task is high-risk — follow the teikk-agents-skills:debugging-and-error-recovery skill or `skills/doubt-driven-development/SKILL.md`.

@@ -1,6 +1,6 @@
 # Android Stack Defaults
 
-Apply when working on Kotlin/Java Android projects unless SPEC.md or the user overrides.
+Apply when working on Kotlin/Java Android projects unless .teikk/SPEC.md or the user overrides.
 
 ## Architecture
 

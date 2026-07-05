@@ -1,6 +1,6 @@
 # Flutter Stack Defaults
 
-Apply when working on Flutter projects unless SPEC.md or the user overrides.
+Apply when working on Flutter projects unless .teikk/SPEC.md or the user overrides.
 
 ## Architecture
 

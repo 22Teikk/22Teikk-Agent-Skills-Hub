@@ -3,7 +3,7 @@ description = "Run TDD workflow — write failing tests, implement, verify. For 
 prompt = """
 Read and follow `skills/test-driven-development/SKILL.md`.
 
-Read SPEC.md to determine the platform before routing tests:
+Read .teikk/SPEC.md to determine the platform before routing tests:
 
 For new features:
 1. Write tests that describe the expected behavior (they should FAIL)

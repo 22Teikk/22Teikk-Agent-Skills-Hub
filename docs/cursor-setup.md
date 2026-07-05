@@ -7,11 +7,11 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 ### Option 1: npm (Recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and workflow artifacts (`SPEC.md`, `tasks/`, etc.).
+This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/SPEC.md` and `.teikk/tasks/` are written).
 
 Auto-install on every `npm install`:
 

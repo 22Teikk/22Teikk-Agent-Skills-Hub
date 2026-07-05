@@ -46,7 +46,7 @@ This hook caches fetched content on disk, but **revalidates with the origin serv
 
    `${CLAUDE_PROJECT_DIR}` resolves to the directory you launched Claude Code from. The snippet above works when the hooks live inside the same project. If you installed `agent-skills` elsewhere (e.g. as a shared plugin under `./22Teikk-Agent-Skills-Hub`), replace `${CLAUDE_PROJECT_DIR}/hooks/...` with the absolute path to each script.
 
-2. Make sure `.claude/sdd-cache/` is in your `.gitignore` (already included in this repo).
+2. Make sure `.teikk/cache/sdd/` is in your `.gitignore` (already included in this repo).
 
 3. Use `/source-driven-development` (or the skill) as usual. No changes to the skill or the agent's workflow — the cache is transparent.
 
@@ -58,7 +58,7 @@ The stored body is not raw HTML — `WebFetch` post-processes each response thro
 
 ## How it works
 
-One cache entry per URL, stored as JSON in `.claude/sdd-cache/<sha>.json`:
+One cache entry per URL, stored as JSON in `.teikk/cache/sdd/<sha>.json`:
 
 | Event | Action |
 |---|---|
@@ -93,8 +93,8 @@ echo '{
 }' | bash hooks/sdd-cache-post.sh
 
 # Inspect the stored entry
-ls .claude/sdd-cache/
-cat .claude/sdd-cache/*.json | jq .
+ls .teikk/cache/sdd/
+cat .teikk/cache/sdd/*.json | jq .
 
 # Simulate the next PreToolUse on the same URL + prompt
 echo '{
@@ -108,7 +108,7 @@ echo "exit=$?"
 
 Expected:
 
-- First command creates one file under `.claude/sdd-cache/` (only if the server returned an `ETag` or `Last-Modified`).
+- First command creates one file under `.teikk/cache/sdd/` (only if the server returned an `ETag` or `Last-Modified`).
 - Second command exits `2` with the cached content on stderr when the origin replies `304`, or exits `0` silently otherwise.
 
 ### 2. End-to-end in a real session
@@ -116,7 +116,7 @@ Expected:
 1. Register the hooks in `.claude/settings.local.json` as shown above.
 2. Start a Claude Code session in this repo.
 3. Ask the agent to fetch a documentation page (e.g. "fetch `https://developer.android.com/reference/androidx/activity/result/ActivityResultLauncher` and summarize").
-4. Verify a file appears under `.claude/sdd-cache/`.
+4. Verify a file appears under `.teikk/cache/sdd/`.
 5. Ask the agent to fetch the same page with the same prompt again.
 6. Verify the second `WebFetch` is blocked and the cached content is returned (visible in the session transcript as a tool error with `[sdd-cache]` prefix).
 
@@ -126,7 +126,7 @@ To confirm the cache invalidates when docs change, force an `ETag` mismatch. Pic
 
 ```bash
 # Pick the entry you want to corrupt (swap in the actual filename)
-ENTRY=.claude/sdd-cache/e49c9f378670cfbb1d7d871b6dee16d9.json
+ENTRY=.teikk/cache/sdd/e49c9f378670cfbb1d7d871b6dee16d9.json
 
 # Patch its ETag to something the origin will not recognize
 jq '.etag = "W/\"stale-etag-forced\""' "$ENTRY" > "$ENTRY.tmp" && mv "$ENTRY.tmp" "$ENTRY"
@@ -138,22 +138,22 @@ echo "exit=$?"   # expect 0 (fetch allowed through)
 
 ### 4. Debugging
 
-Both hooks write timestamped events to `.claude/sdd-cache/.debug.log` when debug mode is on. Enable it with either:
+Both hooks write timestamped events to `.teikk/cache/sdd/.debug.log` when debug mode is on. Enable it with either:
 
 ```bash
 # Option A: env var (per-session)
 SDD_CACHE_DEBUG=1 claude
 
 # Option B: sentinel file (persistent)
-mkdir -p .claude/sdd-cache && touch .claude/sdd-cache/.debug
-# …disable with: rm .claude/sdd-cache/.debug
+mkdir -p .teikk/cache/sdd && touch .teikk/cache/sdd/.debug
+# …disable with: rm .teikk/cache/sdd/.debug
 ```
 
 The log captures URL, detected `tool_response` shape, HEAD status, and why each invocation hit or missed. Useful when a cache miss looks unexpected (typically: the origin stopped emitting validators).
 
 ## Known limitations
 
-- **Body is prompt-shaped.** A hit returns the earlier agent's reading of the page, with the original prompt surfaced so the current agent can decide whether it applies. If it doesn't, delete the file under `.claude/sdd-cache/` to force a re-fetch.
+- **Body is prompt-shaped.** A hit returns the earlier agent's reading of the page, with the original prompt surfaced so the current agent can decide whether it applies. If it doesn't, delete the file under `.teikk/cache/sdd/` to force a re-fetch.
 - **Every cache write costs an extra HEAD.** Claude Code doesn't expose the response headers that `WebFetch` already received, so the post hook re-queries the origin to capture `ETag` / `Last-Modified`. One extra roundtrip per miss — the price of keeping this a pure hook with no core changes.
 - **Servers without `ETag` or `Last-Modified` are never cached.** Most official doc sites (developer.android.com, kotlinlang.org) emit validators. Sites that don't are always re-fetched.
 - **A misbehaving server can serve a wrong `304`.** That's a server bug to diagnose, not a cache invariant to defend against; we don't paper over it with a TTL. Delete the entry if you spot a stale one.

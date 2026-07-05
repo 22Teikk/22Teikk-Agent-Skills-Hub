@@ -1,6 +1,4 @@
----
-description: Run exhaustive UI/UX testing on a documented feature or flow via the ui-ux-tester persona
----
+# Run exhaustive UI/UX testing on a documented feature or flow via the ui-ux-tester persona
 
 Read and follow `agents/ui-ux-tester.md`.
 

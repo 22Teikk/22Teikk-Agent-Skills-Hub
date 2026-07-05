@@ -13,7 +13,7 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### npm install (recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev
 npx teikk-agents-skills init cursor    # or claude, antigravity, gemini, opencode, all
 ```
 
@@ -139,11 +139,11 @@ Load a reference when you need detailed patterns beyond what the skill covers.
 
 ## Spec and task artifacts
 
-The `/teikk-spec` and `/teikk-planning` commands create working artifacts (`SPEC.md`, `tasks/plan.md`, `tasks/todo.md`). Treat them as **living documents** while the work is in progress:
+The `/teikk-spec` and `/teikk-planning` commands create working artifacts under the project's `.teikk/` directory (`.teikk/SPEC.md`, `.teikk/tasks/plan.md`, `.teikk/tasks/todo.md`). Treat them as **living documents** while the work is in progress:
 
-- Keep them in version control during development so the human and the agent have a shared source of truth.
+- `.teikk/` is gitignored by default so these stay local. If you want the human and agent to share them through version control, un-ignore the specific files (e.g. `!.teikk/SPEC.md`) during development.
 - Update them when scope or decisions change.
-- If your repo doesn’t want these files long‑term, delete them before merge or add the folder to `.gitignore` — the workflow doesn’t require them to be permanent.
+- Everything a workflow generates lives under `.teikk/` — delete that one directory to clear all artifacts.
 
 ## Tips
 

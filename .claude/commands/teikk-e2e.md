@@ -4,7 +4,7 @@ description: Write and verify E2E tests for critical user journeys (opt-in). Pla
 
 **Opt-in only.** Do not run unless SPEC declares an E2E strategy or the user explicitly requests a flow.
 
-Read SPEC.md to determine platform and E2E opt-in value, then follow the matching workflow:
+Read .teikk/SPEC.md to determine platform and E2E opt-in value, then follow the matching workflow:
 
 ## Android — Maestro
 
@@ -12,9 +12,9 @@ Invoke the teikk-agents-skills:android-e2e-maestro skill.
 
 1. **Gate** — Confirm SPEC says `E2E: Maestro`. Verify the journey warrants Maestro, not `/teikk-test`.
 2. **Gather selectors** — Read Composable source for `testTag`, strings, routes. Do not guess labels.
-3. **Write YAML** — Save to `.maestro/flows/<snake_case>.yaml` with correct `appId` from `build.gradle.kts`.
+3. **Write YAML** — Save to `.teikk/maestro/flows/<snake_case>.yaml` with correct `appId` from `build.gradle.kts`.
 4. **Install app** — `./gradlew installDebug`.
-5. **Verify** — `maestro test .maestro/flows/<flow>.yaml`. Fix and re-run until pass.
+5. **Verify** — `maestro test .teikk/maestro/flows/<flow>.yaml`. Fix and re-run until pass.
 6. **Report** — Criterion covered, file path, command run, pass/fail.
 
 ## iOS — XCUITest

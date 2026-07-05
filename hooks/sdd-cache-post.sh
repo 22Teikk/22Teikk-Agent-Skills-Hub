@@ -22,7 +22,7 @@ if [ -t 0 ]; then INPUT="{}"; else INPUT=$(cat); fi
 # Debug logging: active when SDD_CACHE_DEBUG=1 is set, or when a sentinel
 # file exists at .claude/sdd-cache/.debug. Toggle with `touch` / `rm`.
 dbg() {
-  local dir="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/sdd-cache"
+  local dir="${CLAUDE_PROJECT_DIR:-$PWD}/.teikk/cache/sdd"
   [ "${SDD_CACHE_DEBUG:-0}" = "1" ] || [ -f "$dir/.debug" ] || return 0
   mkdir -p "$dir"
   printf '%s [post] %s\n' "$(date -u +%FT%TZ)" "$*" >> "$dir/.debug.log"
@@ -72,7 +72,7 @@ hash_key() {
   fi
 }
 
-CACHE_DIR="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/sdd-cache"
+CACHE_DIR="${CLAUDE_PROJECT_DIR:-$PWD}/.teikk/cache/sdd"
 mkdir -p "$CACHE_DIR"
 CACHE_FILE="$CACHE_DIR/$(hash_key "$URL").json"
 

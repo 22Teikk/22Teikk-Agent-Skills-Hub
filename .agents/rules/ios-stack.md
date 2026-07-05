@@ -1,6 +1,6 @@
 # iOS Stack Defaults
 
-Apply when working on Swift/SwiftUI iOS projects unless SPEC.md or the user overrides.
+Apply when working on Swift/SwiftUI iOS projects unless .teikk/SPEC.md or the user overrides.
 
 ## Architecture
 

@@ -24,4 +24,4 @@ xcodebuild build -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPho
 xcodebuild test -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-After completion, update `tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.
+After completion, update `.teikk/tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.

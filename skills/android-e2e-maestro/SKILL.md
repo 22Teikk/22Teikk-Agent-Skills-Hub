@@ -1,19 +1,19 @@
 ---
 name: android-e2e-maestro
-description: Writes and runs Maestro YAML flows for Android end-to-end user journeys. Use when a multi-screen app needs journey smoke tests, when SPEC.md declares E2E Maestro, or when invoked via /teikk-e2e. Do NOT use for unit tests, Compose component tests, or Macrobenchmarks.
+description: Writes and runs Maestro YAML flows for Android end-to-end user journeys. Use when a multi-screen app needs journey smoke tests, when .teikk/SPEC.md declares E2E Maestro, or when invoked via /teikk-e2e. Do NOT use for unit tests, Compose component tests, or Macrobenchmarks.
 ---
 
 # Android E2E Testing (Maestro)
 
 ## Overview
 
-Maestro runs black-box user-journey tests on a real device or emulator. Flows live as YAML under `.maestro/flows/`. This skill is **opt-in** — not every project needs E2E. Use `/teikk-test` for TDD (unit + Compose component tests); use this skill only for critical multi-screen journeys.
+Maestro runs black-box user-journey tests on a real device or emulator. Flows live as YAML under `.teikk/maestro/flows/`. This skill is **opt-in** — not every project needs E2E. Use `/teikk-test` for TDD (unit + Compose component tests); use this skill only for critical multi-screen journeys.
 
 ## When to Use
 
-- SPEC.md or plan declares `E2E: Maestro` for one or more acceptance criteria.
+- .teikk/SPEC.md or plan declares `E2E: Maestro` for one or more acceptance criteria.
 - User invokes `/teikk-e2e` with a flow name or acceptance criterion.
-- Pre-ship smoke when `.maestro/` already exists (via `/teikk-ship` optional check).
+- Pre-ship smoke when `.teikk/maestro/` already exists (via `/teikk-ship` optional check).
 - Multi-screen flows where unit and Compose component tests cannot cover navigation + DI + real app startup together.
 
 **When NOT to use:**
@@ -36,7 +36,7 @@ If Maestro CLI or a device is unavailable, generate the YAML but stop before cla
 
 ### Step 1: Confirm scope (opt-in gate)
 
-Read `SPEC.md` (or user request) for the acceptance criterion this flow must prove.
+Read `.teikk/SPEC.md` (or user request) for the acceptance criterion this flow must prove.
 
 ```
 FLOW SCOPE:
@@ -65,7 +65,7 @@ Cross-check navigation order from Navigation graph or routes file.
 Directory layout:
 
 ```
-.maestro/
+.teikk/maestro/
   config.yaml          # optional — env, tags
   flows/
     create_task.yaml
@@ -103,10 +103,10 @@ A flow is not done until Maestro passes on device/emulator.
 ./gradlew installDebug
 
 # Run single flow
-maestro test .maestro/flows/create_task.yaml
+maestro test .teikk/maestro/flows/create_task.yaml
 
 # Run all flows
-maestro test .maestro/flows/
+maestro test .teikk/maestro/flows/
 ```
 
 **On failure:** read Maestro output, fix selectors or timing, re-run. Do not mark the task complete on a failing run.
@@ -125,7 +125,7 @@ Add only when the project adopts E2E in SPEC. See `skills/ci-cd-and-automation/S
     script: |
       curl -Ls "https://get.maestro.mobile.dev" | bash
       ./gradlew installDebug
-      maestro test .maestro/flows/
+      maestro test .teikk/maestro/flows/
 ```
 
 ## Relationship to other skills
@@ -135,7 +135,7 @@ Add only when the project adopts E2E in SPEC. See `skills/ci-cd-and-automation/S
 | Unit / Compose component TDD | `test-driven-development`, `android-testing-and-benchmark-kotlin` |
 | testTag in Composables | `android-ui-kotlin` |
 | CI pipeline | `ci-cd-and-automation` |
-| Pre-ship optional run | `/teikk-ship` when `.maestro/flows/` exists |
+| Pre-ship optional run | `/teikk-ship` when `.teikk/maestro/flows/` exists |
 
 ## Common Rationalizations
 

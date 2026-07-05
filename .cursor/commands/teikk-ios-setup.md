@@ -1,6 +1,4 @@
----
-description: Set up iOS foundation — SPM dependencies, SwiftLint, logging, Crashlytics
----
+# Set up iOS foundation — SPM dependencies, SwiftLint, logging, Crashlytics
 
 Read `agents/swift-expert.md`.
 

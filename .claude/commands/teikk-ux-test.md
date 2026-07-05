@@ -5,9 +5,9 @@ description: Run exhaustive UI/UX testing on a documented feature or flow via th
 Read and follow `agents/ui-ux-tester.md`.
 
 Run exhaustive UI and UX testing on the target application or flow. The user may pass:
-- A path to the documentation, SPEC.md section, or feature description to test
+- A path to the documentation, .teikk/SPEC.md section, or feature description to test
 - A specific flow name to isolate (default: test all documented flows)
-- The application type: web app (Chrome MCP), desktop (Computer Use), or mobile (describe target)
+- The application type: mobile app (mobile-mcp — iOS/Android on simulator/emulator/device) or web app (browser-automation MCP)
 
 Return a structured defect report with severity classification, visual evidence, and specific fix recommendations.
 

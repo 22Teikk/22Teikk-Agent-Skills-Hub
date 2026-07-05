@@ -12,11 +12,11 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 
 ## Install
 
-All skills, agents, and references are stored globally in `~/.teikk-agents-skills/` and symlinked to your project. Your repository remains clean — only project-specific files like `SPEC.md` and `tasks/` are stored physically.
+All skills, agents, and references are stored globally in `~/.teikk-agents-skills/` and symlinked to your project. Your repository remains clean — the one physical directory is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it links beside your own files and never deletes your `.claude/` config.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0 --save-dev
-npx teikk-agents-skills init cursor
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev
+npx teikk-agents-skills init claude
 ```
 
 Auto-install on `npm install` — add to your project's `package.json`:
@@ -24,13 +24,13 @@ Auto-install on `npm install` — add to your project's `package.json`:
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v1.5.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0"
   },
-  "teikk-agents-skills": { "target": "cursor" }
+  "teikk-agents-skills": { "target": "claude" }
 }
 ```
 
-Other targets: `claude` | `antigravity` | `gemini` | `opencode` | `all`
+Primary targets: `claude` | `antigravity` | `opencode`. Also supported: `cursor` | `gemini` | `all`
 
 Setup guides: [docs/](docs/)
 
@@ -44,7 +44,7 @@ Setup guides: [docs/](docs/)
 npx teikk-agents-skills uninstall
 ```
 
-Removes all installed config files (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`, etc.), cleans the managed `.gitignore` block, and removes the manifest.
+Removes only the symlinks it created (`.cursor/`, `.claude/commands/`, `.agents/`, `.gemini/`, etc.) — your own files (e.g. `.claude/settings.local.json`) are left untouched — cleans the managed `.gitignore` block, and removes the manifest.
 
 ### Then remove the npm package
 
@@ -58,8 +58,10 @@ If you installed without npm, delete the symlinked/copied directories and remove
 
 ```bash
 rm -rf ~/.teikk-agents-skills/
-# In your project:
-rm -rf .cursor/rules/ .cursor/commands/ .claude/ .agents/ .gemini/ .opencode/ .serena/
+# In your project (only the symlinked dirs — your own .claude/settings*.json is left alone):
+rm -rf .cursor/rules/ .cursor/commands/ .claude/commands/ .agents/ .gemini/ .opencode/ .serena/
+# Optionally remove workflow output:
+rm -rf .teikk/
 # Edit .gitignore — remove the managed block between:
 #   # >>> teikk-agents-skills ...
 #   # <<< teikk-agents-skills
@@ -111,6 +113,23 @@ Android Maestro skill: `skills/android-e2e-maestro/SKILL.md`
 
 ---
 
+## Generated files — everything lands in `.teikk/`
+
+Every workflow writes its output under a single project-local `.teikk/` directory, so nothing is scattered across your repo and one `.gitignore` line covers it all (added automatically on install):
+
+```
+.teikk/
+├─ SPEC.md              /teikk-spec
+├─ spec/                multi-file spec (optional)
+├─ tasks/               /teikk-planning → plan.md, todo.md
+├─ maestro/flows/       /teikk-e2e (Android)
+└─ cache/               hook caches (sdd, simplify-ignore) — never leaves the project
+```
+
+**Install is additive.** Symlinks land *next to* your own files — `init claude` links only `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the symlinks it created.
+
+---
+
 ## All commands (18)
 
 | Phase | Command |
@@ -134,10 +153,12 @@ skills/          29 workflow skills (SKILL.md each)
 agents/          9 personas (code-reviewer, test-engineer, security-auditor, android-performance-auditor,
                  kotlin-specialist, swift-expert, flutter-expert, mobile-app-developer, ui-ux-tester)
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (18)
-.claude/         slash commands (18) + hooks
-.agents/         Antigravity rules (3) + workflows (18)
+.claude/         slash commands (18)
+hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
+.agents/         Antigravity rules (6) + workflows (18)
 commands/        OpenCode TOML commands (18)
 references/      testing, security, performance, accessibility checklists
+.teikk/          (generated at runtime) all workflow output — gitignored
 ```
 
 ---

@@ -3,17 +3,18 @@ description = "Run the pre-launch checklist via parallel fan-out to specialist p
 prompt = """
 Read and follow `skills/shipping-and-launch/SKILL.md`.
 
-`/teikk-ship` is a **fan-out orchestrator**. It runs three specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
+`/teikk-ship` is a **fan-out orchestrator**. It runs four specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 
 ## Phase A — Parallel fan-out
 
-Spawn three subagents concurrently using the Task tool when available. **Issue all three Task calls in a single assistant turn.**
+Spawn four subagents concurrently using the Task tool when available. **Issue all four Task calls in a single assistant turn.**
 
 Adopt each persona from `agents/`:
 
 1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Five-axis review on staged changes or recent commits.
 2. **`security-auditor`** — Read `agents/security-auditor.md`. OWASP, secrets, auth, dependency CVEs.
 3. **`test-engineer`** — Read `agents/test-engineer.md`. Coverage gaps (happy path, edge, error, concurrency).
+4. **`ui-ux-tester`** — Read `agents/ui-ux-tester.md`. Critical user flows, visual spacing, defect report.
 
 ## Phase B — Skill-based ship checks
 
@@ -26,15 +27,22 @@ After persona reports, verify against these skills (read and check, do not skip)
 | CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` |
 | Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
 | Security hardening | `skills/security-and-hardening/SKILL.md` |
+| Store readiness (both platforms) | Read `agents/mobile-app-developer.md` — verify privacy manifest, targetSdkVersion, 64-bit, crash-free >= 99.9% |
 
 Merge with persona findings:
 
 1. **Code Quality** — Aggregate Critical/Important + failing tests/lint/build
 2. **Security** — Promote Critical/High to blockers
-3. **Observability** — Timber release hygiene, Crashlytics keys, no PII in logs
-4. **Infrastructure** — Env vars, migrations, feature flags, monitoring
-5. **Documentation** — README, ADRs, changelog
-6. **E2E (optional)** — If `.maestro/flows/` exists and SPEC does not say `E2E: none`, follow `skills/android-e2e-maestro/SKILL.md`: run `maestro test .maestro/flows/`. Fail → Recommended fix or Blocker if SPEC declares E2E required. If no `.maestro/` dir, skip silently.
+3. **Observability** — Release logging hygiene, Crashlytics keys, no PII in logs
+4. **Store Readiness** — Platform-specific blockers from `mobile-app-developer`
+5. **UX** — Broken flows or Critical spacing issues from `ui-ux-tester`
+6. **Infrastructure** — Env vars, migrations, feature flags, monitoring
+7. **Documentation** — README, ADRs, changelog
+8. **E2E (opt-in)** — Determined by SPEC platform and E2E declaration:
+   - Android + `E2E: Maestro` → run `maestro test .teikk/maestro/flows/` via `skills/android-e2e-maestro/SKILL.md`
+   - iOS + `E2E: XCUITest` → run `xcodebuild test` via `agents/swift-expert.md`
+   - Flutter + `E2E: integration_test` → run `flutter test integration_test/` via `agents/flutter-expert.md`
+   - `E2E: none` or no e2e dir → skip silently
 
 ## Phase C — Decision and rollback
 
@@ -61,6 +69,7 @@ Produce:
 - [code-reviewer report]
 - [security-auditor report]
 - [test-engineer report]
+- [ui-ux-tester report]
 ```
 
 ## Rules
@@ -69,5 +78,5 @@ Produce:
 2. Phase B skill checks are mandatory — not optional.
 3. Rollback plan mandatory before GO.
 4. Critical finding → default NO-GO unless user accepts risk explicitly.
-5. Skip fan-out only if ≤2 files, <50 lines, no auth/payments/data/config touch.
+5. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.
 """

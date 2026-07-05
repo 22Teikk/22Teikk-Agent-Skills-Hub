@@ -44,7 +44,7 @@ result[3] = buf[3] ^ key[3];
 
 3. Run `/teikk-code-simplify` — protected blocks become `/* BLOCK_de115a1d: perf-critical */` placeholders. The model reasons about surrounding code without seeing the protected implementation.
 
-> **Note:** The hook stores temporary backups in `.claude/.simplify-ignore-cache/`. Make sure this path is in your `.gitignore`.
+> **Note:** The hook stores temporary backups in `.teikk/cache/simplify-ignore/`. Make sure this path is in your `.gitignore`.
 
 ## How it works
 
@@ -76,7 +76,7 @@ If Claude Code crashes without triggering the Stop hook, files on disk may still
 echo '{}' | bash hooks/simplify-ignore.sh
 ```
 
-Backups are stored in `.claude/.simplify-ignore-cache/` within your project directory.
+Backups are stored in `.teikk/cache/simplify-ignore/` within your project directory.
 
 ## Known limitations
 

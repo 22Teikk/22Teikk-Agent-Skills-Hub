@@ -40,7 +40,7 @@ Merge with persona findings:
 6. **Infrastructure** — Env vars, migrations, feature flags, monitoring
 7. **Documentation** — README, ADRs, changelog
 8. **E2E (opt-in)** — Determined by SPEC platform and E2E declaration:
-   - Android + `E2E: Maestro` → run `maestro test .maestro/flows/` via `skills/android-e2e-maestro/SKILL.md`
+   - Android + `E2E: Maestro` → run `maestro test .teikk/maestro/flows/` via `skills/android-e2e-maestro/SKILL.md`
    - iOS + `E2E: XCUITest` → run `xcodebuild test` via `agents/swift-expert.md`
    - Flutter + `E2E: integration_test` → run `flutter test integration_test/` via `agents/flutter-expert.md`
    - `E2E: none` or no `.e2e/` → skip silently
