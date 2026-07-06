@@ -18,7 +18,7 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository remains clean — the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.2.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.3.0 --save-dev
 npx teikk-agents-skills init claude
 ```
 
@@ -27,7 +27,7 @@ Auto-install on `npm install` — add to your project's `package.json`:
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.2.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.3.0"
   },
   "teikk-agents-skills": { "target": "claude" }
 }

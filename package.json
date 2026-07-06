@@ -1,6 +1,6 @@
 {
   "name": "teikk-agents-skills",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Production-grade engineering skills for AI coding agents by 22Teikk — install into Claude Code, Antigravity, or OpenCode (also Cursor and Gemini CLI).",
   "license": "MIT",
   "author": "22Teikk <https://github.com/22Teikk>",
