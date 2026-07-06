@@ -15,10 +15,10 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 
 ## Install
 
-All skills, agents, and references are stored globally in `~/.teikk-agents-skills/` and symlinked to your project. Your repository remains clean — the one physical directory is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it links beside your own files and never deletes your `.claude/` config.
+All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository remains clean — the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.2.0 --save-dev
 npx teikk-agents-skills init claude
 ```
 
@@ -27,7 +27,7 @@ Auto-install on `npm install` — add to your project's `package.json`:
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.2.0"
   },
   "teikk-agents-skills": { "target": "claude" }
 }
@@ -47,7 +47,7 @@ Setup guides: [docs/](docs/)
 npx teikk-agents-skills uninstall
 ```
 
-Removes only the symlinks it created (`.cursor/`, `.claude/commands/`, `.agents/`, `.gemini/`, etc.) — your own files (e.g. `.claude/settings.local.json`) are left untouched — cleans the managed `.gitignore` block, and removes the manifest.
+Removes only the files it created (`.cursor/`, `.claude/commands/`, `.agents/`, `.gemini/`, etc.) — your own files (e.g. `.claude/settings.local.json`) are left untouched — cleans the managed `.gitignore` block, and removes the manifest.
 
 ### Then remove the npm package
 
@@ -57,11 +57,10 @@ npm uninstall teikk-agents-skills
 
 ### Manual removal
 
-If you installed without npm, delete the symlinked/copied directories and remove the `# >>> teikk-agents-skills` block from `.gitignore`:
+If you installed without npm, delete the copied directories and remove the `# >>> teikk-agents-skills` block from `.gitignore`:
 
 ```bash
-rm -rf ~/.teikk-agents-skills/
-# In your project (only the symlinked dirs — your own .claude/settings*.json is left alone):
+# In your project (only the files this tool copied — your own .claude/settings*.json is left alone):
 rm -rf .cursor/rules/ .cursor/commands/ .claude/commands/ .agents/ .gemini/ .opencode/ .serena/
 # Optionally remove workflow output:
 rm -rf .teikk/
@@ -140,7 +139,7 @@ Every workflow writes its output under a single project-local `.teikk/` director
 
 > Everything a workflow generates lives here — no more `docs/ideas/`, `docs/decisions/`, or scattered files in your repo. ADRs are gitignored by default; if you want them version-controlled, un-ignore the folder (`!.teikk/adr/`).
 
-**Install is additive.** Symlinks land *next to* your own files — `init claude` links only `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the symlinks it created.
+**Install is additive.** Files land *next to* your own — `init claude` copies only into `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the files it created.
 
 ---
 
@@ -157,14 +156,14 @@ Every workflow writes its output under a single project-local `.teikk/` director
 | QA _(optional, slow)_ | `/teikk-qa`, `/teikk-e2e`, `/teikk-ux-test` |
 | Audit | `/teikk-androidperf` |
 
-29 skills total — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md`).
+30 skills total — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md`).
 
 ---
 
 ## Project layout
 
 ```
-skills/          29 workflow skills (SKILL.md each)
+skills/          30 workflow skills (SKILL.md each) — one (machine-audit) is standalone, opt-in only
 agents/          10 personas (code-reviewer, adversarial-reviewer, test-engineer, security-auditor,
                  android-performance-auditor, kotlin-specialist, swift-expert, flutter-expert,
                  mobile-app-developer, ui-ux-tester)

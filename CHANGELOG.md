@@ -3,6 +3,21 @@
 All notable changes to **teikk-agents-skills** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] — 2026-07-06
+
+Installs are no longer symlinked through a shared global cache — every project now gets fully self-contained physical copies.
+
+### Added
+- **`machine-audit` skill (30th skill)** — a standalone, optional skill that diagnoses machine-level Claude Code configuration (`~/.claude/settings.json`, user-scope MCP servers, global hooks) when a session feels slow or expensive, so that cost/latency isn't misattributed to this package's own workflow. It ships with the package like every other skill but is intentionally **not** wired to any `/teikk-*` command, not part of the Define→Ship lifecycle, and not listed in `CLAUDE.md`'s Skills by Phase breakdown — it self-triggers only via its `description` when the user asks about cost/slowness.
+
+### Changed
+- **Global install cache removed.** Pre-3.0 versions synced package content into a single shared home-directory cache (`~/.teikk-agents-skills/`) and symlinked each project's files into it. Because that cache was shared machine-wide, running `install`/`update` in one project (possibly on a different package version) could silently change what every *other* project's symlinks resolved to. 3.0 eliminates this entirely: `init`/`update` copy files directly into the project, with no shared state and no cross-project conflict.
+- **On-disk install shape changes from symlinks to real files.** `.cursor/`, `.claude/commands/`, `skills/`, `agents/`, `references/`, `.agents/`, `commands/`, `.gemini/`, and `AGENTS.md` are now physical copies. The two remaining symlinks (`.opencode/skills` → `../skills`, `.gemini/skills` → `../skills`) are project-local aliases only — they never point outside the project.
+- **Install manifest (`.teikk-agents-skills.json`) gains a `files` array** — every relative path the CLI has copied into the project. This is how `update` knows which files it's safe to refresh and `uninstall` knows exactly what to remove, without touching anything the manifest doesn't list.
+- **Stale file cleanup on `update`.** If a future package version stops shipping a file this tool previously copied in, the next `update` now deletes that orphaned copy (and prunes any directory left empty) instead of leaving it behind forever.
+- **Automatic one-time migration.** Running `update` on an existing 1.x or 2.x install detects the old symlinks (pointing into the legacy global cache) and transparently replaces them with real files — no manual cleanup required.
+- **Gemini target simplified** — `.gemini/skills` now uses the same `copyPaths`/`symlinks` pattern as OpenCode instead of a hand-rolled special case.
+
 ## [2.1.0] — 2026-07-06
 
 ### Added
@@ -57,6 +72,7 @@ Major release: multi-target parity, a single `.teikk/` output directory, and a n
 ## [1.3.0]
 - Wired the Android stack into the spec → plan → build → ship workflow.
 
+[2.2.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.2.0
 [2.1.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.1.0
 [2.0.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.0.0
 [1.5.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v1.5.0

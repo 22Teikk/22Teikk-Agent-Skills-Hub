@@ -9,7 +9,7 @@ Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teik
 Primary targets: **Claude Code**, **Antigravity (IDE + CLI)**, **OpenCode**. Cursor and Gemini CLI are also supported.
 
 ```
-skills/       → 29 skills (SKILL.md per directory)
+skills/       → 30 skills (SKILL.md per directory) — 1 standalone/opt-in (machine-audit), not phase-bound
 agents/       → 10 specialist personas (code-reviewer, adversarial-reviewer, test-engineer,
                 security-auditor, android-performance-auditor, kotlin-specialist, swift-expert,
                 flutter-expert, mobile-app-developer, ui-ux-tester)
@@ -50,7 +50,7 @@ QA (optional, slow — pulled out of the verify loop): `/teikk-qa` runs E2E + UI
 - Spec covers nine areas including Architecture and Observability
 - Android plans require Phase 0 Foundation before feature slices
 - **All workflow output goes under `.teikk/`** (SPEC.md, tasks/, spec/, maestro/flows/, cache/) — one gitignored dir, no scatter
-- **Install is additive** — symlinks land beside user files (`.claude/commands/` only, never the whole `.claude/`); it never deletes user config
+- **Install is additive** — files are copied directly into the project beside user files (`.claude/commands/` only, never the whole `.claude/`); self-contained, no shared global state, and it never deletes user config
 
 ## Boundaries
 

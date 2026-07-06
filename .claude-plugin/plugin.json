@@ -8,7 +8,7 @@
   "homepage": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
   "repository": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
   "license": "MIT",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "commands": "./.claude/commands",
   "skills": "./skills",
   "agents": [
