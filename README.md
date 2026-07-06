@@ -90,6 +90,9 @@ rm -rf .teikk/
 /teikk-qa            ← deep-QA pass: E2E journeys + exhaustive UI/UX testing
 /teikk-e2e           ← E2E only: Maestro (Android) | XCUITest (iOS) | integration_test (Flutter)
 /teikk-ux-test       ← UI/UX only: exhaustive flow testing + defect report
+
+── faster when context allows — build + test + review + ship in one session ──
+/teikk-quick-implement  ← implement one task end-to-end with auto context compaction
 ```
 
 ### Setup & specialists
@@ -143,7 +146,7 @@ Every workflow writes its output under a single project-local `.teikk/` director
 
 ---
 
-## All commands (20)
+## All commands (21)
 
 | Phase | Command |
 |-------|---------|
@@ -156,8 +159,15 @@ Every workflow writes its output under a single project-local `.teikk/` director
 | QA _(optional, slow)_ | `/teikk-qa`, `/teikk-e2e`, `/teikk-ux-test` |
 | Audit | `/teikk-androidperf` |
 | Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
+| End-to-end | `/teikk-quick-implement` |
 
 30 skills total — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md`).
+
+---
+
+## End-to-end implementation
+
+- `/teikk-quick-implement` — **chains build → test → review → ship in one session** with automatic context compaction if running low on tokens. Use when you have a single, well-scoped task and want a final verdict without multiple command invocations. Estimated cost: 33–56k tokens. **Not recommended for exploratory work or when token budget is tight** — use individual commands instead.
 
 ---
 
