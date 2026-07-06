@@ -19,6 +19,8 @@ Adopt each persona from `agents/`:
 
 ## Phase B — Skill-based ship checks
 
+If `.teikk/PROJECT.yaml` exists, read its `domain`, `e2e`, and `platforms` fields now — they guide the checks below. Otherwise, determine these from `.teikk/SPEC.md`.
+
 After persona reports, verify against these skills (read and check, do not skip):
 
 | Check | Skill |
@@ -93,4 +95,54 @@ Produce a **two-tier** verdict — never a single ambiguous "GO" that reads like
 5. Critical finding → default NO-GO unless user accepts risk explicitly.
 6. Never count boilerplate/mock-only/label-only tests toward coverage; "PARTIAL" coverage of an AC = not done.
 7. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.
+
+## Phase D — Persistent ship report
+
+After Phase C, write `.teikk/SHIP-REPORT.md`. Overwrite if it already exists — the latest run is always authoritative.
+
+```markdown
+# Ship Report
+Generated: <ISO timestamp — e.g. 2026-07-06T14:32:00Z>
+Verdict: <GO (production) | GO (demo/portfolio) | NO-GO>
+
+## Traceability Matrix
+
+| AC | Behavioral test | Level | Proven? |
+|----|-----------------|-------|---------|
+<reproduce the full matrix from .teikk/SPEC.md with Proven? column filled in based on Phase B findings>
+
+## Production Blockers
+<list each item, or "None" if GO (production)>
+
+## Blockers (any ship)
+<list each item, or "None">
+
+## Recommended Fixes
+<list each item, or "None">
+
+## Acknowledged Risks
+<list each item, or "None">
+
+## Rollback Plan
+- Trigger conditions: <...>
+- Rollback procedure: <...>
+- Recovery time objective: <...>
+
+## Specialist Reports
+
+### Code Reviewer
+<paste code-reviewer output>
+
+### Adversarial Reviewer
+<paste adversarial-reviewer output — REFUTED/UNREFUTED + attack log>
+
+### Security Auditor
+<paste security-auditor output>
+
+### Test Engineer
+<paste test-engineer output>
+
+### UI/UX Tester
+<paste ui-ux-tester output>
+```
 """

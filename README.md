@@ -143,7 +143,7 @@ Every workflow writes its output under a single project-local `.teikk/` director
 
 ---
 
-## All commands (19)
+## All commands (20)
 
 | Phase | Command |
 |-------|---------|
@@ -155,8 +155,18 @@ Every workflow writes its output under a single project-local `.teikk/` director
 | Ship | `/teikk-ship`, `/teikk-ci`, `/teikk-docs` |
 | QA _(optional, slow)_ | `/teikk-qa`, `/teikk-e2e`, `/teikk-ux-test` |
 | Audit | `/teikk-androidperf` |
+| Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
 
 30 skills total — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md`).
+
+---
+
+## Diagnostics — health checks & troubleshooting
+
+Both commands are **standalone, opt-in, not part of the core DEFINE→SHIP workflow**. Run them when you need a health check or debugging:
+
+- `/teikk-doctor` — audits your agent-skills setup: gitignore, manifest, SPEC integrity, MCP servers, E2E tooling, task files, git status. Writes `.teikk/DOCTOR.md`.
+- `/teikk-machine-audit` — diagnoses your Claude Code environment: `.claude/settings.json`, MCP server health, global hooks, token/cost instrumentation. Run when a session feels slow or expensive (workflow overhead is not the culprit).
 
 ---
 

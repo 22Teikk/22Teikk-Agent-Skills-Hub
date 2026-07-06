@@ -2,7 +2,7 @@
 
 Read and follow `skills/code-review-and-quality/SKILL.md`. Read `agents/code-reviewer.md`.
 
-Before reviewing, read the SPEC `Domain:` field and load `references/domain-guardrails.md` for this app's domain — a violated domain invariant (e.g. money as `Double` in a finance app) is Critical.
+Before reviewing, read `.teikk/PROJECT.yaml` if it exists and use its `domain` field as the authoritative domain source. Load `references/domain-guardrails.md` for this domain — a violated domain invariant (e.g. money as `Double` in a finance app) is Critical. If `.teikk/PROJECT.yaml` does not exist, fall back to reading the SPEC `Domain:` field.
 
 Review the current changes (staged or recent commits) across all five axes:
 
