@@ -126,6 +126,9 @@ public class StartupBenchmark {
 
 ## Red Flags
 
+- **Mock-verification tests** — mocking the component under test so it returns the expected value, then asserting that value. Tautological; counts as zero coverage.
+- **Boilerplate template tests** (`ExampleUnitTest` `2+2==4`, `ExampleInstrumentedTest` package check) left in the suite and counted as coverage — delete them.
+- Data layer "tested" only through mocked repositories, with no **Room in-memory** DAO test (`Room.inMemoryDatabaseBuilder(...)`) that inserts and asserts the exact queried/`SUM` value. The data layer needs ≥1 real-infrastructure test. See `references/domain-guardrails.md`.
 - Espresso tests containing manual `Thread.sleep` calls to wait for views (causes flakiness; use IdlingResources instead).
 - Missing `InstantTaskExecutorRule` rule when testing LiveData inside ViewModels (causes "Method getMainLooper not mocked" error).
 - Not calling `RxJavaPlugins.reset()` after completing tests that modified schedulers (causes cross-test contamination).

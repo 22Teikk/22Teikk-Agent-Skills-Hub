@@ -83,7 +83,38 @@ class TaskListContentTest {
 }
 ```
 
-### 3. Macrobenchmark for Startup and Frame Performance
+### 3. Room In-Memory DAO Integration Tests (mandatory for the data layer)
+
+The data layer must have **≥1 test against a real Room database**, not a mocked repository. A mock that returns `750.0` and then asserts `750.0` proves nothing — it never touches SQL, so a wrong column type, a bad `SUM`, or a broken query ships green. Use an **in-memory** database (fast, real).
+
+```kotlin
+@RunWith(AndroidJUnit4::class)
+class TransactionDaoTest {
+    private lateinit var db: AppDatabase
+    private lateinit var dao: TransactionDao
+
+    @Before fun setUp() {
+        db = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), AppDatabase::class.java
+        ).allowMainThreadQueries().build()
+        dao = db.transactionDao()
+    }
+
+    @After fun tearDown() = db.close()
+
+    @Test
+    fun insertThenSum_returnsExactTotalInMinorUnits() = runTest {
+        dao.insert(TransactionEntity(amountMinor = 2550))   // 25.50
+        dao.insert(TransactionEntity(amountMinor = 1099))   // 10.99
+        val total = dao.totalMinor().first()
+        assertEquals(3649L, total)                          // exact — no float drift
+    }
+}
+```
+
+This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Long` minor units it is exact. See `references/domain-guardrails.md` for the finance rules.
+
+### 4. Macrobenchmark for Startup and Frame Performance
 - Run Macrobenchmarks on real devices to measure Cold/Warm/Hot startup times and frame rendering jank (Frame Overrun).
 
 ```kotlin
@@ -121,6 +152,9 @@ class StartupBenchmark {
 
 - Tests that rely on `Thread.sleep` to wait for coroutines or background operations to complete.
 - Mocking classes you do not own (like Android SDK classes, Context, database drivers, or remote APIs).
+- **Mock-verification tests** — mocking the very component under test (mock repo returns the expected value, then assert that value). Tautological; counts as zero coverage.
+- **Boilerplate template tests** left in the suite (`ExampleUnitTest` `2+2==4`, `ExampleInstrumentedTest` package check) — delete them; never count them.
+- Data layer "tested" only through mocked repositories, with no Room in-memory DAO test.
 - Not setting a custom test dispatcher when testing ViewModels that launch coroutines.
 - Running Macrobenchmarks on virtual emulators without disabling baseline checks (results will be highly variable and inaccurate).
 - UI tests that search for elements using physical positions (x, y coordinates) rather than semantics/tags.

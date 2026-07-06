@@ -1,0 +1,33 @@
+# Optional deep-QA pass (slow) — E2E journeys + exhaustive UI/UX testing. Not part of the core verify/TDD loop.
+
+**Optional and slow — opt-in only.** `/teikk-qa` is a deep quality pass that runs E2E journey tests and exhaustive UI/UX testing. It is **not part of the core verify loop** (`/teikk-test`) and is **never run automatically**. Invoke it deliberately before a release or milestone, when you can afford the runtime — both stages can take many minutes on real devices, emulators, or simulators.
+
+Run the two stages in order. Skip either when it does not apply, and say which you skipped and why.
+
+## Stage 1 — E2E journeys (opt-in)
+
+Only if `.teikk/SPEC.md` declares an E2E strategy (`E2E: Maestro | XCUITest | integration_test`). If it says `E2E: none`, skip this stage.
+
+Detect the platform from SPEC, then run the matching suite:
+- **Android (`E2E: Maestro`)** — Read and follow `skills/android-e2e-maestro/SKILL.md`. Run existing flows in `.teikk/maestro/flows/` with `maestro test`, or write the flow first if missing.
+- **iOS (`E2E: XCUITest`)** — Read `agents/swift-expert.md`. Run/write XCUITest via `xcodebuild test`.
+- **Flutter (`E2E: integration_test`)** — Read `agents/flutter-expert.md`. Run/write `integration_test/` via `flutter test`.
+
+Report each flow: criterion covered, file path, command run, pass/fail.
+
+## Stage 2 — UI/UX testing
+
+Read and follow `agents/ui-ux-tester.md`. Run exhaustive flow validation, a visual spacing audit, and edge/negative-path checks. Mobile via mobile-mcp (iOS/Android on simulator/emulator/device); web via a browser-automation MCP. Produce a severity-classified defect report with specific fixes and visual evidence.
+
+## Arguments
+
+- No args — run both stages across all documented flows.
+- `e2e` — Stage 1 only.
+- `ux` — Stage 2 only.
+- A flow / feature name — scope both stages to that flow.
+
+## Report
+
+Merge into one QA summary: E2E results (flows, pass/fail) followed by the UI/UX defect report (Critical → Low). End with a QA verdict: **ready** or **blockers found** (list them).
+
+Do not run during `/teikk-build` or the TDD loop — too slow. This is a pre-release gate, not an inner-loop check.

@@ -56,26 +56,43 @@ For every function or component:
 | Error paths | Invalid input, network failure, timeout |
 | Concurrency | Rapid repeated calls, out-of-order responses |
 
+## Judge tests by whether they catch bugs — not by counting them
+
+A green suite is not evidence. **Test count is a vanity metric.** Your job is to decide whether each test would actually fail if the behavior it claims to cover regressed. Before reporting coverage, audit every test and **disqualify** the ones that prove nothing:
+
+| Disqualified (counts as ZERO coverage) | Why |
+|----------------------------------------|-----|
+| **Boilerplate template test** — `ExampleUnitTest` (`2 + 2 == 4`), `ExampleInstrumentedTest` (package name check) | Tests the framework, not the app. Flag for deletion. |
+| **Mock-verification test** — mocks the very thing under test (mock repo returns `750.0`, then asserts state is `750.0`) | Asserts the mock, not the logic. Tautological. |
+| **Assertion-less / label-only test** — no value assertion, or only checks a static label is visible | Passes even when the real value is wrong. |
+
+**A test only counts if it executes real behavior** — real logic or real infrastructure (Room in-memory DB, real ViewModel + Flow) — and asserts on a **value or observable outcome**. See `skills/test-driven-development/SKILL.md` for the behavioral-test definition and the real > fake > stub > mock preference order.
+
+**Mandatory for the data layer:** require **≥1 integration test that hits real infrastructure** — a Room **in-memory** DAO test (insert → query/`SUM` → assert the exact value). A data layer "covered" only by mocked repositories is **not covered**; report it as a gap.
+
 ## Output Format
 
-When analyzing test coverage:
-
 ```markdown
-## Test Coverage Analysis
+## Test Quality Audit
 
-### Current Coverage
-- [X] tests covering [Y] functions/components
-- Coverage gaps identified: [list]
+### Real coverage (after disqualification)
+- [X] behavioral tests covering [Y] acceptance criteria / components
+- Disqualified as non-behavioral: [N] — list each with reason (boilerplate / mock-verification / no-assertion)
 
-### Recommended Tests
-1. **[Test name]** — [What it verifies, why it matters]
-2. **[Test name]** — [What it verifies, why it matters]
+### Uncovered acceptance criteria (traceability gaps)
+- AC[n]: [what it claims] — no behavioral test executes it → **blocker for /teikk-ship**
+
+### Data-layer infrastructure check
+- Room in-memory DAO test present? [yes/no] — if no, this is a gap regardless of unit-test count
+
+### Recommended tests
+1. **[Test name]** — [behavior it executes + the value it asserts]
 
 ### Priority
-- Critical: [Tests that catch potential data loss or security issues]
-- High: [Tests for core business logic]
-- Medium: [Tests for edge cases and error handling]
-- Low: [Tests for utility functions and formatting]
+- Critical: [data loss / money precision / security — behavior that must be proven]
+- High: [core business logic]
+- Medium: [edge cases, error handling]
+- Low: [formatting, utilities]
 ```
 
 ## Rules
@@ -84,9 +101,11 @@ When analyzing test coverage:
 2. Each test should verify one concept
 3. Tests should be independent — no shared mutable state between tests
 4. Avoid snapshot tests unless reviewing every change to the snapshot
-5. Mock at system boundaries (database, network), not between internal functions
+5. Mock at system boundaries (database, network), not between internal functions — never mock the unit under test
 6. Every test name should read like a specification
 7. A test that never fails is as useless as a test that always fails
+8. Never count boilerplate, mock-verification, or assertion-less tests toward coverage — disqualify them and say so
+9. The data layer needs ≥1 real-infrastructure test (Room in-memory); mocked-repository tests do not substitute
 
 ## Composition
 

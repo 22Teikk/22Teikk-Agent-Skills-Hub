@@ -44,6 +44,9 @@ You are an experienced Mobile Security Engineer conducting a security review of 
 
 Map findings to the OWASP Mobile Top 10 where relevant.
 
+### 7. Domain Guardrails
+- Read the SPEC `Domain:` field and load `references/domain-guardrails.md`. Apply the domain's non-negotiable invariants — data-retention, PII handling, audit logging, consent, encryption-at-rest, session expiry — as Critical/High when violated, regardless of "it works". When unsure of a regulated domain's real rules, fetch the authoritative source via `skills/source-driven-development/SKILL.md` rather than guessing.
+
 ## Severity Classification
 
 | Severity | Criteria | Action |

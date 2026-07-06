@@ -2,18 +2,19 @@
 
 Read and follow `skills/shipping-and-launch/SKILL.md`.
 
-`/teikk-ship` is a **fan-out orchestrator**. It runs four specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
+`/teikk-ship` is a **fan-out orchestrator**. It runs five specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 
 ## Phase A — Parallel fan-out
 
-Spawn four subagents concurrently using the Task tool when available. **Issue all four Task calls in a single assistant turn.**
+Spawn five subagents concurrently using the Task tool when available. **Issue all five Task calls in a single assistant turn.**
 
 Adopt each persona from `agents/`:
 
-1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Five-axis review on staged changes or recent commits.
-2. **`security-auditor`** — Read `agents/security-auditor.md`. OWASP, secrets, auth, dependency CVEs.
-3. **`test-engineer`** — Read `agents/test-engineer.md`. Coverage gaps (happy path, edge, error, concurrency).
-4. **`ui-ux-tester`** — Read `agents/ui-ux-tester.md`. Critical user flows, visual spacing, defect report.
+1. **`code-reviewer`** — Read `agents/code-reviewer.md`. Five-axis review on staged changes or recent commits; loads domain guardrails.
+2. **`adversarial-reviewer`** — Read `agents/adversarial-reviewer.md`. Falsify each acceptance criterion, find ≥1 Critical. Banned from approving. Returns REFUTED / UNREFUTED (+ attack log).
+3. **`security-auditor`** — Read `agents/security-auditor.md`. OWASP, secrets, auth, dependency CVEs, domain guardrails.
+4. **`test-engineer`** — Read `agents/test-engineer.md`. Test-quality audit — disqualify boilerplate/mock-verification/label-only tests; require a Room in-memory DAO test for the data layer.
+5. **`ui-ux-tester`** — Read `agents/ui-ux-tester.md`. Critical user flows, visual spacing, defect report.
 
 ## Phase B — Skill-based ship checks
 
@@ -26,18 +27,21 @@ After persona reports, verify against these skills (read and check, do not skip)
 | CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` |
 | Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
 | Security hardening | `skills/security-and-hardening/SKILL.md` |
+| **SPEC↔Test traceability (hard gate)** | Read `.teikk/SPEC.md` Traceability Matrix. For **every** acceptance criterion, confirm a **behavioral** test exists and executes it. Mock-only, boilerplate (`ExampleUnitTest`), and label-only tests count as ZERO. Any AC without a behavioral test → **blocker**. There is no "PARTIAL = pass". |
 | Store readiness (both platforms) | Read `agents/mobile-app-developer.md` — verify privacy manifest, targetSdkVersion, 64-bit, crash-free >= 99.9% |
 
 Merge with persona findings:
 
 1. **Code Quality** — Aggregate Critical/Important + failing tests/lint/build
-2. **Security** — Promote Critical/High to blockers
-3. **Observability** — Release logging hygiene, Crashlytics keys, no PII in logs
-4. **Store Readiness** — Platform-specific blockers from `mobile-app-developer`
-5. **UX** — Broken flows or Critical spacing issues from `ui-ux-tester`
-6. **Infrastructure** — Env vars, migrations, feature flags, monitoring
-7. **Documentation** — README, ADRs, changelog
-8. **E2E (opt-in)** — Determined by SPEC platform and E2E declaration:
+2. **Adversarial** — Any AC the `adversarial-reviewer` marked PROVEN-FALSE, or any Critical it found → blocker. A REFUTED verdict blocks GO.
+3. **Traceability** — Any acceptance criterion with no behavioral test → blocker (production blocker at minimum).
+4. **Security** — Promote Critical/High to blockers
+5. **Observability** — Release logging hygiene, Crashlytics keys, no PII in logs
+6. **Store Readiness** — Platform-specific blockers from `mobile-app-developer`
+7. **UX** — Broken flows or Critical spacing issues from `ui-ux-tester`
+8. **Infrastructure** — Env vars, migrations, feature flags, monitoring; `exportSchema=false` + no `Migration` → data-loss production blocker
+9. **Documentation** — README, ADRs, changelog
+10. **E2E (opt-in)** — Determined by SPEC platform and E2E declaration:
    - Android + `E2E: Maestro` → run `maestro test .teikk/maestro/flows/` via `skills/android-e2e-maestro/SKILL.md`
    - iOS + `E2E: XCUITest` → run `xcodebuild test` via `agents/swift-expert.md`
    - Flutter + `E2E: integration_test` → run `flutter test integration_test/` via `agents/flutter-expert.md`
@@ -45,12 +49,15 @@ Merge with persona findings:
 
 ## Phase C — Decision and rollback
 
-Produce:
+Produce a **two-tier** verdict — never a single ambiguous "GO" that reads like production when it isn't:
 
 ```markdown
-## Ship Decision: GO | NO-GO
+## Ship Decision: GO (production) | GO (demo/portfolio) | NO-GO
 
-### Blockers (must fix before ship)
+### Production blockers (must fix before real users / store)
+- [Source: finding + file:line]  e.g. money stored as Double; exportSchema=false + no Migration; AC without a behavioral test
+
+### Blockers (must fix before any ship)
 - [Source: finding + file:line]
 
 ### Recommended fixes
@@ -66,15 +73,22 @@ Produce:
 
 ### Specialist reports (full)
 - [code-reviewer report]
+- [adversarial-reviewer report — REFUTED/UNREFUTED + attack log]
 - [security-auditor report]
-- [test-engineer report]
+- [test-engineer report — real coverage after disqualification]
 - [ui-ux-tester report]
 ```
+
+- **GO (production)** only when there are 0 production blockers and the adversarial pass is UNREFUTED.
+- **GO (demo/portfolio)** when it's presentable but production blockers remain — you MUST list every one so the gap to production is explicit.
+- **NO-GO** when a blocker prevents a safe demo or a required AC is unproven.
 
 ## Rules
 
 1. Phase A personas run in parallel when possible.
 2. Phase B skill checks are mandatory — not optional.
 3. Rollback plan mandatory before GO.
-4. Critical finding → default NO-GO unless user accepts risk explicitly.
-5. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.
+4. **Final verdict = AND of constructive personas and the adversarial pass.** A REFUTED adversarial verdict, any PROVEN-FALSE acceptance criterion, or any AC without a behavioral test → cannot be GO (production).
+5. Critical finding → default NO-GO unless user accepts risk explicitly.
+6. Never count boilerplate/mock-only/label-only tests toward coverage; "PARTIAL" coverage of an AC = not done.
+7. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.

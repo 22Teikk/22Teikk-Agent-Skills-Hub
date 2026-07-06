@@ -9,4 +9,4 @@ Run exhaustive UI and UX testing on the target application or flow. The user may
 
 Return a structured defect report with severity classification, visual evidence, and specific fix recommendations.
 
-**Not a substitute for `/teikk-test`** (unit/widget) or `/teikk-e2e` (automated journey verification). Use this for human-perspective UX evaluation — spacing audits, confusing states, broken flows that automation misses.
+**Optional and slow — part of the `/teikk-qa` pass, not the core verify loop.** Not a substitute for `/teikk-test` (unit/widget) or `/teikk-e2e` (automated journey verification). Use this for human-perspective UX evaluation — spacing audits, confusing states, broken flows that automation misses.

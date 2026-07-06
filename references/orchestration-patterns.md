@@ -50,10 +50,13 @@ A slash command that wraps one persona with the project's skills. Saves the user
 Multiple personas operate on the same input concurrently, each producing an independent report. A merge step (in the main agent's context) synthesizes them into a single decision.
 
 ```
-                    ┌─→ code-reviewer    ─┐
-/teikk-ship → fan out  ───┼─→ security-auditor ─┤→ merge → go/no-go + rollback
-                    └─→ test-engineer    ─┘
+                    ┌─→ code-reviewer       ─┐
+/teikk-ship → fan out  ─┼─→ adversarial-reviewer ─┤→ merge → go/no-go + rollback
+                    ├─→ security-auditor    ─┤   (verdict = constructive AND not-REFUTED)
+                    └─→ test-engineer       ─┘
 ```
+
+The `adversarial-reviewer` is the disconfirming voice: its only job is to falsify each acceptance criterion. The merge takes the **AND** of the constructive reports and the adversarial verdict, so a plausible-but-wrong change can't pass on builder consensus alone.
 
 **Use when:**
 - The sub-tasks are genuinely independent (no shared mutable state, no ordering dependency)

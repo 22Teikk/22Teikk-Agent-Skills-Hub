@@ -100,9 +100,11 @@ Each task follows this structure:
 
 **Description:** One paragraph explaining what this task accomplishes.
 
-**Acceptance criteria:**
-- [ ] [Specific, testable condition]
-- [ ] [Specific, testable condition]
+**Acceptance criteria → behavioral test (each AC names the test that proves it):**
+- [ ] [Specific, testable condition] → `FeatureTest.method` — [unit | integration (Room in-memory) | e2e flow]
+- [ ] [Specific, testable condition] → `OtherTest.method` — [level]
+
+  A mock-only, boilerplate, or label-only test does NOT satisfy an AC. Data-layer ACs require a real Room in-memory test, not a mocked repository.
 
 **Verification:**
 - [ ] Tests pass: `./gradlew test --tests "FeatureTestClass"`

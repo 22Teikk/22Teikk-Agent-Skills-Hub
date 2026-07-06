@@ -5,8 +5,9 @@ Specialist personas that play a single role with a single perspective. Each pers
 | Persona | Role | Best for | Phase |
 |---------|------|----------|-------|
 | [code-reviewer](code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge | REVIEW |
+| [adversarial-reviewer](adversarial-reviewer.md) | Red Team | Falsify each AC, find ≥1 Critical — banned from approving | REVIEW / SHIP |
 | [security-auditor](security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit | REVIEW |
-| [test-engineer](test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern | VERIFY |
+| [test-engineer](test-engineer.md) | QA Engineer | Test-quality audit (bug-catching, not counting), coverage gaps | VERIFY |
 | [android-performance-auditor](android-performance-auditor.md) | Android Performance Engineer | App Startup, frame jank, memory profiling, benchmarks | VERIFY |
 | [kotlin-specialist](kotlin-specialist.md) | Android Kotlin Developer | Compose UI, coroutines/Flow, Hilt DI, Room — Android only | BUILD |
 | [swift-expert](swift-expert.md) | iOS Swift Developer | SwiftUI, async/await, Core Data — iOS/macOS only | BUILD |
@@ -54,7 +55,9 @@ Pick this when there's a repeatable workflow you'd otherwise re-explain every ti
 ### Slash command (orchestrator — fan-out)
 Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
 
-- `/teikk-ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` + `ui-ux-tester` in parallel, then synthesizes their reports into a go/no-go decision with store readiness check via `mobile-app-developer`
+- `/teikk-ship` → fans out to `code-reviewer` + `adversarial-reviewer` + `security-auditor` + `test-engineer` + `ui-ux-tester` in parallel, then synthesizes their reports into a go/no-go decision with store readiness check via `mobile-app-developer`
+
+**AND-verdict rule.** Gates that decide (`/teikk-review`, `/teikk-ship`) pair the constructive personas with the disconfirming `adversarial-reviewer`, and the final verdict is the **AND** of both: if the adversarial pass returns `REFUTED` (an AC proven false or a Critical found), the gate cannot be APPROVE / GO regardless of what the constructive personas say. Consensus among builders is not proof of correctness.
 
 This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 
@@ -74,11 +77,12 @@ Is the work a single perspective on a single artifact?
 
 ```
 /teikk-ship
-  ├── (parallel) code-reviewer    → review report
-  ├── (parallel) security-auditor → audit report
-  └── (parallel) test-engineer    → coverage report
+  ├── (parallel) code-reviewer      → review report
+  ├── (parallel) adversarial-reviewer → falsification report (REFUTED / UNREFUTED)
+  ├── (parallel) security-auditor   → audit report
+  └── (parallel) test-engineer      → test-quality audit
                   ↓
-        merge phase (main agent)
+        merge phase (main agent) — verdict = constructive AND not-REFUTED
                   ↓
         go/no-go decision + rollback plan
 ```

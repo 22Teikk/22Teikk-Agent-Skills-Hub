@@ -20,6 +20,8 @@ Guidelines for shipping Android applications safely. Mobile deployments are uniq
 
 ### 1. Code Quality & Build
 - [ ] All unit, integration, and Compose/Espresso tests pass locally and in CI.
+- [ ] **Every acceptance criterion maps to a behavioral test** (SPEC Traceability Matrix). Mock-only, boilerplate (`ExampleUnitTest`/`ExampleInstrumentedTest`), and label-only tests do **not** count — an AC without a real test is a blocker, not "PARTIAL pass".
+- [ ] Boilerplate template tests (`ExampleUnitTest`, `ExampleInstrumentedTest`) are deleted, not counted as coverage.
 - [ ] Build succeeds in release mode with no warnings or errors.
 - [ ] Proguard/R8 rules are tested to ensure no classes or models are incorrectly stripped.
 - [ ] No temporary debugging log statements (`Log.d`, `println`) or mock data in production code.
@@ -35,6 +37,8 @@ Guidelines for shipping Android applications safely. Mobile deployments are uniq
 - [ ] No database operations (Room) or network operations (Retrofit) run on the Main (UI) Thread.
 - [ ] Images, videos, and static assets are compressed and optimized.
 - [ ] Room database migrations (`Migration` classes) are fully tested (no migration crash).
+- [ ] `exportSchema = true` and a `Migration` exists for the shipped version — an app with `exportSchema = false` and no migration path loses user data on the next version bump (**production blocker**).
+- [ ] The data layer has ≥1 Room in-memory DAO test (not just mocked repositories). Domain values that must be exact (money) are `Long` minor-units/`BigDecimal`, never `Double` — see `references/domain-guardrails.md`.
 
 ### 4. Accessibility
 - [ ] Content descriptions are set for all decorative and interactive images in Compose/XML.
@@ -46,6 +50,24 @@ Guidelines for shipping Android applications safely. Mobile deployments are uniq
 - [ ] App version code and version name updated in `build.gradle.kts` (or Version Catalog).
 - [ ] Target SDK level is compliant with the latest Google Play policies.
 - [ ] Google Play Console store listing, privacy policy, and classification details are updated.
+
+---
+
+## Two-tier ship verdict — demo/portfolio vs production
+
+A build can be good enough to demo and nowhere near safe to ship to real users. Do not emit a single ambiguous "GO" that reads like production approval when the work is only demo-ready. Classify explicitly:
+
+- **GO (production)** — 0 production blockers. Safe for real users and the store.
+- **GO (demo / portfolio)** — presentable, but list every **PRODUCTION BLOCKER** that still stands. The reader must not mistake this for production-ready.
+- **NO-GO** — a blocker prevents even a safe demo, or a required acceptance criterion is unproven.
+
+**Production blockers** (each forces at most GO-demo, never GO-production) include, non-exhaustively:
+- A domain invariant violated — e.g. money stored as `Double`/`Float`, `SUM()` returning `Flow<Double>` (`references/domain-guardrails.md`).
+- `exportSchema = false` with no `Migration` path → user data loss on update.
+- An acceptance criterion with no behavioral test (mock-only/boilerplate/label-only does not count).
+- The data layer with no Room in-memory DAO test.
+
+Even when you grant GO-demo, enumerate these blockers in the decision so the gap to production is explicit and honest.
 
 ---
 

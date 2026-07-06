@@ -13,7 +13,7 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### npm install (recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
 npx teikk-agents-skills init cursor    # or claude, antigravity, gemini, opencode, all
 ```
 

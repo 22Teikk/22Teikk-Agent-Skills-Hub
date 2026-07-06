@@ -78,6 +78,12 @@ abstract class AppDatabase : RoomDatabase() {
 }
 ```
 
+#### Data-layer guardrails (block on these before ship)
+
+- **`exportSchema = false` + no `Migration`** is a data-loss trap. The moment `version` bumps in a released app, users with the old schema get a crash or a destructive fallback. Set `exportSchema = true` (commit the schema JSON) and provide a `Migration` for every version bump. A shipped app with `exportSchema = false` and no migration path is a **production blocker**, not a nit.
+- **Never store a value that must be exact as `Double`/`Float`.** For money use `Long` minor units (cents) or `BigDecimal`; a `SUM()` over a money column must return `Long`/`BigDecimal`, not `Flow<Double>`. See `references/domain-guardrails.md`.
+- Prove the schema with a **Room in-memory DAO test** (insert → query/`SUM` → assert exact value), not a mocked repository — see `skills/android-testing-and-benchmark-kotlin/SKILL.md`.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -93,6 +99,8 @@ abstract class AppDatabase : RoomDatabase() {
 - Standard Room DAO query methods not marked with `suspend` or returning `Flow`.
 - Collecting flows in Compose views using `collectAsState()` instead of `collectAsStateWithLifecycle()`.
 - Committing Room database schema changes without incrementing database version and providing migration paths.
+- `exportSchema = false` with no `Migration` in an app that will ship updates — user data loss on version bump.
+- Money or any must-be-exact value stored as `Double`/`Float`, or a `SUM()` returning `Flow<Double>`.
 
 ## Verification
 

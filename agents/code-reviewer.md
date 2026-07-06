@@ -14,8 +14,9 @@ Evaluate every change across these five dimensions:
 ### 1. Correctness
 - Does the code do what the spec/task says it should?
 - Are edge cases handled (null, empty, boundary values, error paths)?
-- Do the tests actually verify the behavior? Are they testing the right things?
+- Do the tests actually verify the behavior? Are they testing the right things? (A mock that returns the expected value and then asserts it proves nothing.)
 - Are there race conditions, off-by-one errors, or state inconsistencies?
+- **Load domain guardrails.** Read the SPEC `Domain:` field and apply `references/domain-guardrails.md` for this app's domain. A violation of a domain invariant is **Critical**, not a nit — e.g. in a finance app, money stored as `Double`/`Float` (entity, DAO return type, or aggregate) is a precision-loss defect that must block merge. A fintech review is not a blog review.
 
 ### 2. Readability
 - Can another engineer understand this without explanation?

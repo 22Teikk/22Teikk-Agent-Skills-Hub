@@ -49,21 +49,25 @@ The agent should automatically map user intent to skills and personas:
 - Logging, Crashlytics, analytics → `observability-and-instrumentation`
 - Cross-platform shared patterns (push, deep link, offline) → `mobile-app-developer` persona
 
-**Verify**
+**Verify** (fast — the core TDD loop)
 - Tests / TDD → `test-driven-development`
 - Android tests (Kotlin) → `android-testing-and-benchmark-kotlin`
 - Android tests (Java) → `android-testing-and-benchmark-java`
-- iOS tests (XCTest / XCUITest) → `swift-expert` persona
-- Flutter tests (widget / integration_test) → `flutter-expert` persona
+- iOS unit tests (XCTest) → `swift-expert` persona
+- Flutter widget tests → `flutter-expert` persona
+- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
+- Android performance (startup, jank) → `android-performance-auditor` persona
+
+**QA** (optional, slow — opt-in, pulled out of the verify loop; via `/teikk-qa`)
 - E2E journeys — Android (Maestro, opt-in) → `android-e2e-maestro`
 - E2E journeys — iOS (XCUITest) → `swift-expert` persona
 - E2E journeys — Flutter (integration_test) → `flutter-expert` persona
 - UI/UX flow testing, spacing audits → `ui-ux-tester` persona
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Android performance (startup, jank) → `android-performance-auditor` persona
 
 **Review**
-- Code review → `code-review-and-quality` + `code-reviewer` persona
+- Code review → `code-review-and-quality` + `code-reviewer` persona, **then the mandatory `adversarial-reviewer` pass** (falsify each AC; verdict = AND of both)
+- Domain correctness (finance money type, etc.) → load `references/domain-guardrails.md` from the SPEC `Domain:` field
+- SPEC→Test traceability (each AC needs a behavioral test; mock-only/boilerplate = zero) → hard gate at `/teikk-ship`
 - Refactoring / simplification → `code-simplification`
 - Security → `security-and-hardening` + `security-auditor` persona
 
@@ -91,7 +95,8 @@ Instead, the agent must internally follow this lifecycle:
   - iOS: `swift-expert`
   - Flutter: `flutter-expert`
   - Shared mobile: `mobile-app-developer`, `observability-and-instrumentation`, `api-and-interface-design`
-- **VERIFY** → `debugging-and-error-recovery`, platform test skills, `ui-ux-tester` persona for flow/UX testing
+- **VERIFY** (fast, core loop) → `debugging-and-error-recovery`, platform unit/widget test skills
+- **QA** (optional, slow — `/teikk-qa`) → `android-e2e-maestro`, E2E via `swift-expert`/`flutter-expert`, `ui-ux-tester` persona for flow/UX testing
 - **REVIEW** → `code-review-and-quality`, `code-simplification`, `security-and-hardening`
 - **SHIP** → `mobile-app-developer` (store readiness), `observability-and-instrumentation`, `documentation-and-adrs`, `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch`
 
@@ -128,7 +133,7 @@ This repo has three composable layers. They have different jobs and should not b
 
 Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
 
-The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/teikk-ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
+The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/teikk-ship` to run `code-reviewer`, `adversarial-reviewer`, `security-auditor`, `test-engineer`, and `ui-ux-tester` concurrently and synthesize their reports. The final verdict is the **AND** of the constructive personas and the disconfirming `adversarial-reviewer` (a REFUTED verdict blocks GO). Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
 
 See [agents/README.md](agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
 

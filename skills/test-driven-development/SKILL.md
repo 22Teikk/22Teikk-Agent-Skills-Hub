@@ -233,6 +233,18 @@ Preference order (most to least preferred):
 
 **Use mocks only when:** the real implementation is too slow, non-deterministic, or has side effects you can't control (external network APIs, Firebase calls).
 
+### What counts as a "behavioral test" (and what does not)
+
+A test only proves an acceptance criterion if it is **behavioral**: it executes real logic or real infrastructure and asserts on a **value or observable outcome**. This is the unit of coverage the traceability gate and `/teikk-ship` count. The following prove nothing and count as **zero coverage** — flag them, don't tally them:
+
+| Not a behavioral test | Why it proves nothing |
+|-----------------------|-----------------------|
+| **Boilerplate template** — `ExampleUnitTest` asserting `2 + 2 == 4`, `ExampleInstrumentedTest` checking the package name | Tests the toolchain, not your app. Delete before ship. |
+| **Mock-verification of the unit under test** — mock the repository to return `750.0`, then assert the state is `750.0` | Tautology: you asserted the mock, not the logic that was supposed to compute `750.0`. |
+| **Assertion-less / label-only** — no value assertion, or only `assertVisible("Total Balance")` on a static label | Passes even when the real number is wrong or the list never rendered. |
+
+Rule of thumb: if the test would still pass after you **broke the real implementation**, it is not behavioral. For the data layer this means at least one **real Room in-memory** DAO test (insert → query/`SUM` → assert the exact value), not a mocked repository. "PARTIAL" coverage of an AC is **not done**.
+
 ---
 
 ## Android UI and Runtime Verification

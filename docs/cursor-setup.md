@@ -7,7 +7,7 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 ### Option 1: npm (Recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 

@@ -95,7 +95,7 @@ Do not edit lines between the markers manually — re-run `npx teikk-agents-skil
 
 ```json
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "targets": ["cursor"],
   "installedAt": "2026-06-13T09:00:00.000Z",
   "package": "teikk-agents-skills"
@@ -120,8 +120,8 @@ Publish from this repo:
 ```bash
 npm test
 npm publish --access public  # required for unscoped packages on first publish
-git tag -a v2.0.0 -f -m "v2.0.0"
-git push origin v2.0.0 --force
+git tag -a v2.1.0 -f -m "v2.1.0"
+git push origin v2.1.0 --force
 ```
 
 After publish, users can run:
@@ -173,7 +173,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
-| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.0.0 --save-dev` |
+| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

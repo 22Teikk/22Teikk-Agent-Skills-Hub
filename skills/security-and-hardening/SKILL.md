@@ -19,6 +19,7 @@ Guidelines for building secure Android applications. Mobile apps operate in a ho
 
 ## How It Works
 
+0. **Load domain guardrails first**: Read the SPEC `Domain:` field and apply `references/domain-guardrails.md`. A regulated domain (finance, health, auth) carries non-negotiable invariants — encryption-at-rest, PII handling, audit logging, session expiry, consent — that a generic mobile-security pass will miss. When unsure of a domain's real rules, fetch the authoritative source via `skills/source-driven-development/SKILL.md` rather than guessing.
 1. **Threat Model Early**: Map trust boundaries (network inputs, external storage, intents, content providers, webviews) and potential threats.
 2. **Apply Defense in Depth**: Use multiple layers of security (obfuscation, storage encryption, secure communication, input validation, secure IPC).
 3. **Use Platform Security Features**: Rely on Android's sandbox, Android Keystore, Jetpack Security, and Network Security Config.

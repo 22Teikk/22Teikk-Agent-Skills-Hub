@@ -72,23 +72,37 @@ Directory layout:
     login_smoke.yaml
 ```
 
-**Flow template:**
+**Flow template — assert the VALUE the user entered, not just a static label:**
 
 ```yaml
 appId: com.example.app
 ---
 - launchApp:
     clearState: true
-- assertVisible: "Tasks"
+- assertVisible: "Total Balance"          # label — necessary but NOT sufficient
 - tapOn:
-    id: "fab_add_task"
-- inputText: "Buy Milk"
+    id: "fab_add_expense"
+- inputText: "25.50"
 - tapOn: "Save"
-- assertVisible: "Buy Milk"
+- assertVisible: "25.50"                   # the value round-tripped into the list
+- assertVisible: "-25.50"                  # and the computed total actually changed
+```
+
+**A flow that only asserts static labels ("Total Balance", "Expenses") is worthless** — an app that inserts a row but never renders it, or computes the wrong total, still passes. Always assert the **dynamic value** the user produced and any total it should change.
+
+**Persistence flow — AC "data survives restart" needs a relaunch with `clearState: false`:**
+
+```yaml
+appId: com.example.app
+---
+- launchApp: { clearState: false }        # keep the data written by a prior flow
+- assertVisible: "25.50"                   # it's still there after process restart
 ```
 
 **Rules:**
 - One flow = one acceptance criterion or one critical journey (keep under ~15 steps).
+- **Assert dynamic values, not just labels.** Every flow must prove a value the user created is shown, and any derived total changed. Reject flows made only of `assertVisible` on static chrome.
+- Any AC about persistence must include a `clearState: false` relaunch flow that re-asserts the value.
 - Prefer `id:` (testTag) over `text:` when both exist.
 - Use `clearState: true` on `launchApp` for isolated runs unless testing persistence.
 - No arbitrary `sleep` — use `extendedWaitUntil` with visible/assertion when needed.
@@ -148,6 +162,8 @@ Add only when the project adopts E2E in SPEC. See `skills/ci-cd-and-automation/S
 
 ## Red Flags
 
+- **Flows that only `assertVisible` static labels** (e.g. "Total Balance", "Expenses") and never assert a dynamic value the user entered — these pass on an app that inserts but doesn't render.
+- A persistence AC with no `clearState: false` relaunch flow.
 - Flows with only guessed string literals never verified against UI source.
 - More than 5–7 flows for a small app (over-coverage at the expensive layer).
 - `Thread.sleep` or long fixed waits instead of `assertVisible` / `extendedWaitUntil`.
