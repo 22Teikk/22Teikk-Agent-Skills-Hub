@@ -12,12 +12,24 @@ Read the existing spec (`.teikk/SPEC.md` or equivalent) and relevant codebase se
    - **iOS** → SPM setup + SwiftLint + os_log/Crashlytics before feature slices
    - **Flutter** → Flavor config + state management (Riverpod/BLoC) + logging before feature slices
 5. Slice work vertically (one complete path per task, not horizontal layers)
-6. Write tasks with acceptance criteria, verification steps, and linked skills or personas:
-   - Android tasks → link `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
-   - iOS tasks → link `swift-expert`
-   - Flutter tasks → link `flutter-expert`
-   - Cross-platform tasks → link `mobile-app-developer`
+6. Write tasks with acceptance criteria, verification steps, and **linked behavioral tests**:
+   - Each AC must map to a **behavioral test** (class/method or flow name, not a mock or label)
+   - Format: `- [ ] [AC description] → \`TestClass.testMethod\` (unit | integration | e2e)`
+   - Examples:
+     - ✓ `Users can save → \`SaveViewModelTest.save_updatesDatabase\` (unit)`
+     - ✓ `Total is calculated → \`TransactionDaoTest.insertAndSum\` (integration, Room in-memory)`
+     - ✗ `UI shows data → \`ExampleInstrumentedTest\`` (boilerplate, not behavioral)
+     - ✗ `User sees button → mock repository returns true` (mock-only, not behavioral)
+   - Link skills/personas:
+     - Android → `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
+     - iOS → `swift-expert`
+     - Flutter → `flutter-expert`
+     - Cross-platform → `mobile-app-developer`
 7. Add checkpoints between phases
-8. Present the plan for human review
+8. **TRACEABILITY CHECKLIST** — Verify every AC has a real test before writing code:
+   - [ ] Every AC maps to a test class/method (not a mock)
+   - [ ] No "label-only" tests (must assert a value, not visibility)
+   - [ ] Data layer has at least one Room in-memory DAO test (integration, not mocked)
+9. Present the plan for human review
 
-Save the plan to `.teikk/tasks/plan.md` and task list to `.teikk/tasks/todo.md`.
+Save the plan to `.teikk/tasks/plan.md` and task list to `.teikk/tasks/todo.md`. The test mappings in each task will be read by `/teikk-ship` Phase B to validate traceability.

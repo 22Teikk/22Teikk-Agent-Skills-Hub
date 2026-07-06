@@ -110,6 +110,24 @@ rm -rf .teikk/
 
 ---
 
+## Test Traceability — AC → Test Mapping
+
+Every acceptance criterion must map to a **behavioral test** (not a mock, not boilerplate). `/teikk-planning` includes a **traceability checklist** that validates this before you write code:
+
+**Valid mappings:**
+- ✓ `AC: Users can save → SaveViewModelTest.save_updatesDatabase (unit)`
+- ✓ `AC: Total is calculated → TransactionDaoTest.insertAndSum (integration, Room in-memory)`
+- ✓ `AC: Payment processes → E2E maestro flow (e2e)`
+
+**Invalid mappings (caught as blockers at ship time):**
+- ✗ `AC: UI shows data → ExampleInstrumentedTest` (boilerplate template, not behavioral)
+- ✗ `AC: Button appears → mock repository returns true` (mock-only, not real implementation)
+- ✗ `AC: User can login → assertVisible("Login Button")` (label-only, no value assertion)
+
+**SHIP-REPORT.md traceability matrix** lists every AC and whether it has a behavioral test. Any AC without a test is a **production blocker** at `/teikk-ship` time.
+
+---
+
 ## QA — optional, slow, opt-in
 
 E2E and UI/UX testing are pulled **out of the core verify loop** because they can run for minutes on a device/emulator. Run them deliberately before a release via `/teikk-qa` (or the two commands individually):
@@ -130,9 +148,14 @@ Every workflow writes its output under a single project-local `.teikk/` director
 
 ```
 .teikk/
-├─ SPEC.md              /teikk-spec
+├─ SPEC.md              /teikk-spec (what to build)
+├─ PROJECT.yaml         /teikk-spec (metadata: platform, domain, CI, E2E, budgets)
+├─ QUICKSTART.md        /teikk-spec (first-run guide)
+├─ WORKFLOW.md          /teikk-spec (decision tree: what command to run next)
+├─ DOCTOR.md            /teikk-doctor (project setup health audit)
+├─ SHIP-REPORT.md       /teikk-ship (go/no-go verdict + traceability + blockers)
 ├─ spec/                multi-file spec (optional)
-├─ tasks/               /teikk-planning → plan.md, todo.md
+├─ tasks/               /teikk-planning → plan.md (with AC→test mappings), todo.md
 ├─ ideas/               /teikk-idea → refined idea one-pagers
 ├─ intent/              /teikk-interview → captured project intent
 ├─ adr/                 /teikk-docs → Architecture Decision Records
