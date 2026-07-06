@@ -27,7 +27,7 @@ After writing `.teikk/SPEC.md`, also write `.teikk/PROJECT.yaml`. Extract the fo
 - `name` — the project or app name from the Objective section
 - `platforms` — list derived from Tech Stack (one or more of: android, ios, flutter)
 - `domain` — the `Domain:` field from the Objective section (finance | health | auth | generic)
-- `ci` — detected from the Commands section (github-actions | bitrise | fastlane | none); if ambiguous, default to none
+- `ci` — the CI platform used by this project (github-actions | gitlab-ci | bitrise | circle-ci | fastlane | none). If the project has no CI pipeline, use `none` — /teikk-ship will skip CI checks.
 - `e2e` — the `E2E:` field from the Testing Strategy section (none | Maestro | XCUITest | integration_test)
 - `budgets` block: use platform defaults unless the spec stated explicit values:
   - Android: startup_cold_ms: 2000, memory_mb: 100, jank_frames: 5

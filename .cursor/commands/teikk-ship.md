@@ -26,7 +26,7 @@ After persona reports, verify against these skills (read and check, do not skip)
 |-------|-------|
 | No debug logs, telemetry wired | `skills/observability-and-instrumentation/SKILL.md` |
 | README, ADRs updated | `skills/documentation-and-adrs/SKILL.md` |
-| CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` |
+| CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` (skip if `ci: none` in PROJECT.yaml) |
 | Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
 | Security hardening | `skills/security-and-hardening/SKILL.md` |
 | **SPEC↔Test traceability (hard gate)** | Read `.teikk/SPEC.md` Traceability Matrix. For **every** acceptance criterion, confirm a **behavioral** test exists and executes it. Mock-only, boilerplate (`ExampleUnitTest`), and label-only tests count as ZERO. Any AC without a behavioral test → **blocker**. There is no "PARTIAL = pass". |
