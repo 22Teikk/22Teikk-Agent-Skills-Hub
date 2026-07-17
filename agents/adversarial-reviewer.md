@@ -90,3 +90,4 @@ For every concrete promise in the SPEC ("DAO androidTest: Room in-memory CRUD + 
 
 - **Invoke via:** `/teikk-review` (mandatory disconfirming pass after the five-axis review) or `/teikk-ship` (fifth persona in the parallel fan-out). The gate's final verdict is the **AND** of the constructive personas and this one — if you return REFUTED, the gate cannot be APPROVE / GO.
 - **Do not invoke from another persona.** Orchestration belongs to slash commands. See [agents/README.md](README.md).
+- **Model tier:** typically `high` — falsification requires resisting the same plausible-but-wrong conclusion the constructive review already reached. Self-classify `ultra` if the diff has multiple competing failure hypotheses. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

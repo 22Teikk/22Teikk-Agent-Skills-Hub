@@ -15,6 +15,21 @@ Specialist personas that play a single role with a single perspective. Each pers
 | [mobile-app-developer](mobile-app-developer.md) | Cross-platform Mobile Architect | Native vs cross-platform decisions, store readiness, shared patterns | DEFINE / SPEC |
 | [ui-ux-tester](ui-ux-tester.md) | QA & UX Researcher | Exhaustive flow testing, spacing audits, defect reports | VERIFY |
 
+## Model tiering (project-local, provider-agnostic)
+
+No persona hardcodes a model name. Instead, each persona self-classifies the complexity of the specific call it's about to make, then looks up `.teikk/spec/PROJECT.yaml`'s `model_tiers` block (written by `/teikk-spec`, optional and blank by default) for a concrete model name at that tier. If the block is missing, empty, or the harness doesn't support per-call model selection, the persona simply runs at the session default — this lookup is best-effort, never a hard requirement.
+
+| Tier | When a persona should self-classify here | Typical personas at this tier |
+|------|-------------------------------------------|-------------------------------|
+| `low` | Mechanical scan/audit work — coverage counting, flow enumeration, pattern matching against a known checklist | `test-engineer` (coverage scan), `ui-ux-tester` (flow enumeration) |
+| `medium` | Ordinary build/review reasoning — implementing a well-scoped task, reviewing a diff against known conventions | `code-reviewer`, `kotlin-specialist`, `swift-expert`, `flutter-expert`, `mobile-app-developer`, `android-performance-auditor` |
+| `high` | Reasoning that must resist plausible-but-wrong conclusions — adversarial falsification, security analysis with attacker framing | `security-auditor`, `adversarial-reviewer` |
+| `ultra` | Multi-hypothesis investigation, deep architecture tradeoffs, or any call the persona itself judges to need the strongest reasoning available — reserved for genuinely hard cases, not a default | Any persona, self-selected, rarely |
+
+**This is per-call, not per-persona.** The same persona (e.g. `code-reviewer`) might self-classify `medium` for a routine PR and `high` for a security-sensitive diff — the tier reflects the task's actual difficulty, decided fresh each invocation, not a fixed label stamped on the persona file.
+
+**Why no model name lives in this repo:** this package targets five different harnesses (Claude Code, Antigravity, OpenCode, Cursor, Gemini CLI) with different model catalogs and naming schemes. A model name hardcoded into a persona file would be meaningless or wrong on at least four of the five. `model_tiers` in the user's own `PROJECT.yaml` is the only place a concrete model name should ever be written — see `skills/spec-driven-development/SKILL.md`'s Output Location section for the exact field format.
+
 ## How personas relate to skills and commands
 
 Three layers, each with a distinct job:
@@ -58,6 +73,8 @@ Pick this only when **independent** investigations can run in parallel and produ
 - `/teikk-ship` → fans out to `code-reviewer` + `adversarial-reviewer` + `security-auditor` + `test-engineer` + `ui-ux-tester` in parallel, then synthesizes their reports into a go/no-go decision with store readiness check via `mobile-app-developer`
 
 **AND-verdict rule.** Gates that decide (`/teikk-review`, `/teikk-ship`) pair the constructive personas with the disconfirming `adversarial-reviewer`, and the final verdict is the **AND** of both: if the adversarial pass returns `REFUTED` (an AC proven false or a Critical found), the gate cannot be APPROVE / GO regardless of what the constructive personas say. Consensus among builders is not proof of correctness.
+
+`/teikk-ship`'s adversarial pass is unconditional — every ship decision runs it, no threshold skips it. `/teikk-review` applies a lightweight-change threshold (≤2 files, <50 lines, no auth/payments/data/config touch) below which it skips its own adversarial pass as a review-time convenience; this never weakens `/teikk-ship`'s gate, which re-runs the adversarial pass from scratch regardless of what `/teikk-review` decided earlier in the same change's lifecycle.
 
 This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 

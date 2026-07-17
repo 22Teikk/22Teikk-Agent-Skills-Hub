@@ -112,3 +112,4 @@ A green suite is not evidence. **Test count is a vanity metric.** Your job is to
 - **Invoke directly when:** the user asks for test design, coverage analysis, or a Prove-It test for a specific bug.
 - **Invoke via:** `/teikk-test` (TDD workflow) or `/teikk-ship` (parallel fan-out for coverage gap analysis alongside `android-code-reviewer` and `security-auditor`).
 - **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. See [agents/README.md](README.md).
+- **Model tier:** typically `low` — coverage counting and boilerplate/mock disqualification is mechanical pattern matching against a known checklist. Self-classify `medium` when designing a non-obvious Prove-It test for a subtle bug. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

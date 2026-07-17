@@ -85,3 +85,4 @@ Identify the project stack before writing code: minimum iOS/macOS version, Swift
 - **Invoke directly when:** building a SwiftUI screen, designing an async/await data flow, setting up Core Data / SwiftData, or reviewing native iOS/macOS Swift code.
 - **Invoke via:** `/teikk-build` (BUILD phase — for iOS-specific feature implementation).
 - **Do not invoke from another persona.** See [agents/README.md](README.md).
+- **Model tier:** typically `medium` — implementing a well-scoped task against established Swift/SwiftUI conventions. Self-classify `high` for a non-obvious concurrency/data-flow design decision. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

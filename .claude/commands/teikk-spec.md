@@ -32,7 +32,18 @@ ci: github-actions|gitlab-ci|bitrise|circle-ci|fastlane|none
 e2e: none|Maestro|XCUITest|integration_test
 budgets: {startup_cold_ms, memory_mb, jank_frames}  # platform defaults
 logging: {library}  # timber (Android) | oslog (iOS) | logger (Flutter) — platform default unless spec says otherwise; /teikk-build reads this to instrument logging inline
+model_tiers: {low, medium, high, ultra}  # optional, blank by default — see below
 ```
+
+**Model tiers (optional, blank by default).** Personas and subagent calls throughout this workflow classify their own task as `low`/`medium`/`high`/`ultra` complexity (see `agents/README.md`'s tiering table). If this project's harness supports per-call model selection (e.g. Claude Code's `model` field, an OpenCode agent config), the user can fill in a concrete model name per tier here — e.g.:
+```yaml
+model_tiers:
+  low: haiku          # or your harness's fast/cheap model
+  medium: sonnet       # or your harness's balanced model
+  high: opus           # or your harness's strongest reasoning model
+  ultra: opus           # reserve for genuinely hard, multi-hypothesis work; may equal `high`
+```
+This keeps model choice project-local and provider-agnostic — no model name is hardcoded into any skill, persona, or command. Leave the block empty/omit it entirely to use the harness's default model for every call; a persona or command with no matching tier value simply runs at the session default.
 
 **2. `.teikk/spec/QUICKSTART.md`** — First-run guide (workflow diagram, what `.teikk/` is, what to commit, MCP setup, command reference).
 

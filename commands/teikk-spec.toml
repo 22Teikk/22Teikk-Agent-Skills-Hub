@@ -63,9 +63,17 @@ budgets:
 
 logging:
   library: <platform default or spec value>
+
+model_tiers:
+  low:
+  medium:
+  high:
+  ultra:
 ```
 
 Do not invent values; use `generic` for domain and `none` for ci/e2e when not stated.
+
+`model_tiers` is optional and left blank by default. Personas and subagent calls throughout this workflow classify their own task as low/medium/high/ultra complexity (see `agents/README.md`'s tiering guidance). If this project's harness supports per-call model selection, ask the user whether they want to fill in a concrete model name per tier now (e.g. `low: haiku`, `medium: sonnet`, `high: opus`, `ultra: opus`) — otherwise leave the block blank and every call runs at the harness's session default. Never hardcode a specific model name into any skill, persona, or command file; `model_tiers` in this project-local file is the only place a model name should live.
 
 ## Architecture decision → DECISIONS.md
 

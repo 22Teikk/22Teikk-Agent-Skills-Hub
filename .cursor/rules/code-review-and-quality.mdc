@@ -1,6 +1,7 @@
 ---
 description: Five-axis code review — correctness, readability, architecture, security, performance.
-alwaysApply: true
+globs: "**/*.kt,**/*.java,**/*.swift,**/*.dart,**/*.ts,**/*.tsx,**/*.js,**/*.jsx"
+alwaysApply: false
 ---
 
 # Code Review and Quality

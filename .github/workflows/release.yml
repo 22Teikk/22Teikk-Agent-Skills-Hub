@@ -99,3 +99,17 @@ jobs:
             --target "${{ github.sha }}" \
             --title "${{ steps.version.outputs.tag }}" \
             --generate-notes
+
+      - name: Warn on plugin.json version drift
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          # Non-blocking check: .claude-plugin/plugin.json's "version" field is
+          # hand-maintained (this workflow never bumps it — the git tag remains
+          # the install source of truth). If it falls behind the new tag, warn
+          # so a human remembers to sync it in a follow-up PR — do not fail the
+          # release over it.
+          plugin_version="$(node -p "require('./.claude-plugin/plugin.json').version" 2>/dev/null || echo "unknown")"
+          new_version="${{ steps.version.outputs.version }}"
+          if [ "$plugin_version" != "$new_version" ]; then
+            echo "::warning file=.claude-plugin/plugin.json::plugin.json version ($plugin_version) does not match the new release tag (v$new_version). Consider syncing it in a follow-up commit — Claude Code plugin installs read this field directly."
+          fi
