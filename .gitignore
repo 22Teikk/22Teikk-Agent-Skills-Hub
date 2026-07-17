@@ -6,3 +6,4 @@ node_modules/
 .teikk/
 .claude/settings.local.json
 .serena/
+.omo

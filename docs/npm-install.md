@@ -85,7 +85,7 @@ skills/
 # END teikk-agents-skills
 ```
 
-Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/SPEC.md`, `.teikk/tasks/`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
+Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/spec/SPEC.md`, `.teikk/tasks/`, `.teikk/DECISIONS.md`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
 
 Do not edit lines between the markers manually — re-run `npx teikk-agents-skills update` after changing targets.
 

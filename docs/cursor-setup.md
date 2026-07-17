@@ -11,7 +11,7 @@ npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/SPEC.md` and `.teikk/tasks/` are written).
+This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/spec/SPEC.md` and `.teikk/tasks/` are written).
 
 Auto-install on every `npm install`:
 

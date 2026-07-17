@@ -73,7 +73,7 @@ C. MVI (unidirectional state + reducer)
   section (or any code) until you confirm.
 ```
 
-Only after the human confirms do you write Area 3. Record **both the chosen option and the rejected alternatives** so the decision is traceable — this feeds the plan's `## Architecture Decisions` and any ADR (`.teikk/adr/`). If the project already has an architecture (existing codebase, project rules, or a parent SPEC), skip the menu and inherit it — but state which one you inherited so the human can veto.
+Only after the human confirms do you write Area 3. Record **both the chosen option and the rejected alternatives** so the decision is traceable — this feeds the plan's `## Architecture Decisions`, any ADR (`.teikk/adr/`), and a one-line entry in `.teikk/DECISIONS.md` (see `documentation-and-adrs` — this is a significant, hard-to-reverse decision, so it belongs in the log). If the project already has an architecture (existing codebase, project rules, or a parent SPEC), skip the menu and inherit it — but state which one you inherited so the human can veto.
 
 **Write a spec document covering these nine core areas:**
 
@@ -107,6 +107,12 @@ Only after the human confirms do you write Area 3. Record **both the chosen opti
    - **Always do:** Run tests before commits, follow naming conventions, validate inputs
    - **Ask first:** Database schema changes, adding dependencies, changing CI config
    - **Never do:** Commit secrets, edit vendor directories, remove failing tests without approval
+
+### Output Location
+
+All Specify-phase artifacts (`SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, `WORKFLOW.md`) are saved under **`.teikk/spec/`** — a single, dedicated folder for the phase, not scattered loose in `.teikk/`. Other phases keep their own folders/files at the `.teikk/` root (`tasks/`, `DOCTOR.md`, `SHIP-REPORT.md`, `DECISIONS.md`) — those are not spec artifacts and do not move.
+
+**Backward compatibility:** older projects may have `.teikk/SPEC.md` at the `.teikk/` root (pre-folder layout). Every command that reads the spec checks `.teikk/spec/SPEC.md` first and falls back to `.teikk/SPEC.md` if the folder path doesn't exist — no manual migration required. New specs always write to `.teikk/spec/`.
 
 **Spec template:**
 
@@ -156,8 +162,22 @@ Domain: [finance | health | auth | generic — drives references/domain-guardrai
 [How we'll know this is done — specific, testable conditions]
 
 ## Open Questions
-[Anything unresolved that needs human input]
+[Anything unresolved that needs human input — format: `- [ ] [question]` while unresolved, `- [x] [question] → [resolution]` once answered, `- [~] [question] → deferred: [reason]` if explicitly deferred]
 ```
+
+### Open Questions Gate (hard gate — do not skip)
+
+The `## Open Questions` section is not a place to park unresolved items and move on. It is a checklist the agent must clear **in this session**, the same way `interview-me` clears ambiguity before a spec exists — except here it runs *while drafting the spec*, question by question, as items surface.
+
+**Rule:** Do not write the final `.teikk/spec/SPEC.md` (see Output Location below) while any Open Question is unresolved (`- [ ]`). For every unresolved item:
+
+1. Ask it directly to the user, in the session, one at a time — same format as `interview-me`: state the question, attach your best guess, wait for a reaction.
+2. On answer, mark it resolved: `- [x] [question] → [resolution]` and fold the resolution into the relevant spec section (Architecture, Testing Strategy, etc. — wherever it belongs).
+3. If the user explicitly declines to decide now ("let's figure that out later," "not sure yet, move on"), mark it `- [~] [question] → deferred: [reason]`. A deferred item is allowed to ship in the spec — an unresolved (`- [ ]`) one is not.
+
+**Before saving the spec, verify:** every line in `## Open Questions` is either `- [x]` (resolved) or `- [~]` (explicitly deferred). If any `- [ ]` line remains, you have not finished Phase 1 — keep asking, do not proceed to Phase 2 (Plan).
+
+This gate also re-fires downstream: `planning-and-task-breakdown` re-checks this section before breaking the spec into tasks (see that skill's Verification), because a spec with silently-skipped open questions produces a plan built on guesses.
 
 **Reframe instructions as success criteria.** When receiving vague requirements, translate them into concrete conditions:
 
@@ -234,6 +254,7 @@ The spec is a living document, not a one-time artifact:
 - Making architectural decisions without documenting them
 - Picking an architecture for a new project without offering options and getting the human's confirmation
 - Skipping the spec because "it's obvious what to build"
+- Saving the spec while `## Open Questions` still has an unresolved (`- [ ]`) line
 
 ## Verification
 
@@ -243,7 +264,9 @@ Before proceeding to implementation, confirm:
 - [ ] For a new project: the human explicitly chose the architecture at the gate (not defaulted silently), and rejected alternatives are recorded
 - [ ] The `Domain:` is declared, so domain guardrails load at review/ship
 - [ ] Every acceptance criterion has ≥1 behavioral test in the Traceability Matrix (no mock-only/boilerplate/label-only entries)
+- [ ] **Every `## Open Questions` line is `- [x]` (resolved in-session) or `- [~]` (explicitly deferred) — no `- [ ]` remains**
+- [ ] A significant/hard-to-reverse decision (architecture choice, rejected alternatives) was logged to `.teikk/DECISIONS.md`
 - [ ] The human has reviewed and approved the spec
 - [ ] Success criteria are specific and testable
 - [ ] Boundaries (Always/Ask First/Never) are defined
-- [ ] The spec is saved to a file in the repository
+- [ ] The spec is saved to `.teikk/spec/SPEC.md`

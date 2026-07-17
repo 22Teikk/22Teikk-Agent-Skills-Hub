@@ -139,9 +139,10 @@ Load a reference when you need detailed patterns beyond what the skill covers.
 
 ## Spec and task artifacts
 
-The `/teikk-spec` and `/teikk-planning` commands create working artifacts under the project's `.teikk/` directory (`.teikk/SPEC.md`, `.teikk/tasks/plan.md`, `.teikk/tasks/todo.md`). Treat them as **living documents** while the work is in progress:
+The `/teikk-spec` and `/teikk-planning` commands create working artifacts under the project's `.teikk/` directory (`.teikk/spec/SPEC.md`, `.teikk/tasks/plan.md`, `.teikk/tasks/todo.md`). Treat them as **living documents** while the work is in progress:
 
-- `.teikk/` is gitignored by default so these stay local. If you want the human and agent to share them through version control, un-ignore the specific files (e.g. `!.teikk/SPEC.md`) during development.
+- `.teikk/` is gitignored by default so these stay local. If you want the human and agent to share them through version control, un-ignore the specific files (e.g. `!.teikk/spec/SPEC.md`) during development.
+- Pre-3.1 projects may still have `.teikk/SPEC.md` at the root instead of `.teikk/spec/SPEC.md` — every command falls back to that path automatically, no migration required.
 - Update them when scope or decisions change.
 - Everything a workflow generates lives under `.teikk/` — delete that one directory to clear all artifacts.
 

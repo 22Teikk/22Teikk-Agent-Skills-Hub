@@ -32,6 +32,16 @@ Before writing any code, operate in read-only mode:
 
 **Do NOT write code during planning.** The output is a plan document, not implementation.
 
+#### Open Questions Gate (hard gate — check before proceeding)
+
+Read the spec's `## Open Questions` section. This is a second checkpoint on top of the one `spec-driven-development` already runs at spec-writing time — specs get edited by hand, or a stale spec from a previous session may not have gone through that gate at all.
+
+- Every line must be `- [x]` (resolved) or `- [~]` (explicitly deferred). If any line is still `- [ ]` (unresolved), **stop planning** and ask the user that question directly in this session, the same one-at-a-time format as `interview-me`/`spec-driven-development` — do not silently assume an answer or skip the item.
+- Once the user answers, update the spec's `## Open Questions` line to `- [x] ... → [resolution]` (or `- [~] ... → deferred: [reason]` if they decline to decide) before generating any tasks derived from that decision.
+- Only after every line is resolved or explicitly deferred does the plan proceed to Step 2.
+
+This gate exists because a plan built on a silently-skipped open question produces tasks built on a guess — the same failure mode `interview-me` exists to prevent, just one phase later.
+
 ### Step 2: Identify the Dependency Graph
 
 Map what depends on what:
@@ -227,11 +237,13 @@ When multiple agents or sessions are available:
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
+- Planning proceeds while the spec still has an unresolved (`- [ ]`) Open Question
 
 ## Verification
 
 Before starting implementation, confirm:
 
+- [ ] The spec's `## Open Questions` has no unresolved (`- [ ]`) lines — every one is `- [x]` or `- [~]`
 - [ ] Every task has acceptance criteria
 - [ ] Every task has a verification step
 - [ ] Task dependencies are identified and ordered correctly

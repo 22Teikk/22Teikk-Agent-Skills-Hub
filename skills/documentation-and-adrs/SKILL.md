@@ -20,6 +20,51 @@ Document decisions, not just code. The most valuable documentation captures the 
 
 **When NOT to use:** Don't document obvious code. Don't add comments that restate what the code already says. Don't write docs for throwaway prototypes.
 
+## Decisions Log (`.teikk/DECISIONS.md`)
+
+Not every important decision rises to a full ADR (context, alternatives, consequences, sequential numbering). `.teikk/DECISIONS.md` is a lightweight, single-file, append-only log of significant decisions that *were* implemented — the running answer to "why is it built this way?" without the overhead of a new file per decision.
+
+### When to Append an Entry
+
+**Only for decisions that are actually significant** — this file loses its value if it becomes a running commentary on every change:
+
+- The architecture chosen at the `spec-driven-development` architecture gate (plus the rejected alternatives)
+- A decision that would be expensive or risky to reverse later
+- A trade-off the human explicitly chose between two or more real options
+- A deviation from the project's established pattern, made deliberately and for a stated reason
+- Anything that would otherwise need re-explaining to a future engineer or agent asking "wait, why did we do it this way?"
+
+**Do NOT log:** routine implementation choices, variable naming, minor refactors, anything already fully explained by an existing ADR (link to the ADR instead), or a decision that hasn't actually been implemented yet (this log records what shipped, not what's proposed — proposals belong in the spec's Open Questions or an idea one-pager).
+
+### Who Writes to It
+
+This file is owned by `documentation-and-adrs` (i.e., written via `/teikk-docs`), with one exception: `spec-driven-development` appends an entry directly when the architecture gate resolves (new project, or any feature with no inherited architecture) — because that decision is made and locked in during Specify, before `/teikk-docs` would naturally run, and by the time review/ship happens the reasoning would otherwise be lost to conversation history. No other command auto-writes to it; if a command surfaces a decision worth logging, it should tell the user to run `/teikk-docs` rather than appending silently.
+
+### Format
+
+Append-only, most-recent entry last (chronological, so it reads as a history):
+
+```markdown
+# Decisions Log
+
+Significant, already-implemented decisions. Append-only — do not delete or rewrite past entries.
+For the full reasoning behind a decision, see the linked ADR if one exists.
+
+## 2026-07-06 — Chose MVVM + Clean Architecture over MVI
+**Context:** New Android project, no inherited architecture.
+**Decision:** MVVM + Clean Architecture (domain/data/ui layers, use cases).
+**Rejected:** MVI (steeper learning curve for this team size); plain MVVM (wouldn't scale past 5 screens).
+**Reference:** ADR-001, .teikk/spec/SPEC.md Architecture section.
+
+## 2026-07-10 — Switched primary local storage from SharedPreferences to Room
+**Context:** Needed structured querying for transaction history; SharedPreferences doesn't support it.
+**Decision:** Room database, single source of truth for local persistence.
+**Rejected:** Keeping SharedPreferences + manual JSON parsing (rejected: no query support, error-prone parsing).
+**Reference:** ADR-004.
+```
+
+Each entry: one-line dated heading naming the decision, then Context / Decision / Rejected (if alternatives existed) / Reference (link an ADR if one exists — the log entry is a pointer, the ADR is the full reasoning). Keep entries short — 4-6 lines. If a decision needs the full context/consequences treatment, write the ADR first and reference it here, don't duplicate the ADR's content into the log.
+
 ## Architecture Decision Records (ADRs)
 
 ADRs capture the reasoning behind significant technical decisions. They're the highest-value documentation you can write.
@@ -267,12 +312,16 @@ Special consideration for AI agent context:
 - TODO comments that have been there for weeks
 - No ADRs in a project with significant architectural choices
 - Documentation that restates the code instead of explaining intent
+- `.teikk/DECISIONS.md` used as a running commentary on every small change instead of significant decisions only
+- A significant, already-implemented decision with no entry anywhere (not in DECISIONS.md, not in an ADR)
 
 ## Verification
 
 After documenting:
 
 - [ ] ADRs exist for all significant architectural decisions
+- [ ] Significant implemented decisions (architecture gate, expensive-to-reverse trade-offs) have a `.teikk/DECISIONS.md` entry
+- [ ] `.teikk/DECISIONS.md` entries are append-only (no past entries deleted or rewritten) and link to the ADR when one exists
 - [ ] README covers quick start, commands, and architecture overview
 - [ ] API functions have parameter and return type documentation
 - [ ] Known gotchas are documented inline where they matter

@@ -21,9 +21,15 @@ Generate a spec covering all nine core areas from the skill: objective, tech sta
 
 Surface any platform assumptions explicitly and ask the user to confirm or correct before writing the spec.
 
-Save the spec as `.teikk/SPEC.md` (the tool auto-creates and gitignores `.teikk/`) and confirm with the user before proceeding.
+## Open Questions gate (hard gate — before saving)
 
-After writing `.teikk/SPEC.md`, also write `.teikk/PROJECT.yaml`. Extract the following values from the spec you just wrote:
+Track every unresolved item in the spec's `## Open Questions` section as you draft it. Before saving the final spec, every line must be `- [x] [question] → [resolution]` (asked directly in this session and resolved) or `- [~] [question] → deferred: [reason]` (user explicitly declined to decide now). Do NOT save a spec with any `- [ ]` (unresolved) line — ask it directly, one question at a time with your best guess attached (same pattern as `interview-me`), before proceeding. This is a hard gate, not a suggestion.
+
+## Output location
+
+Save the spec as `.teikk/spec/SPEC.md` (the tool auto-creates and gitignores `.teikk/`) and confirm with the user before proceeding. This is a path change from pre-3.1 installs, which wrote `.teikk/SPEC.md` at the root — commands reading the spec check `.teikk/spec/SPEC.md` first and fall back to `.teikk/SPEC.md` for older projects, so no manual migration is required, but new specs always go in `.teikk/spec/`.
+
+After writing `.teikk/spec/SPEC.md`, also write `.teikk/spec/PROJECT.yaml`. Extract the following values from the spec you just wrote:
 
 - `name` — the project or app name from the Objective section
 - `platforms` — list derived from Tech Stack (one or more of: android, ios, flutter)
@@ -35,6 +41,12 @@ After writing `.teikk/SPEC.md`, also write `.teikk/PROJECT.yaml`. Extract the fo
   - iOS: startup_cold_ms: 1500, memory_mb: 150, jank_frames: 5
   - Flutter: startup_cold_ms: 2000, memory_mb: 120, jank_frames: 5
   - Generic (no platform match): omit the budgets block
+- `logging.library` — the logging library from the Observability section, or the platform default if the spec didn't name one:
+  - Android: `timber` (default) | `logcat` (raw, discouraged — only if the user explicitly insisted)
+  - iOS: `oslog` (default) | `cocoalumberjack`
+  - Flutter: `logger` (default) | `logging` | `print` (discouraged — only if the user explicitly insisted)
+  - Generic (no platform match): omit the `logging` block
+  - This value is what `/teikk-build` reads to instrument logging inline while implementing a task — it is set once here so build never has to ask again.
 
 Write the file in this exact YAML structure:
 
@@ -49,11 +61,18 @@ budgets:
   startup_cold_ms: <platform default or spec value>
   memory_mb: <platform default or spec value>
   jank_frames: <platform default or spec value>
+
+logging:
+  library: <platform default or spec value>
 ```
 
 Do not invent values; use `generic` for domain and `none` for ci/e2e when not stated.
 
-Then, check whether `.teikk/QUICKSTART.md` already exists. If it does NOT exist, write it using this fixed template (do not customize it — the content is intentional):
+## Architecture decision → DECISIONS.md
+
+If the architecture gate ran (new project, or a feature with no inherited architecture — see `skills/spec-driven-development/SKILL.md`), append one entry to `.teikk/DECISIONS.md` recording the chosen architecture and the rejected alternatives (create the file with its header if it doesn't exist yet — format is in `skills/documentation-and-adrs/SKILL.md`). Skip this step if the project inherited an existing architecture (nothing new was decided).
+
+Then, check whether `.teikk/spec/QUICKSTART.md` already exists. If it does NOT exist, write it using this fixed template (do not customize it — the content is intentional):
 
 ```markdown
 # teikk-agents-skills — Quick Start
@@ -69,7 +88,10 @@ You just ran `/teikk-spec`. Your next command is `/teikk-planning`.
 
 ## What is `.teikk/`?
 
-All workflow outputs live here — spec, tasks, ideas, ADRs, E2E flows, hook caches. It is gitignored automatically on install. Do not commit it; do not edit files in it by hand unless instructed.
+All workflow outputs live here — spec (`spec/`), tasks, ideas, ADRs, decisions log, E2E flows, hook caches. It is gitignored automatically on install. Do not commit it; do not edit files in it by hand unless instructed.
+
+- `.teikk/spec/` — everything from `/teikk-spec` (SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md), grouped in one folder
+- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see `skills/documentation-and-adrs/SKILL.md`.
 
 ## What to commit
 
@@ -95,9 +117,9 @@ All workflow outputs live here — spec, tasks, ideas, ADRs, E2E flows, hook cac
 | `/teikk-idea` | Refine a rough concept before speccing it |
 ```
 
-If `.teikk/QUICKSTART.md` already exists, skip this step silently — do not overwrite it.
+If `.teikk/spec/QUICKSTART.md` already exists, skip this step silently — do not overwrite it.
 
-Then, check whether `.teikk/WORKFLOW.md` already exists. If it does NOT exist, write it using this template:
+Then, check whether `.teikk/spec/WORKFLOW.md` already exists. If it does NOT exist, write it using this template:
 
 ```markdown
 # teikk-agents-skills — Workflow Decision Tree
@@ -166,8 +188,8 @@ Then:
 /teikk-ship        # Final checklist: personas + skill checks + verdict
 ```
 
-If **GO**: merge and deploy.  
-If **GO (demo/portfolio)**: merge but note the production blockers for later.  
+If **GO**: merge and deploy.
+If **GO (demo/portfolio)**: merge but note the production blockers for later.
 If **NO-GO**: fix the blockers and re-run `/teikk-review` + `/teikk-ship`.
 
 ---
@@ -203,4 +225,5 @@ If **NO-GO**: fix the blockers and re-run `/teikk-review` + `/teikk-ship`.
 - **If stuck:** run `/teikk-doctor` to rule out setup issues, then `/teikk-machine-audit` to rule out environment issues
 ```
 
-If `.teikk/WORKFLOW.md` already exists, skip this step silently — do not overwrite it.
+If `.teikk/spec/WORKFLOW.md` already exists, skip this step silently — do not overwrite it.
+</content>

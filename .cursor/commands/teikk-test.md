@@ -2,7 +2,7 @@
 
 Read and follow `skills/test-driven-development/SKILL.md`.
 
-Read .teikk/SPEC.md to determine the platform before routing tests:
+Read the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) to determine the platform before routing tests:
 
 For new features:
 1. Write tests that describe the expected behavior (they should FAIL)

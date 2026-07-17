@@ -1,15 +1,23 @@
 ---
-description: Add logging, crash reporting, analytics, and performance traces
+description: Retrofit logging/analytics/perf traces onto existing code, or set up telemetry beyond a single task's scope
 ---
 
 Invoke the teikk-agents-skills:observability-and-instrumentation skill.
 
-Use when instrumenting a feature or setting up project telemetry. For security rules on PII in logs, also read `skills/security-and-hardening/SKILL.md`.
+## Scope — this is a retrofit/audit tool, not the primary logging path
+
+Routine per-task logging is instrumented inline by `/teikk-build` as part of GREEN, using `logging.library` from `.teikk/spec/PROJECT.yaml` (falling back to `.teikk/PROJECT.yaml`, then the platform default) — new code should not need this command. Use `/teikk-observability` for:
+
+- **Retrofitting** logging/crash reporting onto pre-existing code that currently has none or uses raw `Log.d`/`print`.
+- **Analytics events** or **performance traces** that span more scope than a single build task (funnels, cross-screen conversion tracking, startup traces).
+- **Project-wide telemetry setup** outside a fresh Phase 0 pass (e.g. adding Crashlytics to a project that skipped `/teikk-android-setup` / `/teikk-ios-setup` / `/teikk-flutter-setup`).
+
+For security rules on PII in logs, also read `skills/security-and-hardening/SKILL.md`.
 
 Typical deliverables:
-- Timber planted (`DebugTree` debug / `ReleaseLoggingTree` release)
+- Timber/os_log/logger planted per the platform default (`DebugTree` debug / `ReleaseLoggingTree` release on Android)
 - Crashlytics non-fatals with custom keys
 - Analytics events with bounded cardinality
 - Firebase Performance traces on critical paths
 
-Verify: no raw `Log.d`, no PII in logs, release build strips debug timber.
+Verify: no raw `Log.d`/`print`, no PII in logs, release build strips debug-level logging.

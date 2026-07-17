@@ -3,6 +3,22 @@
 All notable changes to **teikk-agents-skills** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.1.0] — 2026-07-17
+
+Consolidates the Specify phase's output into one folder, adds a persistent decisions log, hard-gates unresolved spec questions, and folds routine logging into the build loop instead of a separate call.
+
+### Added
+- **`.teikk/spec/` folder** — `/teikk-spec` now writes `SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, and `WORKFLOW.md` into one dedicated folder instead of loose at the `.teikk/` root. **Backward compatible:** every command that reads the spec checks `.teikk/spec/SPEC.md` first and falls back to the pre-3.1 `.teikk/SPEC.md` root path for older projects — no manual migration required.
+- **`.teikk/DECISIONS.md`** — append-only log of significant, already-implemented decisions (architecture choices, hard-to-reverse trade-offs). Written only by `/teikk-docs` and the `/teikk-spec` architecture gate — never for routine implementation choices. Format defined in `documentation-and-adrs`'s new "Decisions Log" section.
+- **Open Questions hard gate** — `/teikk-spec` will not save a spec while its `## Open Questions` section has any unresolved (`- [ ]`) line; unresolved items must be asked directly in-session (same pattern as `interview-me`) and marked resolved (`- [x] ... → resolution`) or explicitly deferred (`- [~] ... → deferred: reason`). `/teikk-planning` re-checks this gate before breaking the spec into tasks. `/teikk-doctor` reports any spec with unresolved items.
+- **`logging.library` in `PROJECT.yaml`** — `/teikk-spec` records the project's logging library (Android: `timber`/`logcat`; iOS: `oslog`/`cocoalumberjack`; Flutter: `logger`/`logging`/`print`), platform-defaulted unless the spec says otherwise. `/teikk-android-setup`, `/teikk-ios-setup`, and `/teikk-flutter-setup` plant that library in Phase 0. `/teikk-doctor` checks it's set.
+- **`/teikk-build` instruments logging inline** — every task now logs entry/error paths and captures exceptions with custom keys as part of GREEN, using `logging.library`, without a separate `/teikk-observability` call.
+
+### Changed
+- **`/teikk-observability` re-scoped to a retrofit/audit tool** — use it only to retrofit logging onto pre-existing code with none, add analytics/perf traces spanning more than one task, or set up telemetry outside a fresh Phase 0 pass. Routine per-task logging is now inline in `/teikk-build`.
+- **`/teikk-doctor` grows to 10 checks** (from 8) — adds Open Questions resolution and Decisions log presence; PROJECT.yaml check now also verifies `logging.library`.
+- **All 5 targets in sync** — Claude, Antigravity, OpenCode, Cursor, Gemini all updated and verified via `sync-targets.js` and `validate-parity.js`.
+
 ## [2.3.0] — 2026-07-06
 
 New features for project guidance and test traceability — helps users navigate the workflow and ensures every acceptance criterion has a behavioral test.

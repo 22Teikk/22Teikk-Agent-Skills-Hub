@@ -20,7 +20,7 @@ Adopt each persona from `agents/`:
 
 ## Phase B — Skill-based ship checks
 
-If `.teikk/PROJECT.yaml` exists, read its `domain`, `e2e`, and `platforms` fields now — they guide the checks below. Otherwise, determine these from `.teikk/SPEC.md`.
+If `.teikk/spec/PROJECT.yaml` exists (fall back to `.teikk/PROJECT.yaml` for older projects), read its `domain`, `e2e`, and `platforms` fields now — they guide the checks below. Otherwise, determine these from the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`).
 
 After persona reports, verify against these skills (read and check, do not skip):
 
@@ -31,7 +31,7 @@ After persona reports, verify against these skills (read and check, do not skip)
 | CI pipeline green / gates defined | `skills/ci-cd-and-automation/SKILL.md` (skip if `ci: none` in PROJECT.yaml) |
 | Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
 | Security hardening | `skills/security-and-hardening/SKILL.md` |
-| **SPEC↔Test traceability (hard gate)** | Read `.teikk/SPEC.md` Traceability Matrix. For **every** acceptance criterion, confirm a **behavioral** test exists and executes it. Mock-only, boilerplate (`ExampleUnitTest`), and label-only tests count as ZERO. Any AC without a behavioral test → **blocker**. There is no "PARTIAL = pass". |
+| **SPEC↔Test traceability (hard gate)** | Read the spec's (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) Traceability Matrix. For **every** acceptance criterion, confirm a **behavioral** test exists and executes it. Mock-only, boilerplate (`ExampleUnitTest`), and label-only tests count as ZERO. Any AC without a behavioral test → **blocker**. There is no "PARTIAL = pass". |
 | Store readiness (both platforms) | Read `agents/mobile-app-developer.md` — verify privacy manifest, targetSdkVersion, 64-bit, crash-free ≥ 99.9% |
 
 Merge with persona findings:
@@ -110,7 +110,7 @@ Verdict: <GO (production) | GO (demo/portfolio) | NO-GO>
 
 | AC | Behavioral test | Level | Proven? |
 |----|-----------------|-------|---------|
-<reproduce the full matrix from .teikk/SPEC.md with Proven? column filled in based on Phase B findings>
+<reproduce the full matrix from the spec (.teikk/spec/SPEC.md, or .teikk/SPEC.md fallback) with Proven? column filled in based on Phase B findings>
 
 ## Production Blockers
 <list each item, or "None" if GO (production)>

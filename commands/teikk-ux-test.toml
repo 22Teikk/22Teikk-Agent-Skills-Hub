@@ -4,7 +4,7 @@ prompt = """
 Read and follow `agents/ui-ux-tester.md`.
 
 Run exhaustive UI and UX testing on the target application or flow. The user may pass:
-- A path to the documentation, .teikk/SPEC.md section, or feature description to test
+- A path to the documentation, spec section (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`), or feature description to test
 - A specific flow name to isolate (default: test all documented flows)
 - The application type: mobile app (mobile-mcp — iOS/Android on simulator/emulator/device) or web app (browser-automation MCP)
 

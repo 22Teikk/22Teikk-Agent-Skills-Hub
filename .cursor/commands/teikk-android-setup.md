@@ -2,7 +2,7 @@
 
 Read and follow `skills/android-di-and-build/SKILL.md`.
 
-Use at project start or when DI/build config is missing. Also read `skills/observability-and-instrumentation/SKILL.md` for Timber/Crashlytics setup in the same foundation pass.
+Use at project start or when DI/build config is missing. Also read `skills/observability-and-instrumentation/SKILL.md` for Timber/Crashlytics setup in the same foundation pass — plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `timber` as the platform default). This is the library every `/teikk-build` task will use inline going forward, so get it right here.
 
 Deliverables:
 - `@HiltAndroidApp`, Hilt modules, `@HiltViewModel` pattern

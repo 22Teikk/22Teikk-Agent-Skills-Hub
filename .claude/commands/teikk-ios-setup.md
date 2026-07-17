@@ -4,18 +4,19 @@ description: Set up iOS foundation — SPM dependencies, SwiftLint, logging, Cra
 
 Read `agents/swift-expert.md`.
 
-Use at iOS project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work.
+Use at iOS project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work. Read `skills/observability-and-instrumentation/SKILL.md` for logging hygiene; plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `oslog` as the platform default) — this is the library every `/teikk-build` task will use inline going forward.
 
 ## Deliverables
 
 **SPM dependencies** (add via Xcode or `Package.swift`):
 - Firebase SDK (Crashlytics + Analytics)
 - SwiftLint (build tool plugin or pre-build script phase)
+- CocoaLumberjack, only if `logging.library` is `cocoalumberjack`
 
 **Project configuration:**
 - `SwiftLint.yml` at project root with `strict: true`, at minimum: `force_try`, `force_cast`, `implicitly_unwrapped_optional`
 - Crashlytics initialized in `@main` App entry point or `AppDelegate`
-- `os_log` / `Logger` wrapper that strips debug output in release builds (`#if DEBUG`)
+- Logging wrapper per `logging.library` that strips debug output in release builds (`#if DEBUG`) — `os_log`/`Logger` (default) or `CocoaLumberjack`
 - `Info.plist` privacy strings for any required permissions declared upfront
 
 **Build verification:**

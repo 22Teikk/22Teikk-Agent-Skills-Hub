@@ -18,7 +18,7 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository remains clean — the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.3.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v3.1.0 --save-dev
 npx teikk-agents-skills init claude
 ```
 
@@ -27,7 +27,7 @@ Auto-install on `npm install` — add to your project's `package.json`:
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v2.3.0"
+    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v3.1.0"
   },
   "teikk-agents-skills": { "target": "claude" }
 }
@@ -102,7 +102,7 @@ rm -rf .teikk/
 | `/teikk-android-setup` | New Android project — Hilt, Version Catalog, Gradle |
 | `/teikk-ios-setup` | New iOS project — SPM, SwiftLint, logging, Crashlytics |
 | `/teikk-flutter-setup` | New Flutter project — flavors, Riverpod/BLoC, GoRouter, logging |
-| `/teikk-observability` | Timber/Crashlytics/analytics/perf traces (any platform) |
+| `/teikk-observability` | Retrofit logging/analytics/perf traces onto existing code, or scope beyond one task (routine logging is now inline in `/teikk-build`) |
 | `/teikk-ci` | GitHub Actions / quality gates |
 | `/teikk-docs` | ADRs, README updates |
 | `/teikk-code-simplify` | Code works but too complex |
@@ -148,13 +148,14 @@ Every workflow writes its output under a single project-local `.teikk/` director
 
 ```
 .teikk/
-├─ SPEC.md              /teikk-spec (what to build)
-├─ PROJECT.yaml         /teikk-spec (metadata: platform, domain, CI, E2E, budgets)
-├─ QUICKSTART.md        /teikk-spec (first-run guide)
-├─ WORKFLOW.md          /teikk-spec (decision tree: what command to run next)
+├─ spec/                /teikk-spec — everything from the Specify phase, one folder:
+│  ├─ SPEC.md           what to build
+│  ├─ PROJECT.yaml      metadata: platform, domain, CI, E2E, budgets, logging.library
+│  ├─ QUICKSTART.md     first-run guide
+│  └─ WORKFLOW.md       decision tree: what command to run next
+├─ DECISIONS.md         /teikk-docs (+ architecture gate) → append-only log of significant, already-implemented decisions
 ├─ DOCTOR.md            /teikk-doctor (project setup health audit)
 ├─ SHIP-REPORT.md       /teikk-ship (go/no-go verdict + traceability + blockers)
-├─ spec/                multi-file spec (optional)
 ├─ tasks/               /teikk-planning → plan.md (with AC→test mappings), todo.md
 ├─ ideas/               /teikk-idea → refined idea one-pagers
 ├─ intent/              /teikk-interview → captured project intent
@@ -164,6 +165,8 @@ Every workflow writes its output under a single project-local `.teikk/` director
 ```
 
 > Everything a workflow generates lives here — no more `docs/ideas/`, `docs/decisions/`, or scattered files in your repo. ADRs are gitignored by default; if you want them version-controlled, un-ignore the folder (`!.teikk/adr/`).
+>
+> **Pre-3.1 projects:** `/teikk-spec` used to write `SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, and `WORKFLOW.md` directly at the `.teikk/` root instead of under `.teikk/spec/`. Every command that reads the spec checks `.teikk/spec/SPEC.md` first and falls back to `.teikk/SPEC.md` automatically — no manual migration needed. New specs always write to `.teikk/spec/`.
 
 **Install is additive.** Files land *next to* your own — `init claude` copies only into `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the files it created.
 

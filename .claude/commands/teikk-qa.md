@@ -8,7 +8,7 @@ Run the two stages in order. Skip either when it does not apply, and say which y
 
 ## Stage 1 — E2E journeys (opt-in)
 
-Only if `.teikk/SPEC.md` declares an E2E strategy (`E2E: Maestro | XCUITest | integration_test`). If it says `E2E: none`, skip this stage.
+Only if the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) declares an E2E strategy (`E2E: Maestro | XCUITest | integration_test`). If it says `E2E: none`, skip this stage.
 
 Detect the platform from SPEC, then run the matching suite:
 - **Android (`E2E: Maestro`)** — Invoke the teikk-agents-skills:android-e2e-maestro skill. Run existing flows in `.teikk/maestro/flows/` with `maestro test`, or write the flow first if missing.

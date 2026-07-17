@@ -4,7 +4,7 @@ description: Set up Flutter foundation — flavor config, state management, logg
 
 Read `agents/flutter-expert.md`.
 
-Use at Flutter project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work.
+Use at Flutter project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work. Read `skills/observability-and-instrumentation/SKILL.md` for logging hygiene; plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `logger` as the platform default) — this is the library every `/teikk-build` task will use inline going forward.
 
 ## Deliverables
 
@@ -21,7 +21,7 @@ Use at Flutter project start or when project tooling is missing. Sets up the Pha
 
 **Logging + Crashlytics:**
 - `firebase_crashlytics` with `FlutterError.onError` and `PlatformDispatcher.instance.onError` wired
-- `logger` package with `DevelopmentFilter` (debug only) and `ProductionFilter` (errors only in release)
+- Per `logging.library`: `logger` package (default) with `DevelopmentFilter` (debug only) and `ProductionFilter` (errors only in release), or the `logging` package configured equivalently
 
 **Lint:**
 - `flutter_lints` or `very_good_analysis` in `analysis_options.yaml`
