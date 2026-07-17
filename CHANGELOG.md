@@ -3,6 +3,15 @@
 All notable changes to **teikk-agents-skills** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Release automation
+
+Releases are cut automatically by GitHub Actions from branch pushes — no manual tagging. The version source of truth is the latest repo-wide `v*` git tag (both branches share one monotonic counter); `package.json` is never bumped.
+
+- **Push/merge to `main`** → **major** bump (e.g. `3.2.0` → `4.0.0`).
+- **Push/merge to `uat`** → **minor** bump (e.g. `4.0.0` → `4.1.0`).
+
+Each run computes the next tag, then publishes a git tag + GitHub Release (`--generate-notes`) targeting that commit. A commit already carrying an exact `v*` tag is skipped, so re-runs never duplicate a release. Install a specific release with `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#vX.Y.Z`.
+
 ## [3.2.0] — 2026-07-17
 
 Adds a lightweight task index (`.teikk/tasks/todo.md`) so `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` can resume work after context is cleared without re-reading the full `plan.md`.
