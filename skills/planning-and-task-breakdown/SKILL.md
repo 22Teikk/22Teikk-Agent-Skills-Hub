@@ -128,6 +128,8 @@ Each task follows this structure:
 - `tests/path/to/test.ts`
 
 **Estimated scope:** [Small: 1-2 files | Medium: 3-5 files | Large: 5+ files]
+
+**Parallel-safe:** [yes | no] — `yes` only if this task has no unresolved `**Dependencies:**` beyond tasks that can complete in an earlier wave, AND its `**Files likely touched:**` set is not expected to overlap any sibling task's. Default to `no` when unsure — a false `yes` causes a merge-time conflict in `/teikk-build ultra`; a false `no` only costs a little parallelism, never correctness.
 ```
 
 ### Step 5: Order and Checkpoint
@@ -148,6 +150,28 @@ Add explicit checkpoints:
 - [ ] Core user flow works end-to-end
 - [ ] Review with human before proceeding
 ```
+
+#### Step 5.5: Mark `Parallel-safe` and Group into Waves (for `/teikk-build ultra`)
+
+While ordering tasks, set each task's `**Parallel-safe:**` field (Step 4 template). This is the only place independence is decided — `/teikk-build ultra` never infers it, it only reads what was written here.
+
+1. Walk the dependency graph from Step 2. A task is a `Parallel-safe: yes` candidate only if every task it depends on is already `[x]` complete by the start of the wave being considered.
+2. Among same-wave candidates, compare `**Files likely touched:**` lists pairwise. Any overlap (including a shared config/manifest/route-registration file — e.g. two tasks both editing `NavGraph.kt` or `AndroidManifest.xml`) demotes **both** tasks to `Parallel-safe: no` for that wave.
+3. Group the surviving `yes` tasks of a wave under a `### Wave N (parallel-safe)` heading; everything else stays under its phase heading and runs sequentially. A wave is capped at 4 tasks — split larger independent batches into multiple waves.
+4. Phase 0 Foundation tasks are never `Parallel-safe: yes` — they gate everything downstream by definition.
+
+```markdown
+### Phase 1: Core Features
+
+### Wave 1 (parallel-safe)
+- [ ] Task 3: User profile screen — Parallel-safe: yes
+- [ ] Task 4: Settings screen — Parallel-safe: yes
+- [ ] Task 5: Notifications screen — Parallel-safe: yes
+
+- [ ] Task 6: Task creation (depends on Task 3's shared UserSession type) — Parallel-safe: no
+```
+
+If no two tasks in a plan are independent, there are no waves — `/teikk-build ultra` then behaves identically to `/teikk-build auto` for that plan, one task at a time.
 
 ### Step 6: Write the Task Index (`.teikk/tasks/todo.md`) — O(1) resume lookup
 
@@ -178,13 +202,15 @@ Long features outlive a single context window. When context is cleared or a new 
 
 **Rules:**
 - Task numbers and titles here must match the `## Task N: [title]` headings in `plan.md` exactly — this is the join key that lets a reader jump straight to the right section without scanning the file.
-- Three checkbox states only: `[ ]` pending, `[~]` in progress (**at most one at a time**, mirroring the "one in_progress" rule for todo lists in general), `[x]` done.
+- Three checkbox states only: `[ ]` pending, `[~]` in progress (**at most one at a time in sequential mode** — see the Wave exception below), `[x]` done.
 - The **`Current task:`** line at the top is the single source of truth for "what am I doing right now" — update it every time the `[~]` marker moves. A resuming session reads this one line first, not the checkbox list.
 - Phase headings are structural context only (so a reader sees which phase they're in) — they are not parsed, just carried over from the plan.
 
+**Wave exception (`/teikk-build ultra` only):** while a `### Wave N (parallel-safe)` batch is running, **multiple** `[~]` lines are allowed simultaneously — one per task actively running in its own worktree — and `**Current task:**` becomes `**Current wave:** Wave N — M/K tasks in_progress`. This is the only mode where more than one `[~]` is valid; every other mode (including resume) keeps the one-`[~]`-at-a-time rule. Once every task in the wave flips to `[x]` (after its worktree is merged and verified), `**Current wave:**` reverts to a normal `**Current task:**` pointer at the next sequential or wave task.
+
 **Who writes/updates it:**
 - `planning-and-task-breakdown` (via `/teikk-planning`) creates it, fully unchecked, right after `plan.md`.
-- `incremental-implementation` (via `/teikk-build`) is the only phase that flips checkboxes and moves the `Current task:` pointer — see that skill's "Resuming with the Task Index" section.
+- `incremental-implementation` (via `/teikk-build`, `/teikk-build auto`, or `/teikk-build ultra`) is the only phase that flips checkboxes and moves the `Current task:`/`Current wave:` pointer — see that skill's "Resuming with the Task Index" section.
 
 This keeps the expensive artifact (`plan.md`) write-once-read-rarely, and the cheap artifact (`todo.md`) read on every resume.
 
@@ -261,6 +287,8 @@ When multiple agents or sessions are available:
 - **Must be sequential:** Database migrations, shared state changes, dependency chains
 - **Needs coordination:** Features that share an API contract (define the contract first, then parallelize)
 
+This section is guidance for *you*, the planner, when eyeballing a plan. `/teikk-build ultra` does not re-derive independence from this prose — it only trusts the machine-readable `**Parallel-safe:**` field and `### Wave N (parallel-safe)` grouping from Step 5.5. If you want `ultra` to actually run tasks concurrently, you must do Step 5.5 at plan time; skipping it means `ultra` degrades to the same one-task-at-a-time behavior as `auto`.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -280,7 +308,10 @@ When multiple agents or sessions are available:
 - Dependency order isn't considered
 - Planning proceeds while the spec still has an unresolved (`- [ ]`) Open Question
 - `todo.md` task titles drift out of sync with `plan.md` `## Task N:` headings (breaks the O(1) lookup — a resuming session can no longer jump straight to the right plan section)
-- More than one `[~]` (in progress) marker in `todo.md` at a time
+- More than one `[~]` (in progress) marker in `todo.md` at a time outside an active Wave
+- A task marked `Parallel-safe: yes` whose `**Files likely touched:**` overlaps a sibling wave task's files — this is the exact condition that produces an `ultra` merge conflict
+- Marking a Foundation (Phase 0) task `Parallel-safe: yes`
+- A wave with more than 4 tasks (split it)
 
 ## Verification
 
@@ -294,3 +325,5 @@ Before starting implementation, confirm:
 - [ ] Checkpoints exist between major phases
 - [ ] `.teikk/tasks/todo.md` exists, one line per task, titles matching `plan.md` headings exactly, all unchecked (`[ ]`) except any inherited in-progress state
 - [ ] The human has reviewed and approved the plan
+- [ ] Every task has an explicit `**Parallel-safe:**` field (`yes` or `no`) — required even if the answer is `no` for every task
+- [ ] Every `Wave N (parallel-safe)` group has ≤4 tasks with non-overlapping `**Files likely touched:**` lists and no Phase 0 task inside it

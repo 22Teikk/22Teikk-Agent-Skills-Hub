@@ -1,6 +1,7 @@
 ---
 description: TDD workflow and Prove-It pattern — write failing tests before implementation or bug fixes.
-alwaysApply: true
+globs: "**/*.kt,**/*.java,**/*.swift,**/*.dart,**/*Test*.kt,**/*Test*.java,**/*Tests.swift,**/*_test.dart"
+alwaysApply: false
 ---
 
 # Test-Driven Development (TDD)

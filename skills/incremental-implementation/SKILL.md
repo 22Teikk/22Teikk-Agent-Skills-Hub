@@ -33,6 +33,8 @@ Long features outlive a single context window — when context is cleared or a n
 
 This keeps `todo.md` as the single cheap artifact every session reads on resume, and `plan.md` as the expensive artifact you only ever read one section of at a time.
 
+**`/teikk-build ultra` reuses this exact cycle as its atomic unit.** When a `### Wave N (parallel-safe)` batch runs, each task in the wave still goes through the identical Implement → Test → Verify → Commit cycle below — the only difference is it runs inside its own git worktree, concurrently with its wave siblings, instead of in the main session sequentially. Rule 2 ("Keep It Compilable") still applies per-worktree during the wave; the *whole-project* compilable guarantee is restored by the sequential merge-and-verify step after the wave, not during it. See `planning-and-task-breakdown` Step 5.5 and the `/teikk-build` command file for the full algorithm.
+
 ## The Increment Cycle
 
 ```

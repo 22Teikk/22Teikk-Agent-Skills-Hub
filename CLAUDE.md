@@ -14,11 +14,11 @@ agents/       → 10 specialist personas (code-reviewer, adversarial-reviewer, t
                 security-auditor, android-performance-auditor, kotlin-specialist, swift-expert,
                 flutter-expert, mobile-app-developer, ui-ux-tester)
 hooks/        → Session lifecycle hooks
-.claude/      → Slash commands (19)                 [Claude Code]
-.agents/      → Rules (6) + workflows (19)          [Antigravity]
-commands/     → TOML slash commands (19)            [OpenCode / Antigravity CLI]
-.cursor/      → Rules (6) + commands (19)           [Cursor]
-.gemini/      → TOML commands (19)                  [Gemini CLI]
+.claude/      → Slash commands (22)                 [Claude Code]
+.agents/      → Rules (6) + workflows (22)          [Antigravity]
+commands/     → TOML slash commands (22)            [OpenCode / Antigravity CLI]
+.cursor/      → Rules (6) + commands (22)           [Cursor]
+.gemini/      → TOML commands (22)                  [Gemini CLI]
 references/   → Supplementary checklists
 docs/         → Setup guides per IDE
 ```
@@ -35,7 +35,7 @@ docs/         → Setup guides per IDE
 
 ## Commands
 
-19 slash commands — see README.md for workflow guide.
+22 slash commands — see README.md for workflow guide.
 
 Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`
 

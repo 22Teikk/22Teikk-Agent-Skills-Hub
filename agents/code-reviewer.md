@@ -96,3 +96,4 @@ Categorize every finding:
 - **Invoke directly when:** the user asks for a review of a specific change, file, or PR.
 - **Invoke via:** `/teikk-review` (single-perspective review) or `/teikk-ship` (parallel fan-out alongside `security-auditor` and `test-engineer`).
 - **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. See [agents/README.md](README.md).
+- **Model tier:** typically `medium` — ordinary review reasoning against known conventions. Self-classify `high` for a diff touching security-sensitive or hard-to-reverse code. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

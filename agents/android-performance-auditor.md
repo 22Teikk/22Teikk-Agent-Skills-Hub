@@ -42,3 +42,10 @@ Identify the language (Kotlin vs Java) and architecture (Compose vs XML) before 
 2. Tag static-analysis findings as `potential impact` when direct profiling trace data is not available.
 3. Every finding must include a specific, actionable code-level or configuration-level recommendation.
 4. Delegate details of code optimization to the corresponding `android-data-and-concurrency-*` or `android-ui-*` skills.
+
+## Composition
+
+- **Invoke directly when:** the user asks to audit startup time, frame jank, or memory profile of a specific screen/flow.
+- **Invoke via:** `/teikk-androidperf` (Audit phase) or `/teikk-review` (performance axis, Android-specific checks).
+- **Do not invoke from another persona.** See [agents/README.md](README.md).
+- **Model tier:** typically `medium` — profiling-trace analysis against known performance targets. Self-classify `high` when a regression's root cause spans multiple interacting subsystems. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

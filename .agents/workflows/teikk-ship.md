@@ -18,6 +18,13 @@ Adopt each persona from `agents/`:
 4. **`test-engineer`** — Read `agents/test-engineer.md`. Test-quality audit — disqualify boilerplate/mock-verification/label-only tests; require a Room in-memory DAO test for the data layer.
 5. **`ui-ux-tester`** — Read `agents/ui-ux-tester.md`. Critical user flows, visual spacing, defect report.
 
+**Write each report to disk as soon as it lands — do not hold five full reports in context until Phase D.** As each subagent returns, append its full report to `.teikk/cache/ship-reports.md` under a `## <persona name>` heading (create the file fresh at the start of Phase A; this is scratch state for this run only, not a persisted artifact — `.teikk/SHIP-REPORT.md` in Phase D remains the durable one). This serves two purposes:
+
+1. **Context economy.** Keep only a one-line summary of each report (verdict + Critical count) in the active conversation; read the full report back from `.teikk/cache/ship-reports.md` only when Phase C's merge step needs the details, not before.
+2. **Compaction resilience.** If a compaction event lands mid-fan-out (five persona calls is the longest-running phase in this workflow), the reports already on disk survive it — Phase C can resume by reading `.teikk/cache/ship-reports.md` instead of re-running personas whose reports were lost to a summary.
+
+If a subagent's report doesn't land (timeout, error), record that explicitly in `.teikk/cache/ship-reports.md` under its heading (`FAILED: <reason>`) rather than silently proceeding with four reports — Phase C's merge step must account for a missing persona, not treat silence as a pass.
+
 ## Phase B — Skill-based ship checks
 
 If `.teikk/spec/PROJECT.yaml` exists (fall back to `.teikk/PROJECT.yaml` for older projects), read its `domain`, `e2e`, and `platforms` fields now — they guide the checks below. Otherwise, determine these from the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`).
@@ -54,6 +61,8 @@ Merge with persona findings:
    - `E2E: none` or no `.e2e/` → skip silently
 
 ## Phase C — Decision and rollback
+
+Read the full persona reports back from `.teikk/cache/ship-reports.md` (written incrementally in Phase A) to do the merge below — do not rely on reports still being in the live conversation, especially if any compaction happened between Phase A and here.
 
 Produce a **two-tier** verdict — never a single ambiguous "GO" that reads like production when it isn't:
 
@@ -134,17 +143,19 @@ Verdict: <GO (production) | GO (demo/portfolio) | NO-GO>
 ## Specialist Reports
 
 ### Code Reviewer
-<paste code-reviewer output>
+<reproduce from `.teikk/cache/ship-reports.md`'s `## code-reviewer` section>
 
 ### Adversarial Reviewer
-<paste adversarial-reviewer output — REFUTED/UNREFUTED + attack log>
+<reproduce from `.teikk/cache/ship-reports.md`'s `## adversarial-reviewer` section — REFUTED/UNREFUTED + attack log>
 
 ### Security Auditor
-<paste security-auditor output>
+<reproduce from `.teikk/cache/ship-reports.md`'s `## security-auditor` section>
 
 ### Test Engineer
-<paste test-engineer output>
+<reproduce from `.teikk/cache/ship-reports.md`'s `## test-engineer` section>
 
 ### UI/UX Tester
-<paste ui-ux-tester output>
+<reproduce from `.teikk/cache/ship-reports.md`'s `## ui-ux-tester` section>
 ```
+
+After writing `.teikk/SHIP-REPORT.md`, `.teikk/cache/ship-reports.md` has served its purpose (its content is now durably captured in the persisted report) — leave it in place for debugging a re-run, but do not treat it as an artifact to reference outside this command.

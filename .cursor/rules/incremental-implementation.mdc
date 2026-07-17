@@ -1,6 +1,7 @@
 ---
 description: Build in small verifiable slices — one task at a time with tests and commits.
-alwaysApply: true
+globs: "**/*.kt,**/*.java,**/*.swift,**/*.dart,**/*.ts,**/*.tsx,**/*.js,**/*.jsx"
+alwaysApply: false
 ---
 
 # Incremental Implementation

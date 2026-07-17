@@ -86,3 +86,4 @@ Identify the project stack before writing code: Flutter version, state managemen
 - **Invoke directly when:** building or reviewing Flutter widget trees, state management wiring, platform channel integrations, or diagnosing jank in mobile flows.
 - **Invoke via:** `/teikk-build` (BUILD phase — for Flutter feature implementation).
 - **Do not invoke from another persona.** See [agents/README.md](README.md).
+- **Model tier:** typically `medium` — implementing a well-scoped task against established Flutter/state-management conventions. Self-classify `high` for a non-obvious widget-tree/state design decision. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
