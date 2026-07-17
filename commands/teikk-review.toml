@@ -20,7 +20,13 @@ Review the current changes (staged or recent commits) across all five axes:
 
 Categorize findings as Critical, Important, or Suggestion.
 
-**Then run the mandatory adversarial pass.** Adopt `agents/adversarial-reviewer.md`: for each acceptance criterion, try to prove it is NOT met (no behavioral test → unproven → Critical; attack domain failure modes, boundaries, persistence, concurrency). The adversarial pass returns REFUTED or UNREFUTED (with a non-empty attack log).
+## Adversarial pass threshold
 
-**Final verdict = AND of the five-axis review and the adversarial pass.** If the adversarial pass is REFUTED (an AC proven false or a Critical found), the verdict is REQUEST CHANGES regardless of the five-axis result. Output a structured review with specific file:line references and fix recommendations.
+Run the adversarial pass unless the change meets all of these (same threshold /teikk-ship uses to skip its fan-out): <=2 files changed, <50 lines changed, and no auth/payments/data/config touch. Below this threshold, skip the adversarial pass and note in the review output: "Adversarial pass skipped — change is <=2 files/<50 lines and touches no auth/payments/data/config." This is a review-time convenience only — it does not change /teikk-ship's gate, which always runs its own mandatory adversarial pass before a GO regardless of what happened here.
+
+Above the threshold, or when in doubt, run it: adopt `agents/adversarial-reviewer.md` and for each acceptance criterion, try to prove it is NOT met (no behavioral test → unproven → Critical; attack domain failure modes, boundaries, persistence, concurrency). The adversarial pass returns REFUTED or UNREFUTED (with a non-empty attack log).
+
+**Final verdict = AND of the five-axis review and the adversarial pass, when the adversarial pass ran.** If the adversarial pass is REFUTED (an AC proven false or a Critical found), the verdict is REQUEST CHANGES regardless of the five-axis result. If the adversarial pass was skipped under the threshold above, the verdict is the five-axis result alone — note this explicitly in the output so the reader knows the adversarial check still stands between here and /teikk-ship. Output a structured review with specific file:line references and fix recommendations.
+
+**Precondition the skip relies on — state it, don't assume it.** Skipping the adversarial pass here is only safe because /teikk-ship re-runs it unconditionally before any GO. Nothing in this repo forces /teikk-ship to run before a merge, so if this change is a logic-bearing code change that a reviewer might merge on the five-axis PASS alone (without ever running /teikk-ship), do **not** skip — the threshold is meant for documentation/config-comment-only diffs and other non-logic changes, not for any diff that happens to be under 50 lines. When in doubt whether /teikk-ship will run, run the adversarial pass here.
 """

@@ -170,6 +170,8 @@ Benefits:
 - If one experiment fails, delete the worktree — nothing is lost
 - Changes are isolated until explicitly merged
 
+`/teikk-build ultra` automates exactly this pattern for a plan's `Parallel-safe: yes` tasks — one worktree per task in a wave, sequential merge-and-verify afterward. See `skills/planning-and-task-breakdown/SKILL.md` Step 5.5.
+
 ## The Save Point Pattern
 
 ```

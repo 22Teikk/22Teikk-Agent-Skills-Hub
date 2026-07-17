@@ -102,3 +102,4 @@ Map findings to the OWASP Mobile Top 10 where relevant.
 - **Invoke directly when:** the user wants a security-focused pass on a specific change, file, or system component.
 - **Invoke via:** `/teikk-ship` (parallel fan-out alongside `code-reviewer` and `test-engineer`), or any future `/audit` command.
 - **Do not invoke from another persona.** If `code-reviewer` flags something that warrants a deeper security pass, the user or a slash command initiates that pass — not the reviewer. See [agents/README.md](README.md).
+- **Model tier:** typically `high` — attacker-framing analysis needs to resist the same "looks fine" bias a constructive review has. Self-classify `ultra` for auth/payment/data-boundary code. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

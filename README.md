@@ -82,6 +82,7 @@ rm -rf .teikk/
 /teikk-planning      ← break into tasks (Phase 0: platform foundation first)
 /teikk-build         ← one task at a time
 /teikk-build auto    ← approve plan once, agent runs all tasks
+/teikk-build ultra   ← same as auto, plus runs independent tasks in parallel git worktrees
 /teikk-test          ← VERIFY: TDD unit + Compose/XCTest/widget tests (fast, core loop)
 /teikk-review        ← before merge
 /teikk-ship          ← go/no-go + store readiness
@@ -181,11 +182,24 @@ Every workflow writes its output under a single project-local `.teikk/` director
 - [ ] Task 4: Task list view
 ```
 
+### `/teikk-build ultra` — parallel worktrees for independent tasks
+
+`auto` runs every task one at a time, even ones with no dependency on each other. `ultra` runs the same plan, but any tasks `/teikk-planning` marked `Parallel-safe: yes` and grouped into a `### Wave N (parallel-safe)` batch (≤4 tasks, non-overlapping files) get their own git worktree and run concurrently, then merge back sequentially with a full test+build check after each merge:
+
+```markdown
+### Wave 1 (parallel-safe)
+- [ ] Task 3: User profile screen — Parallel-safe: yes
+- [ ] Task 4: Settings screen — Parallel-safe: yes
+- [ ] Task 5: Notifications screen — Parallel-safe: yes
+```
+
+If a plan has no waves, `ultra` behaves exactly like `auto` — it never invents parallelism a plan didn't declare, and a merge conflict or post-merge test/build failure stops the whole wave rather than resolving itself silently. See `skills/planning-and-task-breakdown/SKILL.md` (Step 5.5) for how waves are declared, and the `/teikk-build` command file for the full Wave Execution algorithm.
+
 **Install is additive.** Files land *next to* your own — `init claude` copies only into `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the files it created.
 
 ---
 
-## All commands (21)
+## All commands (22)
 
 | Phase | Command |
 |-------|---------|
@@ -287,11 +301,11 @@ skills/          30 workflow skills (SKILL.md each) — one (machine-audit) is s
 agents/          10 personas (code-reviewer, adversarial-reviewer, test-engineer, security-auditor,
                  android-performance-auditor, kotlin-specialist, swift-expert, flutter-expert,
                  mobile-app-developer, ui-ux-tester)
-.cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (19)
-.claude/         slash commands (19)
+.cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
+.claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
-.agents/         Antigravity rules (6) + workflows (19)
-commands/        OpenCode TOML commands (19)
+.agents/         Antigravity rules (6) + workflows (22)
+commands/        OpenCode TOML commands (22)
 references/      testing, security, performance, accessibility checklists
 .teikk/          (generated at runtime) all workflow output — gitignored
 ```
