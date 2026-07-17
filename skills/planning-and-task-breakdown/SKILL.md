@@ -149,6 +149,45 @@ Add explicit checkpoints:
 - [ ] Review with human before proceeding
 ```
 
+### Step 6: Write the Task Index (`.teikk/tasks/todo.md`) — O(1) resume lookup
+
+Long features outlive a single context window. When context is cleared or a new session starts, the agent should never have to re-read the entire `plan.md` to figure out where it left off. `todo.md` exists solely to make that lookup O(1): one small file, one line per task, a single pointer to what's active.
+
+**This is a separate artifact from `plan.md`.** `plan.md` holds the full detail (description, ACs, verification steps, files) — write it once and rarely re-read it in full. `todo.md` holds only status — read it every time a session needs to resume.
+
+**Format (exact — `/teikk-build` parses this mechanically):**
+
+```markdown
+# Task Index
+
+**Current task:** Task 3 — in_progress
+**Last updated:** 2026-07-17T10:00:00+07:00
+
+## Phase 0: Foundation
+- [x] Task 0: DI + build setup
+- [x] Task 1: Observability setup
+
+## Phase 1: Core Features
+- [x] Task 2: User registration
+- [~] Task 3: User login
+- [ ] Task 4: Task creation
+
+## Phase 2: Polish
+- [ ] Task 5: Task list view
+```
+
+**Rules:**
+- Task numbers and titles here must match the `## Task N: [title]` headings in `plan.md` exactly — this is the join key that lets a reader jump straight to the right section without scanning the file.
+- Three checkbox states only: `[ ]` pending, `[~]` in progress (**at most one at a time**, mirroring the "one in_progress" rule for todo lists in general), `[x]` done.
+- The **`Current task:`** line at the top is the single source of truth for "what am I doing right now" — update it every time the `[~]` marker moves. A resuming session reads this one line first, not the checkbox list.
+- Phase headings are structural context only (so a reader sees which phase they're in) — they are not parsed, just carried over from the plan.
+
+**Who writes/updates it:**
+- `planning-and-task-breakdown` (via `/teikk-planning`) creates it, fully unchecked, right after `plan.md`.
+- `incremental-implementation` (via `/teikk-build`) is the only phase that flips checkboxes and moves the `Current task:` pointer — see that skill's "Resuming with the Task Index" section.
+
+This keeps the expensive artifact (`plan.md`) write-once-read-rarely, and the cheap artifact (`todo.md`) read on every resume.
+
 ## Task Sizing Guidelines
 
 | Size | Files | Scope | Example |
@@ -212,6 +251,8 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 - [Question needing human input]
 ```
 
+Save this to `.teikk/tasks/plan.md`. Immediately after, write `.teikk/tasks/todo.md` per Step 6 above — every task title here must match a `## Task N:` heading in `plan.md`.
+
 ## Parallelization Opportunities
 
 When multiple agents or sessions are available:
@@ -238,6 +279,8 @@ When multiple agents or sessions are available:
 - No checkpoints between tasks
 - Dependency order isn't considered
 - Planning proceeds while the spec still has an unresolved (`- [ ]`) Open Question
+- `todo.md` task titles drift out of sync with `plan.md` `## Task N:` headings (breaks the O(1) lookup — a resuming session can no longer jump straight to the right plan section)
+- More than one `[~]` (in progress) marker in `todo.md` at a time
 
 ## Verification
 
@@ -249,4 +292,5 @@ Before starting implementation, confirm:
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
+- [ ] `.teikk/tasks/todo.md` exists, one line per task, titles matching `plan.md` headings exactly, all unchecked (`[ ]`) except any inherited in-progress state
 - [ ] The human has reviewed and approved the plan

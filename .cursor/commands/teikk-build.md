@@ -39,18 +39,27 @@ Read `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PRO
 
 User arguments select the mode. Treat `auto` or `all` as autonomous mode.
 
+## Finding the task — O(1) resume, never re-read the whole plan
+
+Read `.teikk/tasks/todo.md` first (format defined in `skills/planning-and-task-breakdown/SKILL.md` Step 6). Its `**Current task:**` line is the single source of truth for what to work on:
+
+- If it names a task marked `[~]` (in progress), that's a resumed task from a cleared context — jump straight to that task's `## Task N:` section in `.teikk/tasks/plan.md`. Do not re-read the rest of the plan.
+- If nothing is `[~]`, the next `[ ]` (pending) task in file order is the one to pick.
+- If `todo.md` doesn't exist yet (older plan, or plan generated before this format), fall back to scanning `plan.md` directly, then create `todo.md` per the format in `planning-and-task-breakdown` so future resumes are fast.
+
 ## Default: one task
 
-Pick the next pending task from the plan. Then:
+Using the task found above:
 
-1. Read the task's acceptance criteria and route to the skill(s)/persona(s) above
+1. Read that task's acceptance criteria and route to the skill(s)/persona(s) above
 2. Load relevant context (existing code, patterns, types)
-3. Write a failing test for the expected behavior (RED)
-4. Implement the minimum code to pass the test, instrumenting logging inline per the section above (GREEN)
-5. Run the full test suite to check for regressions
-6. Run the build to verify compilation
-7. Commit with a descriptive message (follow `skills/git-workflow-and-versioning/SKILL.md`)
-8. Mark the task complete and stop
+3. Flip the task's `todo.md` checkbox to `[~]` and update `**Current task:**` to it, before writing any code
+4. Write a failing test for the expected behavior (RED)
+5. Implement the minimum code to pass the test, instrumenting logging inline per the section above (GREEN)
+6. Run the full test suite to check for regressions
+7. Run the build to verify compilation
+8. Commit with a descriptive message (follow `skills/git-workflow-and-versioning/SKILL.md`)
+9. Flip the task's `todo.md` checkbox to `[x]`, advance `**Current task:**` to the next `[ ]` task (or clear it if none remain), then mark the task complete and stop
 
 ## Autonomous: the whole plan (`/teikk-build auto`)
 

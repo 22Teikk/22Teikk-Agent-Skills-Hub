@@ -6,6 +6,8 @@ Invoke the teikk-agents-skills:code-review-and-quality skill. Read `agents/code-
 
 Before reviewing, read `.teikk/spec/PROJECT.yaml` if it exists (fall back to `.teikk/PROJECT.yaml` for older projects) and use its `domain` field as the authoritative domain source. Load `references/domain-guardrails.md` for this domain — a violated domain invariant (e.g. money as `Double` in a finance app) is Critical. If neither PROJECT.yaml path exists, fall back to reading the spec's `Domain:` field (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`).
 
+If `.teikk/tasks/todo.md` exists, also read its `**Current task:**` line to scope the review to that task's `## Task N:` section in `.teikk/tasks/plan.md` — avoids re-scanning the whole plan to find what's under review. Read-only lookup; `/teikk-review` does not update `todo.md`.
+
 Review the current changes (staged or recent commits) across all five axes:
 
 1. **Correctness** — Does it match the spec? Edge cases handled? Tests adequate (behavioral, not mock-returning-the-answer)? Domain guardrails honored? Every SPEC promise (e.g. a promised DAO test) actually exists?

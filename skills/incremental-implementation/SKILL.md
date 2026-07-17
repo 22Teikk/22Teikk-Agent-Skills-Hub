@@ -18,6 +18,21 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 **When NOT to use:** Single-file, single-function changes where the scope is already minimal.
 
+## Resuming with the Task Index
+
+Long features outlive a single context window — when context is cleared or a new session starts `/teikk-build`, do **not** re-read `.teikk/tasks/plan.md` in full to figure out where you left off. Read `.teikk/tasks/todo.md` first (see `planning-and-task-breakdown`'s Step 6 for its format): it is a small, O(1) lookup — one line per task plus a single `**Current task:**` pointer — built for exactly this resume moment.
+
+**At the start of every `/teikk-build` invocation:**
+
+1. Read `.teikk/tasks/todo.md`. Take the `**Current task:**` line as the starting point:
+   - If it names a task marked `[~]` (in progress), that's the one you're resuming — jump straight to its `## Task N:` section in `plan.md` (do not re-read the rest of the plan).
+   - If nothing is `[~]`, pick the first `[ ]` (pending) task instead.
+2. Only now open `plan.md`, and only the section for that one task — description, ACs, verification steps, files. Skip every other task's detail.
+3. Before writing code, flip that task's checkbox to `[~]` and update `**Current task:**` in `todo.md` — this is what makes the *next* resume O(1) too.
+4. When the task's RED→GREEN→regression→build→commit cycle completes, flip its checkbox to `[x]`, and update `**Current task:**` to the next `[ ]` task (or clear it if none remain).
+
+This keeps `todo.md` as the single cheap artifact every session reads on resume, and `plan.md` as the expensive artifact you only ever read one section of at a time.
+
 ## The Increment Cycle
 
 ```
@@ -205,6 +220,7 @@ After each increment, verify:
 - [ ] Linting passes (`./gradlew lint`)
 - [ ] The new functionality works as expected
 - [ ] The change is committed with a descriptive message
+- [ ] `.teikk/tasks/todo.md` reflects the new state — this task's checkbox flipped, `**Current task:**` pointer advanced
 
 **Note:** Run each verification command after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no information.
 
@@ -231,6 +247,8 @@ After each increment, verify:
 - Touching files outside the task scope "while I'm here"
 - Creating new utility files for one-time operations
 - Running the same build/test command twice in a row without any intervening code change
+- Re-reading the entire `plan.md` at the start of a session instead of checking `todo.md`'s `**Current task:**` pointer first
+- Starting a task without flipping its `todo.md` checkbox to `[~]`, or finishing one without flipping it to `[x]`
 
 ## Verification
 

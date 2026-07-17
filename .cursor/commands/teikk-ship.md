@@ -20,6 +20,8 @@ Adopt each persona from `agents/`:
 
 If `.teikk/spec/PROJECT.yaml` exists (fall back to `.teikk/PROJECT.yaml` for older projects), read its `domain`, `e2e`, and `platforms` fields now — they guide the checks below. Otherwise, determine these from the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`).
 
+**Task Index sanity check.** If `.teikk/tasks/todo.md` exists, glance at it: every task line should be `[x]`. Any remaining `[ ]`/`[~]` means the plan isn't actually finished — surface this immediately, don't let it silently produce a GO. This is a fast sanity check only; it does not replace the SPEC↔Test traceability check below, which is the authoritative pass/fail gate.
+
 After persona reports, verify against these skills (read and check, do not skip):
 
 | Check | Skill |

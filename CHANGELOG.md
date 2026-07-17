@@ -3,6 +3,21 @@
 All notable changes to **teikk-agents-skills** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.2.0] — 2026-07-17
+
+Adds a lightweight task index (`.teikk/tasks/todo.md`) so `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` can resume work after context is cleared without re-reading the full `plan.md`.
+
+### Added
+- **`.teikk/tasks/todo.md` format defined** — `planning-and-task-breakdown`'s Step 6 specifies an exact, small format: one `[ ]`/`[~]`/`[x]` checkbox line per task (title matching the `## Task N:` heading in `plan.md`) plus a `**Current task:**` pointer at the top. This is the O(1) lookup a resuming session reads instead of scanning the full plan.
+- **`/teikk-build` reads and writes the index** — at the start of every invocation it reads `**Current task:**` to resume the in-progress task (or picks the next `[ ]` one), flips the checkbox to `[~]` before coding, and to `[x]` + advances the pointer after the task's RED→GREEN→regression→build→commit cycle completes. Falls back to scanning `plan.md` directly if `todo.md` doesn't exist yet (older plans).
+- **`/teikk-test`, `/teikk-review` read the index (read-only)** — both check `**Current task:**` to scope their work to the right `plan.md` section without re-scanning the whole file. Neither writes to `todo.md`.
+- **`/teikk-ship` reads the index as a fast sanity check** — flags any remaining `[ ]`/`[~]` line before running the full checklist, so an unfinished plan doesn't silently produce a GO. This does not replace the SPEC↔Test traceability gate, which remains the authoritative pass/fail source.
+- **`/teikk-planning` writes `todo.md` immediately after `plan.md`** — fully unchecked, one line per task.
+
+### Changed
+- **`incremental-implementation`, `test-driven-development`, `code-review-and-quality`, `shipping-and-launch` skills** gain sections/checklist items describing their role (read-write for build, read-only for test/review, sanity-check for ship) in the task-index workflow.
+- **All 5 command targets in sync** — verified via `sync-targets.js` and `validate-parity.js`.
+
 ## [3.1.0] — 2026-07-17
 
 Consolidates the Specify phase's output into one folder, adds a persistent decisions log, hard-gates unresolved spec questions, and folds routine logging into the build loop instead of a separate call.

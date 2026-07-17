@@ -34,5 +34,7 @@ Read the existing spec — check `.teikk/spec/SPEC.md` first, fall back to `.tei
    - [ ] Data layer has at least one Room in-memory DAO test (integration, not mocked)
 10. Present the plan for human review
 
-Save the plan to `.teikk/tasks/plan.md` and task list to `.teikk/tasks/todo.md`. The test mappings in each task will be read by `/teikk-ship` Phase B to validate traceability.
+Save the plan to `.teikk/tasks/plan.md`. The test mappings in each task will be read by `/teikk-ship` Phase B to validate traceability.
+
+Immediately after, write `.teikk/tasks/todo.md` following the exact format in `skills/planning-and-task-breakdown/SKILL.md` Step 6 — one checkbox line per task (title matching the `## Task N:` heading in `plan.md`), a `**Current task:**` pointer at the top, all unchecked. This is the small index `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` read on every resume instead of re-scanning the full plan.
 """

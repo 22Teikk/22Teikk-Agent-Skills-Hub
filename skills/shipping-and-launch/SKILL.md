@@ -16,6 +16,10 @@ Guidelines for shipping Android applications safely. Mobile deployments are uniq
 - Enabling a new feature dynamically via Remote Config
 - Any release containing database migrations (Room) or structural SDK updates
 
+## Task Index sanity check (before the full checklist)
+
+If `.teikk/tasks/todo.md` exists, read it first — it's a fast O(1) glance, not a substitute for the full Traceability Matrix check below. Confirm every task line is `[x]` (done); any remaining `[ ]` or `[~]` is a signal the plan isn't actually finished, even if the working tree looks clean. Surface this before running the full checklist — don't let a half-finished plan silently produce a GO verdict. This is a sanity check, not the traceability gate itself: the authoritative pass/fail source is still the SPEC's Traceability Matrix (see below), because `todo.md` only tracks task completion, not whether each AC has a real behavioral test.
+
 ## The Pre-Launch Checklist
 
 ### 1. Code Quality & Build
@@ -203,6 +207,7 @@ Since you cannot force users to delete the app or downgrade instantly, "rolling 
 ## Verification
 
 ### Before Launching:
+- [ ] If `.teikk/tasks/todo.md` exists, every task line is `[x]` — no `[ ]`/`[~]` remaining
 - [ ] Staged rollout plan is defined (e.g. starting at 1% or 5%).
 - [ ] Remote Config fallback values are verified in the app.
 - [ ] Proguard mappings (`mapping.txt`) are generated and uploaded to Crashlytics.

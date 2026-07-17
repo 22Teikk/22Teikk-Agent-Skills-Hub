@@ -19,6 +19,10 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
+## Finding the task after context is cleared
+
+Before reviewing, if `.teikk/tasks/todo.md` exists, read its `**Current task:**` line (format defined in `planning-and-task-breakdown`'s Step 6) instead of scanning the full `.teikk/tasks/plan.md` for what's in scope — it names the task and points to the exact `## Task N:` section in `plan.md` with that task's acceptance criteria and behavioral-test mappings. This is read-only here; only `/teikk-build` flips `todo.md` checkboxes.
+
 ## The Five-Axis Review
 
 Every review evaluates code across these dimensions:
@@ -358,3 +362,4 @@ After review is complete:
 - [ ] Tests pass
 - [ ] Build succeeds
 - [ ] The verification story is documented (what changed, how it was verified)
+- [ ] If `.teikk/tasks/todo.md` exists, its `**Current task:**` pointer was checked to scope this review (not re-derived from the full plan)

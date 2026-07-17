@@ -21,6 +21,10 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 
 **Related:** For Android UI and rendering changes, combine TDD with runtime verification — see the Android UI and Runtime Verification section below.
 
+## Finding the task after context is cleared
+
+`/teikk-test` runs after `/teikk-build`, often in a session that lost the context of which task was just implemented. Don't re-read the full `.teikk/tasks/plan.md` to figure out what to test — read `.teikk/tasks/todo.md`'s `**Current task:**` line first (format defined in `planning-and-task-breakdown`'s Step 6). That line names the task; jump straight to its `## Task N:` section in `plan.md` for the acceptance criteria and behavioral-test mappings that section demands. This is a read-only lookup here — `/teikk-test` does not flip `todo.md` checkboxes, that's `/teikk-build`'s job.
+
 ## The TDD Cycle
 
 ```
@@ -310,3 +314,4 @@ After completing any implementation:
 - [ ] Bug fixes include a reproduction test that failed before the fix.
 - [ ] Test names describe the behavior being verified.
 - [ ] No tests were skipped or disabled.
+- [ ] If `.teikk/tasks/todo.md` exists, its `**Current task:**` pointer was checked before testing (not re-derived by re-reading the full plan)
