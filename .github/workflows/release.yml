@@ -1,0 +1,101 @@
+name: Release (reusable)
+
+# Shared release logic for the main/uat trigger workflows. Computes the next
+# version from the latest tag across the ENTIRE repo (not branch-scoped —
+# main and uat share one monotonic version counter), then publishes a tag +
+# GitHub Release for that commit. Never bumps package.json — the tag/release
+# is the source of truth for install versions (`#vX.Y.Z`).
+
+on:
+  workflow_call:
+    inputs:
+      bump:
+        description: "Version bump type: major or minor"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate before release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run test suite
+        run: TEIKK_AGENTS_SKILLS_SKIP_POSTINSTALL=1 npm test
+
+  release:
+    name: Compute next version and publish release
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with full history and tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Compute next version
+        id: version
+        run: |
+          set -euo pipefail
+
+          # Skip if this exact commit is already tagged — prevents a
+          # duplicate release if the workflow re-runs on the same commit.
+          if git describe --tags --exact-match HEAD 2>/dev/null; then
+            echo "HEAD is already tagged — skipping release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          latest_tag="$(git tag --list 'v*' --sort=-v:refname | head -n1)"
+          if [ -z "$latest_tag" ]; then
+            latest_tag="v0.0.0"
+          fi
+          echo "Latest tag (repo-wide): $latest_tag"
+
+          version="${latest_tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "${{ inputs.bump }}" in
+            major)
+              next="$((major + 1)).0.0"
+              ;;
+            minor)
+              next="${major}.$((minor + 1)).0"
+              ;;
+            *)
+              echo "Unknown bump type: '${{ inputs.bump }}' (expected major or minor)" >&2
+              exit 1
+              ;;
+          esac
+
+          new_tag="v${next}"
+
+          if git rev-parse "$new_tag" >/dev/null 2>&1; then
+            echo "Computed tag $new_tag already exists — refusing to overwrite. Check tag history." >&2
+            exit 1
+          fi
+
+          echo "New tag: $new_tag"
+          echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
+          echo "version=$next" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        if: steps.version.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes

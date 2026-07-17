@@ -1,0 +1,15 @@
+name: Release on uat (minor bump)
+
+# Every push to uat (i.e. every PR merge) publishes a new MINOR version
+# tag + GitHub Release — e.g. 2.3.0 -> 2.4.0.
+
+on:
+  push:
+    branches: [uat]
+
+jobs:
+  release:
+    uses: ./.github/workflows/release.yml
+    with:
+      bump: minor
+    secrets: inherit
