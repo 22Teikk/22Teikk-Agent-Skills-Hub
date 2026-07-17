@@ -12,6 +12,14 @@ Releases are cut automatically by GitHub Actions from branch pushes — no manua
 
 Each run computes the next tag, then publishes a git tag + GitHub Release (`--generate-notes`) targeting that commit. A commit already carrying an exact `v*` tag is skipped, so re-runs never duplicate a release. Install a specific release with `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#vX.Y.Z`.
 
+## [4.x] — automated releases
+
+Cut automatically by the release automation above; no content changes beyond the commits each release targets.
+
+- **[4.2.0]** — `uat`: pin install docs (README/CHANGELOG) to the current release line.
+- **[4.1.0]** — `uat`: document branch-based release automation in the CHANGELOG.
+- **[4.0.0]** — `main`: first automated release — branch-based CI grants `contents: write` to the release trigger workflows (fixes the `startup_failure` where a reusable workflow could not escalate past its read-only caller).
+
 ## [3.2.0] — 2026-07-17
 
 Adds a lightweight task index (`.teikk/tasks/todo.md`) so `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` can resume work after context is cleared without re-reading the full `plan.md`.
