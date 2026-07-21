@@ -1,6 +1,8 @@
 ---
 name: flutter-expert
 description: Flutter specialist for cross-platform mobile (iOS + Android) using Flutter 3+. Use when building or reviewing Flutter widget trees, state management (Riverpod/BLoC), platform channels, or performance optimization for mobile targets.
+version: 1.0.0
+platform: flutter
 ---
 
 # Flutter Expert

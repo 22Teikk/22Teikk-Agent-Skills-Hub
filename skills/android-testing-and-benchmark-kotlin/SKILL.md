@@ -1,6 +1,8 @@
 ---
 name: android-testing-and-benchmark-kotlin
 description: Implements unit testing and performance benchmarking in Kotlin. Use when writing Kotlin JUnit tests, MockK unit/integration tests, Compose UI tests, or Macrobenchmark files.
+version: 1.0.0
+platform: android
 ---
 
 # Android Testing and Benchmarking (Kotlin Stack)

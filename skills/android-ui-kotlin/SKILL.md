@@ -1,6 +1,8 @@
 ---
 name: android-ui-kotlin
 description: Builds Android user interfaces using Kotlin and Jetpack Compose. Use when creating or modifying Compose screens, Composables, MVVM ViewModels, Navigation Compose routes, or loading images via Coil.
+version: 1.0.0
+platform: android
 ---
 
 # Android UI Engineering (Kotlin & Jetpack Compose)

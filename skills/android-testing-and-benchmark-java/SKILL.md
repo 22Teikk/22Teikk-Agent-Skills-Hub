@@ -1,6 +1,8 @@
 ---
 name: android-testing-and-benchmark-java
 description: Implements unit testing and performance benchmarking in Java. Use when writing Java JUnit tests, Mockito unit/integration tests, Espresso UI tests, or Macrobenchmark configurations.
+version: 1.0.0
+platform: android
 ---
 
 # Android Testing and Benchmarking (Java Stack)

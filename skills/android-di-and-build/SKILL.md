@@ -1,6 +1,8 @@
 ---
 name: android-di-and-build
 description: Configures Android dependency injection and build environments. Use when setting up Hilt injection, editing Gradle Kotlin DSL (KTS) build scripts, adding libraries to the Version Catalog, or defining GitHub Actions/Firebase App Distribution workflows.
+version: 1.0.0
+platform: android
 ---
 
 # Android Dependency Injection and Build Configuration

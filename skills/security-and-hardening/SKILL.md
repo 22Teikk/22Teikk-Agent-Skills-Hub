@@ -1,6 +1,8 @@
 ---
 name: security-and-hardening
 description: Guidelines and patterns for security and hardening in Android applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections.
+version: 1.0.0
+platform: generic
 ---
 
 # Security and Hardening (Android)

@@ -1,6 +1,8 @@
 ---
 name: observability-and-instrumentation
 description: Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces.
+version: 1.0.0
+platform: generic
 ---
 
 # Observability and Instrumentation (Android)

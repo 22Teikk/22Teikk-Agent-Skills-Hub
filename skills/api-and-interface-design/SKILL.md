@@ -1,6 +1,8 @@
 ---
 name: api-and-interface-design
 description: Contracts first. Use when designing API models, database structures, or module boundaries. Use when writing Retrofit interfaces, DTOs, or domain models.
+version: 1.0.0
+platform: generic
 ---
 
 # API and Interface Design (Android)

@@ -1,6 +1,8 @@
 ---
 name: android-e2e-maestro
 description: Writes and runs Maestro YAML flows for Android end-to-end user journeys. Use when a multi-screen app needs journey smoke tests, when .teikk/SPEC.md declares E2E Maestro, or when invoked via /teikk-e2e. Do NOT use for unit tests, Compose component tests, or Macrobenchmarks.
+version: 1.0.0
+platform: android
 ---
 
 # Android E2E Testing (Maestro)
