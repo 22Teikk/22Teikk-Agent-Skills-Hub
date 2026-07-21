@@ -31,6 +31,7 @@ Before writing any code, operate in read-only mode:
 - Identify existing patterns and conventions
 - Map dependencies between components
 - Note risks and unknowns
+- **Read `.teikk/PARKING-LOT.md` if it exists** and re-surface any deferred item whose revisit trigger is now met (see Step 6.5)
 
 **Do NOT write code during planning.** The output is a plan document, not implementation.
 
@@ -216,6 +217,30 @@ Long features outlive a single context window. When context is cleared or a new 
 
 This keeps the expensive artifact (`plan.md`) write-once-read-rarely, and the cheap artifact (`todo.md`) read on every resume.
 
+### Step 6.5: Parking Lot (`.teikk/PARKING-LOT.md`) — deferred work that must not be forgotten
+
+Work gets deferred for legitimate reasons: out of scope for this phase, blocked on a decision, "nice to have later", noticed-but-not-touching. Without a single home, deferred items either bloat the active plan or vanish. The parking lot is that home — a single append-only file the planner writes to and re-reads.
+
+**Format:**
+
+```markdown
+# Parking Lot
+
+Deferred work — reviewed at the start of every /teikk-planning run.
+
+| ID | Item | Why deferred | Raised | Revisit when |
+|----|------|--------------|--------|--------------|
+| PL-1 | Offline sync for tasks | Out of scope for MVP | 2026-07-17 | After auth ships |
+| PL-2 | Dark mode | Nice-to-have | 2026-07-18 | Post-launch |
+```
+
+**Rules:**
+- **Append-only** while a phase is in flight — never silently delete an item. When an item is finally picked up, move it into `plan.md` as a real task and mark its parking-lot row `→ Task N` (struck through or annotated), so the history of "we knew about this" survives.
+- Each row states **why** it was deferred and a concrete **revisit-when** trigger — a deferral without a revisit condition is just forgetting with extra steps.
+- The parking lot holds *deferred implementation work*, not open questions (those block the spec) and not bugs (those go to the tracker/`debugging-and-error-recovery`).
+
+**Re-surface at planning time (mandatory):** at the **start of every `/teikk-planning` run**, before slicing new tasks, read `.teikk/PARKING-LOT.md` (if it exists) and check each item's revisit trigger against the current state. Any item whose trigger is now met is **surfaced to the user** as a candidate for this planning round — "PL-1 (offline sync) was deferred until auth shipped; auth is done — pull it into this plan?" This is what stops deferred work from silently rotting: every planning cycle actively re-examines the parking lot instead of waiting for someone to remember.
+
 ## Task Sizing Guidelines
 
 | Size | Files | Scope | Example |
@@ -320,6 +345,7 @@ This section is guidance for *you*, the planner, when eyeballing a plan. `/teikk
 Before starting implementation, confirm:
 
 - [ ] The spec's `## Open Questions` has no unresolved (`- [ ]`) lines — every one is `- [x]` or `- [~]`
+- [ ] `.teikk/PARKING-LOT.md` was read (if present) and any item whose revisit trigger is now met was surfaced to the user
 - [ ] Every task has acceptance criteria
 - [ ] Every task has a verification step
 - [ ] Task dependencies are identified and ordered correctly
