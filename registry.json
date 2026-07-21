@@ -287,6 +287,12 @@
       "version": "1.0.0",
       "platform": "generic",
       "description": "QA engineer specialized in exhaustive UI/UX testing of mobile and web applications — user flow validation, visual spacing audits, defect reporting with visual proof. Use when you need to find broken flows, confusing states, or visual inconsistencies before release."
+    },
+    {
+      "name": "value-critic",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "Value skeptic who asks whether a proposed feature, task, or change actually creates value — and if not, why it is being built. Use at DEFINE/SPEC to challenge scope and at REVIEW to catch over-engineering. Measures value as cost reduction, risk reduction, maintainability, DX, and reuse — not only revenue."
     }
   ]
 }

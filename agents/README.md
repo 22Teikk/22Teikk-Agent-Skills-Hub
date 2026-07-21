@@ -14,6 +14,7 @@ Specialist personas that play a single role with a single perspective. Each pers
 | [flutter-expert](flutter-expert.md) | Flutter Developer | Cross-platform mobile widgets, Riverpod/BLoC, performance | BUILD |
 | [mobile-app-developer](mobile-app-developer.md) | Cross-platform Mobile Architect | Native vs cross-platform decisions, store readiness, shared patterns | DEFINE / SPEC |
 | [ui-ux-tester](ui-ux-tester.md) | QA & UX Researcher | Exhaustive flow testing, spacing audits, defect reports | VERIFY |
+| [value-critic](value-critic.md) | Value Skeptic | Challenge whether work creates value; catch over-engineering | DEFINE / REVIEW |
 
 ## Model tiering (project-local, provider-agnostic)
 
