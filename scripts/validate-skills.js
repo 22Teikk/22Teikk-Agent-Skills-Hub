@@ -11,8 +11,9 @@
  *   - description does not exceed 1024 characters
  *   - required sections are present
  *
- * Checks (warnings, do not block CI):
- *   - cross-skill references point to known skills
+ * Checks (errors block CI):
+ *   - cross-skill references point to known skills (a dead reference means a
+ *     renamed or deleted skill left a dangling pointer — fail loud)
  *
  * Exit codes: 0 = all clear, 1 = one or more errors
  */
@@ -25,6 +26,7 @@ const path = require('path');
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const SKILLS_DIR = path.resolve(__dirname, '..', 'skills');
+const AGENTS_DIR = path.resolve(__dirname, '..', 'agents');
 
 const MAX_DESCRIPTION_LENGTH = 1024;
 
@@ -171,7 +173,7 @@ function validateSkill(dirName, knownSkills) {
   const refs = extractSkillReferences(content);
   for (const ref of refs) {
     if (!knownSkills.has(ref)) {
-      warnings.push(`Dead cross-reference: \`${ref}\` is not a known skill`);
+      errors.push(`Dead cross-reference: \`${ref}\` is not a known skill or persona`);
     }
   }
 
@@ -190,7 +192,13 @@ function main() {
     .filter(d => fs.statSync(path.join(SKILLS_DIR, d)).isDirectory())
     .sort();
 
-  const knownSkills = new Set(skillDirs);
+  const personaNames = fs.existsSync(AGENTS_DIR)
+    ? fs.readdirSync(AGENTS_DIR)
+        .filter(f => f.endsWith('.md') && f !== 'README.md')
+        .map(f => f.slice(0, -3))
+    : [];
+
+  const knownSkills = new Set([...skillDirs, ...personaNames]);
 
   let totalErrors   = 0;
   let totalWarnings = 0;
