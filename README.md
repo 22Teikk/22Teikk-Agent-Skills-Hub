@@ -298,9 +298,9 @@ npx teikk-agents-skills init claude
 
 ```
 skills/          30 workflow skills (SKILL.md each) — one (machine-audit) is standalone, opt-in only
-agents/          10 personas (code-reviewer, adversarial-reviewer, test-engineer, security-auditor,
+agents/          11 personas (code-reviewer, adversarial-reviewer, test-engineer, security-auditor,
                  android-performance-auditor, kotlin-specialist, swift-expert, flutter-expert,
-                 mobile-app-developer, ui-ux-tester)
+                 mobile-app-developer, ui-ux-tester, value-critic)
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
 .claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)

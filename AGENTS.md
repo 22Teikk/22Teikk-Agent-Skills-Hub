@@ -35,6 +35,7 @@ The **platform-neutral core always applies regardless of platform**: `interview-
 - Rough idea needing exploration → `idea-refine`
 - New project / feature / significant change → `spec-driven-development`
 - Platform selection (native vs cross-platform) → `mobile-app-developer` persona
+- "Is this worth building?" / scope stress-test / over-engineering check → `value-critic` persona
 
 **Plan**
 - Spec exists, need tasks → `planning-and-task-breakdown`
@@ -78,6 +79,7 @@ The **platform-neutral core always applies regardless of platform**: `interview-
 - Domain correctness (finance money type, etc.) → load `references/domain-guardrails.md` from the SPEC `Domain:` field
 - SPEC→Test traceability (each AC needs a behavioral test; mock-only/boilerplate = zero) → hard gate at `/teikk-ship`
 - Refactoring / simplification → `code-simplification`
+- Over-engineering / scope creep in the diff → `value-critic` persona
 - Security → `security-and-hardening` + `security-auditor` persona
 
 **Ship**

@@ -21,6 +21,7 @@
     "./agents/swift-expert.md",
     "./agents/flutter-expert.md",
     "./agents/mobile-app-developer.md",
-    "./agents/ui-ux-tester.md"
+    "./agents/ui-ux-tester.md",
+    "./agents/value-critic.md"
   ]
 }
