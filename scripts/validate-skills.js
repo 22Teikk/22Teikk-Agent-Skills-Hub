@@ -25,8 +25,27 @@ const path = require('path');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const SKILLS_DIR = path.resolve(__dirname, '..', 'skills');
-const AGENTS_DIR = path.resolve(__dirname, '..', 'agents');
+const ROOT = path.resolve(__dirname, '..');
+const PACKS_DIR = path.join(ROOT, 'packs');
+
+// Every skill/persona is validated exactly once — each dir entry maps a
+// physical source location to the logical dir used for lookups/messages.
+const SKILL_SOURCE_DIRS = [
+  path.join(ROOT, 'core', 'skills'),
+  ...packDirs('skills'),
+];
+const AGENT_SOURCE_DIRS = [
+  path.join(ROOT, 'core', 'agents'),
+  ...packDirs('agents'),
+];
+
+function packDirs(kind) {
+  if (!fs.existsSync(PACKS_DIR)) return [];
+  return fs.readdirSync(PACKS_DIR)
+    .filter(d => fs.statSync(path.join(PACKS_DIR, d)).isDirectory())
+    .map(d => path.join(PACKS_DIR, d, kind))
+    .filter(p => fs.existsSync(p));
+}
 
 const MAX_DESCRIPTION_LENGTH = 1024;
 
@@ -108,11 +127,11 @@ function extractSkillReferences(content) {
 
 // ─── Validator ───────────────────────────────────────────────────────────────
 
-function validateSkill(dirName, knownSkills) {
+function validateSkill(sourceDir, dirName, knownSkills) {
   const errors   = [];
   const warnings = [];
   let   exempt   = false;
-  const skillPath = path.join(SKILLS_DIR, dirName, 'SKILL.md');
+  const skillPath = path.join(sourceDir, dirName, 'SKILL.md');
 
   if (!fs.existsSync(skillPath)) {
     errors.push('Missing SKILL.md');
@@ -183,28 +202,32 @@ function validateSkill(dirName, knownSkills) {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
-  if (!fs.existsSync(SKILLS_DIR)) {
-    console.error(`ERROR: skills directory not found at ${SKILLS_DIR}`);
+  if (SKILL_SOURCE_DIRS.length === 0) {
+    console.error(`ERROR: no skill source directories found (expected core/skills and/or packs/*/skills)`);
     process.exit(1);
   }
 
-  const skillDirs = fs.readdirSync(SKILLS_DIR)
-    .filter(d => fs.statSync(path.join(SKILLS_DIR, d)).isDirectory())
-    .sort();
+  // Each skill lives in exactly one source dir (core or a single pack), so
+  // walking every source dir in turn visits every skill exactly once.
+  const skillEntries = SKILL_SOURCE_DIRS.flatMap(sourceDir =>
+    fs.readdirSync(sourceDir)
+      .filter(d => fs.statSync(path.join(sourceDir, d)).isDirectory())
+      .map(dirName => ({ sourceDir, dirName }))
+  ).sort((a, b) => a.dirName.localeCompare(b.dirName));
 
-  const personaNames = fs.existsSync(AGENTS_DIR)
-    ? fs.readdirSync(AGENTS_DIR)
-        .filter(f => f.endsWith('.md') && f !== 'README.md')
-        .map(f => f.slice(0, -3))
-    : [];
+  const personaNames = AGENT_SOURCE_DIRS.flatMap(sourceDir =>
+    fs.readdirSync(sourceDir)
+      .filter(f => f.endsWith('.md') && f !== 'README.md')
+      .map(f => f.slice(0, -3))
+  );
 
-  const knownSkills = new Set([...skillDirs, ...personaNames]);
+  const knownSkills = new Set([...skillEntries.map(e => e.dirName), ...personaNames]);
 
   let totalErrors   = 0;
   let totalWarnings = 0;
 
-  for (const dirName of skillDirs) {
-    const { errors, warnings, exempt } = validateSkill(dirName, knownSkills);
+  for (const { sourceDir, dirName } of skillEntries) {
+    const { errors, warnings, exempt } = validateSkill(sourceDir, dirName, knownSkills);
     totalErrors   += errors.length;
     totalWarnings += warnings.length;
 
@@ -220,7 +243,7 @@ function main() {
   }
 
   const status = totalErrors > 0 ? 'FAILED' : totalWarnings > 0 ? 'PASSED WITH WARNINGS' : 'PASSED';
-  console.log(`\n${skillDirs.length} skills checked — ${totalErrors} error(s), ${totalWarnings} warning(s) — ${status}`);
+  console.log(`\n${skillEntries.length} skills checked — ${totalErrors} error(s), ${totalWarnings} warning(s) — ${status}`);
 
   if (totalErrors > 0) process.exit(1);
 }

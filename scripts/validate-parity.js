@@ -42,7 +42,16 @@ const COMMAND_TARGETS = [
   { label: 'gemini',      dir: '.gemini/commands',  ext: '.toml' },
 ];
 
-const AGENTS_DIR      = path.join(ROOT, 'agents');
+const PACKS_DIR       = path.join(ROOT, 'packs');
+const AGENT_SOURCE_DIRS = [
+  path.join(ROOT, 'core', 'agents'),
+  ...(fs.existsSync(PACKS_DIR)
+    ? fs.readdirSync(PACKS_DIR)
+        .filter(d => fs.statSync(path.join(PACKS_DIR, d)).isDirectory())
+        .map(d => path.join(PACKS_DIR, d, 'agents'))
+        .filter(p => fs.existsSync(p))
+    : []),
+];
 const PLUGIN_MANIFEST = path.join(ROOT, '.claude-plugin', 'plugin.json');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -98,12 +107,11 @@ function checkCommandParity() {
 function checkAgentRegistration() {
   const errors = [];
 
-  const personas = fs.existsSync(AGENTS_DIR)
-    ? fs.readdirSync(AGENTS_DIR)
-        .filter(f => f.endsWith('.md') && f !== 'README.md')
-        .map(f => f.slice(0, -3))
-        .sort()
-    : [];
+  const personas = AGENT_SOURCE_DIRS.flatMap(dir =>
+    fs.readdirSync(dir)
+      .filter(f => f.endsWith('.md') && f !== 'README.md')
+      .map(f => f.slice(0, -3))
+  ).sort();
 
   if (!fs.existsSync(PLUGIN_MANIFEST)) {
     errors.push(`.claude-plugin/plugin.json not found`);

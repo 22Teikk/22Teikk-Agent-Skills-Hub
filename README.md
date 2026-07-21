@@ -297,10 +297,14 @@ npx teikk-agents-skills init claude
 ## Project layout
 
 ```
-skills/          30 workflow skills (SKILL.md each) — one (machine-audit) is standalone, opt-in only
-agents/          11 personas (code-reviewer, adversarial-reviewer, test-engineer, security-auditor,
-                 android-performance-auditor, kotlin-specialist, swift-expert, flutter-expert,
-                 mobile-app-developer, ui-ux-tester, value-critic)
+core/skills/     22 platform-neutral workflow skills (SKILL.md each) — always installed
+core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
+                 security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
+packs/android/   8 Android skills + 2 personas (android-performance-auditor, kotlin-specialist)
+packs/ios/       swift-expert persona
+packs/flutter/   flutter-expert persona
+                 → install copies core + only the pack matching PROJECT.yaml `platform:`,
+                   merged into a flat skills/ + agents/ in your project
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
 .claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
