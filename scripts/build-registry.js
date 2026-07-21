@@ -4,30 +4,38 @@
 const fs   = require('fs');
 const path = require('path');
 
-const ROOT        = path.resolve(__dirname, '..');
-const SKILLS_DIR  = path.join(ROOT, 'skills');
-const AGENTS_DIR  = path.join(ROOT, 'agents');
-const REGISTRY    = path.join(ROOT, 'registry.json');
+const ROOT       = path.resolve(__dirname, '..');
+const CORE_DIR   = path.join(ROOT, 'core');
+const PACKS_DIR  = path.join(ROOT, 'packs');
+const REGISTRY   = path.join(ROOT, 'registry.json');
 
 const DEFAULT_VERSION = '1.0.0';
 
-// Platform classification drives the conditional intent-map in AGENTS.md.
-// A wrong tag silently mis-routes intent, so the map is explicit and reviewed,
-// never inferred from the filename at runtime. Anything not listed is generic.
-const PLATFORM = {
-  'android-data-and-concurrency-java':   'android',
-  'android-data-and-concurrency-kotlin': 'android',
-  'android-di-and-build':                'android',
-  'android-e2e-maestro':                 'android',
-  'android-testing-and-benchmark-java':  'android',
-  'android-testing-and-benchmark-kotlin':'android',
-  'android-ui-java':                     'android',
-  'android-ui-kotlin':                   'android',
-  'android-performance-auditor':         'android',
-  'kotlin-specialist':                   'android',
-  'swift-expert':                        'ios',
-  'flutter-expert':                      'flutter',
-};
+// Platform classification now comes from physical location — core/ is always
+// 'generic', packs/<name>/ is always '<name>' — rather than a hardcoded name
+// map, since the directory split IS the authoritative classification post-#split.
+function packNames() {
+  if (!fs.existsSync(PACKS_DIR)) return [];
+  return fs.readdirSync(PACKS_DIR)
+    .filter(d => fs.statSync(path.join(PACKS_DIR, d)).isDirectory())
+    .sort();
+}
+
+// { name -> { dir, platform } } built once from directory location.
+function collectSources(kind) {
+  const sources = [];
+  const coreKindDir = path.join(CORE_DIR, kind);
+  if (fs.existsSync(coreKindDir)) {
+    sources.push({ dir: coreKindDir, platform: 'generic' });
+  }
+  for (const pack of packNames()) {
+    const packKindDir = path.join(PACKS_DIR, pack, kind);
+    if (fs.existsSync(packKindDir)) {
+      sources.push({ dir: packKindDir, platform: pack });
+    }
+  }
+  return sources;
+}
 
 const SKILL_REF_PATTERNS = [
   /\buse the `([a-z][a-z0-9-]+[a-z0-9])` skill/g,
@@ -70,10 +78,6 @@ function extractRefs(content, known, self) {
   return [...refs].sort();
 }
 
-function platformOf(name) {
-  return PLATFORM[name] || 'generic';
-}
-
 function upsertField(body, key, value) {
   const lines = body.split(/\r?\n/);
   const idx = lines.findIndex(l => l.trim().startsWith(`${key}:`));
@@ -88,26 +92,30 @@ function upsertField(body, key, value) {
 function main() {
   const write = process.argv.includes('--write');
 
-  const skillNames = fs.readdirSync(SKILLS_DIR)
-    .filter(d => fs.statSync(path.join(SKILLS_DIR, d)).isDirectory())
-    .sort();
-  const personaNames = fs.readdirSync(AGENTS_DIR)
-    .filter(f => f.endsWith('.md') && f !== 'README.md')
-    .map(f => f.slice(0, -3))
-    .sort();
-  const known = new Set([...skillNames, ...personaNames]);
+  const skillSources = collectSources('skills').flatMap(({ dir, platform }) =>
+    fs.readdirSync(dir)
+      .filter(d => fs.statSync(path.join(dir, d)).isDirectory())
+      .map(name => ({ dir, name, platform }))
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
+  const personaSources = collectSources('agents').flatMap(({ dir, platform }) =>
+    fs.readdirSync(dir)
+      .filter(f => f.endsWith('.md') && f !== 'README.md')
+      .map(f => ({ dir, name: f.slice(0, -3), platform }))
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
+  const known = new Set([...skillSources.map(s => s.name), ...personaSources.map(s => s.name)]);
 
   const registry = { generatedFrom: 'scripts/build-registry.js', skills: [], personas: [] };
   let changed = 0;
 
-  for (const name of skillNames) {
-    const file = path.join(SKILLS_DIR, name, 'SKILL.md');
+  for (const { dir, name, platform } of skillSources) {
+    const file = path.join(dir, name, 'SKILL.md');
     const content = fs.readFileSync(file, 'utf8');
     const fm = splitFrontmatter(content);
     if (!fm) { console.error(`  ✗  ${name}: no frontmatter`); process.exitCode = 1; continue; }
 
     const keys = parseKeys(fm.body);
-    const platform = platformOf(name);
     const version  = keys.version || DEFAULT_VERSION;
     const dependsOn = extractRefs(content, known, name);
 
@@ -124,14 +132,13 @@ function main() {
     registry.skills.push({ name, version, platform, dependsOn, description: keys.description || '' });
   }
 
-  for (const name of personaNames) {
-    const file = path.join(AGENTS_DIR, `${name}.md`);
+  for (const { dir, name, platform } of personaSources) {
+    const file = path.join(dir, `${name}.md`);
     const content = fs.readFileSync(file, 'utf8');
     const fm = splitFrontmatter(content);
     if (!fm) { console.error(`  ✗  ${name}: no frontmatter`); process.exitCode = 1; continue; }
 
     const keys = parseKeys(fm.body);
-    const platform = platformOf(name);
     const version  = keys.version || DEFAULT_VERSION;
 
     let body = upsertField(fm.body, 'version', version);
