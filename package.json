@@ -1,6 +1,6 @@
 {
   "name": "teikk-agents-skills",
-  "version": "3.2.0",
+  "version": "5.0.0",
   "description": "Production-grade engineering skills for AI coding agents by 22Teikk — install into Claude Code, Antigravity, or OpenCode (also Cursor and Gemini CLI).",
   "license": "MIT",
   "author": "22Teikk <https://github.com/22Teikk>",
@@ -30,13 +30,17 @@
     "bin/",
     "lib/",
     "scripts/postinstall.js",
+    "scripts/rollback.sh",
+    "scripts/decisions.js",
+    "scripts/benchmark.js",
+    "registry.json",
     ".cursor/",
     ".agents/",
     ".claude/",
     ".gemini/",
     "commands/",
-    "skills/",
-    "agents/",
+    "core/",
+    "packs/",
     "references/",
     "hooks/",
     "AGENTS.md",
@@ -44,9 +48,9 @@
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/test-install.js",
-    "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js",
-    "sync": "node scripts/sync-targets.js --write"
+    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/build-registry.js && node scripts/test-install.js",
+    "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/build-registry.js",
+    "sync": "node scripts/sync-targets.js --write && node scripts/build-registry.js --write"
   },
   "engines": {
     "node": ">=18"

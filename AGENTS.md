@@ -19,13 +19,23 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 
 ### Intent → Skill / Persona Mapping
 
-The agent should automatically map user intent to skills and personas:
+The agent should automatically map user intent to skills and personas.
+
+**Platform routing (read this first).** This framework is platform-agnostic at its core; the mobile-specific rows below are conditional. Before applying any platform-specific mapping, read the `platform:` field from `.teikk/spec/PROJECT.yaml` (falling back to `.teikk/PROJECT.yaml` for pre-3.1 projects):
+
+- `platform: android` → apply only the **Android** rows (Kotlin/Compose/Hilt/Gradle, `kotlin-specialist`, `android-*` skills, `android-performance-auditor`).
+- `platform: ios` → apply only the **iOS** rows (`swift-expert`, SwiftUI/SPM/XCTest).
+- `platform: flutter` → apply only the **Flutter** rows (`flutter-expert`, Riverpod/BLoC, `integration_test`).
+- `platform:` absent, `generic`, or non-mobile (e.g. `backend`, `web`, `cli`, `library`) → apply **only the platform-neutral rows**; skip every mobile-specific skill and persona. Do not assume Android.
+
+The **platform-neutral core always applies regardless of platform**: `interview-me`, `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `context-engineering`, `source-driven-development`, `doubt-driven-development`, `api-and-interface-design`, `debugging-and-error-recovery`, `code-review-and-quality`, `code-simplification`, `security-and-hardening`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `documentation-and-adrs`, `deprecation-and-migration`, `observability-and-instrumentation`, and the `code-reviewer` / `adversarial-reviewer` / `security-auditor` / `test-engineer` personas. Rows tagged with a specific platform stack (Android/iOS/Flutter) are applied **only** when `PROJECT.yaml` selects that platform.
 
 **Define**
 - Underspecified ask / "interview me" → `interview-me`
 - Rough idea needing exploration → `idea-refine`
 - New project / feature / significant change → `spec-driven-development`
 - Platform selection (native vs cross-platform) → `mobile-app-developer` persona
+- "Is this worth building?" / scope stress-test / over-engineering check → `value-critic` persona
 
 **Plan**
 - Spec exists, need tasks → `planning-and-task-breakdown`
@@ -69,6 +79,7 @@ The agent should automatically map user intent to skills and personas:
 - Domain correctness (finance money type, etc.) → load `references/domain-guardrails.md` from the SPEC `Domain:` field
 - SPEC→Test traceability (each AC needs a behavioral test; mock-only/boilerplate = zero) → hard gate at `/teikk-ship`
 - Refactoring / simplification → `code-simplification`
+- Over-engineering / scope creep in the diff → `value-critic` persona
 - Security → `security-and-hardening` + `security-auditor` persona
 
 **Ship**
@@ -83,19 +94,22 @@ The agent should automatically map user intent to skills and personas:
 
 OpenCode does not support slash commands like `/teikk-spec` or `/teikk-planning`.
 
-Instead, the agent must internally follow this lifecycle:
+Instead, the agent must internally follow this lifecycle. **Apply the platform-routing rule from the Intent → Skill mapping above first** — the Phase-0 and BUILD rows tagged with a platform apply only when `.teikk/spec/PROJECT.yaml`'s `platform:` selects it; a `generic`/absent/non-mobile platform runs the DEFINE→SHIP lifecycle with the platform-neutral core only and skips the mobile Phase-0 and mobile BUILD rows entirely:
 
-- **DEFINE** → `interview-me` (if unclear) → `idea-refine` (if exploring) → `mobile-app-developer` persona (if platform choice needed) → `spec-driven-development`
+- **DEFINE** → `interview-me` (if unclear) → `idea-refine` (if exploring) → `mobile-app-developer` persona (**mobile platforms only**, if native-vs-cross-platform choice needed) → `spec-driven-development`
 - **PLAN** → `planning-and-task-breakdown`
-  - Android Phase 0: Hilt + observability before features
-  - iOS Phase 0: SPM + SwiftLint + logging before features
-  - Flutter Phase 0: flavor config + state management + logging before features
-- **BUILD** → `incremental-implementation` + `test-driven-development` + domain skills/personas:
+  - Platform Phase 0 (applies only to the selected mobile platform):
+    - Android: Hilt + observability before features
+    - iOS: SPM + SwiftLint + logging before features
+    - Flutter: flavor config + state management + logging before features
+  - Generic/non-mobile: no mandated mobile Phase 0 — establish the project's own foundation (build tooling, DI/config, logging) as the plan's first tasks.
+- **BUILD** → `incremental-implementation` + `test-driven-development` + (platform-selected domain skills/personas):
   - Android: `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
   - iOS: `swift-expert`
   - Flutter: `flutter-expert`
   - Shared mobile: `mobile-app-developer`, `observability-and-instrumentation`, `api-and-interface-design`
-- **VERIFY** (fast, core loop) → `debugging-and-error-recovery`, platform unit/widget test skills
+  - Generic/non-mobile: `observability-and-instrumentation` + `api-and-interface-design` only (no mobile stack skills).
+- **VERIFY** (fast, core loop) → `debugging-and-error-recovery`, platform unit/widget test skills (mobile platforms only; generic uses `test-driven-development` alone)
 - **QA** (optional, slow — `/teikk-qa`) → `android-e2e-maestro`, E2E via `swift-expert`/`flutter-expert`, `ui-ux-tester` persona for flow/UX testing
 - **REVIEW** → `code-review-and-quality`, `code-simplification`, `security-and-hardening`
 - **SHIP** → `mobile-app-developer` (store readiness), `observability-and-instrumentation`, `documentation-and-adrs`, `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch`

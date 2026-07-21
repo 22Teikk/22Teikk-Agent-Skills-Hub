@@ -8,19 +8,20 @@
   "homepage": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
   "repository": "https://github.com/22Teikk/22Teikk-Agent-Skills-Hub",
   "license": "MIT",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "commands": "./.claude/commands",
-  "skills": "./skills",
+  "skills": ["./core/skills", "./packs/android/skills"],
   "agents": [
-    "./agents/code-reviewer.md",
-    "./agents/security-auditor.md",
-    "./agents/test-engineer.md",
-    "./agents/adversarial-reviewer.md",
-    "./agents/android-performance-auditor.md",
-    "./agents/kotlin-specialist.md",
-    "./agents/swift-expert.md",
-    "./agents/flutter-expert.md",
-    "./agents/mobile-app-developer.md",
-    "./agents/ui-ux-tester.md"
+    "./core/agents/code-reviewer.md",
+    "./core/agents/security-auditor.md",
+    "./core/agents/test-engineer.md",
+    "./core/agents/adversarial-reviewer.md",
+    "./packs/android/agents/android-performance-auditor.md",
+    "./packs/android/agents/kotlin-specialist.md",
+    "./packs/ios/agents/swift-expert.md",
+    "./packs/flutter/agents/flutter-expert.md",
+    "./core/agents/mobile-app-developer.md",
+    "./core/agents/ui-ux-tester.md",
+    "./core/agents/value-critic.md"
   ]
 }
