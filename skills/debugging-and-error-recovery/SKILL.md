@@ -1,6 +1,8 @@
 ---
 name: debugging-and-error-recovery
 description: Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing.
+version: 1.0.0
+platform: generic
 ---
 
 # Debugging and Error Recovery
@@ -32,6 +34,12 @@ When anything unexpected happens:
 ```
 
 **Don't push past a failing test or broken build to work on the next feature.** Errors compound. A bug in Step 3 that goes unfixed makes Steps 4-10 wrong.
+
+**Investigate before you fix.** Do not change any code until you can state, in order: what you *expected* vs what *actually* happened, *why now* (what changed to trigger it), and the *blast radius* (what else the suspected cause touches). A fix applied before this triage is a guess — it may mask the symptom, break something adjacent, or hide the real cause. The canonical debug order is:
+
+```
+Symptom → Reproduce → Expected vs Actual → Root Cause → Why Now → Blast Radius → Fix Proposal → (approval) → Fix → Guard → Verify
+```
 
 ## The Triage Checklist
 
@@ -81,6 +89,29 @@ For test failures:
 ./gradlew test --stacktrace
 ```
 
+### Step 1.5: Expected vs Actual, Why Now, Blast Radius
+
+Before localizing, write down three things explicitly. This is the "investigate before fix" gate — skipping it is how symptom-fixes and regressions get introduced.
+
+```
+Expected vs Actual
+├── Expected: what SHOULD happen (cite the spec, test assertion, or prior behavior)
+└── Actual:   what DOES happen (cite the exact error, wrong value, or observed state)
+    → The delta between these two is the bug. State it in one sentence.
+
+Why Now
+├── What changed? (recent commit, dependency bump, config/env change, new data shape)
+├── Did this ever work? → git log / git bisect to find the last good state (see Step 2)
+└── If nothing obvious changed → the trigger is state/timing/environment (see non-repro tree)
+
+Blast Radius (pre-fix)
+├── What else calls or depends on the suspected code?
+├── What other callers share the same root cause (so the fix covers all of them)?
+└── What could a fix here break? (shared state, public API, other tests)
+```
+
+Do not proceed to a fix until Expected-vs-Actual is a single clear sentence and you have a hypothesis for Why-Now. If Blast Radius is wide (shared utility, base class, public contract), treat the fix as high-risk and prefer the smallest change that covers all affected callers.
+
 ### Step 2: Localize
 
 Narrow down WHERE the failure happens:
@@ -114,6 +145,21 @@ Create the minimal failing case:
 - Strip the test to the bare minimum that reproduces the issue
 
 A minimal reproduction makes the root cause obvious and prevents fixing symptoms instead of causes.
+
+### Step 3.5: Fix Proposal (state before you change code)
+
+Once the root cause is identified, state the proposed fix *before* editing — do not silently jump from diagnosis to a code change. A one-line proposal makes the reasoning reviewable and catches symptom-fixes before they land.
+
+```
+Fix Proposal
+├── Root cause:   <the actual cause, not where it manifests>
+├── Proposed fix: <the smallest change that addresses the root cause>
+├── Covers:       <all callers/sites sharing this root cause — from Blast Radius>
+├── Risk:         <what this could affect; low/med/high>
+└── Alternative:  <if the fix is risky or non-obvious, a second option>
+```
+
+**When to pause for approval:** if the fix is high-risk (wide blast radius, touches a shared contract, security/data/payment path, or an irreversible operation), surface the proposal and wait for confirmation before applying it. For a low-risk, single-site fix with a clear root cause, proceed directly to Step 4 — the proposal is still stated, just not gated.
 
 ### Step 4: Fix the Root Cause
 
@@ -294,6 +340,10 @@ Error messages, stack traces, log output, and exception details from external so
 
 After fixing a bug:
 
+- [ ] Expected vs Actual was stated explicitly before any code change
+- [ ] Why-Now is understood (what changed to trigger the bug)
+- [ ] Blast Radius was assessed before fixing (all affected callers identified)
+- [ ] Fix Proposal was stated before editing (and approved if high-risk)
 - [ ] Root cause is identified and documented
 - [ ] Fix addresses the root cause, not just symptoms
 - [ ] A regression test exists that fails without the fix
