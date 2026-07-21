@@ -1,6 +1,8 @@
 ---
 name: android-data-and-concurrency-java
 description: Handles data operations and concurrency in Java. Use when writing RxJava streams, CompletableFutures, Retrofit network requests in Java, or Room database queries in Java.
+version: 1.0.0
+platform: android
 ---
 
 # Android Data and Concurrency (Java Stack)

@@ -1,6 +1,8 @@
 ---
 name: source-driven-development
 description: Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any Android framework, Jetpack library, or SDK where correctness matters.
+version: 1.0.0
+platform: generic
 ---
 
 # Source-Driven Development (Android)

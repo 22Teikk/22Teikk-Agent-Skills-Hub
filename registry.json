@@ -1,0 +1,292 @@
+{
+  "generatedFrom": "scripts/build-registry.js",
+  "skills": [
+    {
+      "name": "android-data-and-concurrency-java",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Handles data operations and concurrency in Java. Use when writing RxJava streams, CompletableFutures, Retrofit network requests in Java, or Room database queries in Java."
+    },
+    {
+      "name": "android-data-and-concurrency-kotlin",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Handles data operations and concurrency in Kotlin. Use when writing Kotlin Coroutines, flows (StateFlow, SharedFlow), Retrofit network requests, Kotlin Serialization converters, or Room database operations."
+    },
+    {
+      "name": "android-di-and-build",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Configures Android dependency injection and build environments. Use when setting up Hilt injection, editing Gradle Kotlin DSL (KTS) build scripts, adding libraries to the Version Catalog, or defining GitHub Actions/Firebase App Distribution workflows."
+    },
+    {
+      "name": "android-e2e-maestro",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Writes and runs Maestro YAML flows for Android end-to-end user journeys. Use when a multi-screen app needs journey smoke tests, when .teikk/SPEC.md declares E2E Maestro, or when invoked via /teikk-e2e. Do NOT use for unit tests, Compose component tests, or Macrobenchmarks."
+    },
+    {
+      "name": "android-testing-and-benchmark-java",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Implements unit testing and performance benchmarking in Java. Use when writing Java JUnit tests, Mockito unit/integration tests, Espresso UI tests, or Macrobenchmark configurations."
+    },
+    {
+      "name": "android-testing-and-benchmark-kotlin",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Implements unit testing and performance benchmarking in Kotlin. Use when writing Kotlin JUnit tests, MockK unit/integration tests, Compose UI tests, or Macrobenchmark files."
+    },
+    {
+      "name": "android-ui-java",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Builds Android user interfaces using Java and XML layouts. Use when creating or modifying XML layout resources, Custom Views, ViewBinding, MVVM ViewModels, or LiveData in Java."
+    },
+    {
+      "name": "android-ui-kotlin",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Builds Android user interfaces using Kotlin and Jetpack Compose. Use when creating or modifying Compose screens, Composables, MVVM ViewModels, Navigation Compose routes, or loading images via Coil."
+    },
+    {
+      "name": "api-and-interface-design",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Contracts first. Use when designing API models, database structures, or module boundaries. Use when writing Retrofit interfaces, DTOs, or domain models."
+    },
+    {
+      "name": "ci-cd-and-automation",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies."
+    },
+    {
+      "name": "code-review-and-quality",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [
+        "security-and-hardening"
+      ],
+      "description": "Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch."
+    },
+    {
+      "name": "code-simplification",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity."
+    },
+    {
+      "name": "context-engineering",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project."
+    },
+    {
+      "name": "debugging-and-error-recovery",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing."
+    },
+    {
+      "name": "deprecation-and-migration",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code."
+    },
+    {
+      "name": "documentation-and-adrs",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase."
+    },
+    {
+      "name": "doubt-driven-development",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Subjects every non-trivial decision to a fresh-context adversarial review before it stands. Use when correctness matters more than speed, when working in unfamiliar code, when stakes are high (production, security-sensitive logic, irreversible operations), or any time a confident output would be cheaper to verify now than to debug later."
+    },
+    {
+      "name": "git-workflow-and-versioning",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams."
+    },
+    {
+      "name": "idea-refine",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. Triggers on \"ideate\", \"refine this idea\", or \"stress-test my plan\"."
+    },
+    {
+      "name": "incremental-implementation",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [
+        "git-workflow-and-versioning",
+        "planning-and-task-breakdown"
+      ],
+      "description": "Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step."
+    },
+    {
+      "name": "interview-me",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Extracts what the user actually wants instead of what they think they should want. Achieves this through one-question-at-a-time interview until ~95% confidence about the underlying intent. Use when an ask is underspecified (\"build me X\" without \"for whom\" or \"why now\"), when the user explicitly invokes (\"interview me\", \"grill me\", \"are we sure?\", \"stress-test my thinking\"), or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists."
+    },
+    {
+      "name": "machine-audit",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Use when a Claude Code session feels slow or expensive, or the user asks why a session cost/took so long, why cache-read/cache-write dominates the bill, or whether MCP servers/hooks/effort-level are wasting tokens. Diagnoses machine-level Claude Code configuration (~/.claude/settings.json, user-scope MCP servers, global hooks) — not this project's own skills, commands, or code. Do not use for code bugs, test failures, or workflow-quality questions — those belong to debugging-and-error-recovery instead."
+    },
+    {
+      "name": "observability-and-instrumentation",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces."
+    },
+    {
+      "name": "planning-and-task-breakdown",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible."
+    },
+    {
+      "name": "security-and-hardening",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Guidelines and patterns for security and hardening in Android applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections."
+    },
+    {
+      "name": "shipping-and-launch",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Prepares production launches. Use when preparing to deploy to Google Play Store or Firebase App Distribution. Use when you need a pre-launch checklist, when setting up mobile monitoring (Crashlytics/Vitals), when planning a staged rollout, or when defining a remote rollback/kill-switch strategy."
+    },
+    {
+      "name": "source-driven-development",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any Android framework, Jetpack library, or SDK where correctness matters."
+    },
+    {
+      "name": "spec-driven-development",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [
+        "documentation-and-adrs"
+      ],
+      "description": "Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea."
+    },
+    {
+      "name": "test-driven-development",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Guides Red-Green-Refactor development. Use when implementing any new logic or fixing bugs. Use when you need to write tests, design test suites, or debug failing tests."
+    },
+    {
+      "name": "using-agent-skills",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [
+        "code-review-and-quality",
+        "code-simplification",
+        "incremental-implementation",
+        "planning-and-task-breakdown",
+        "shipping-and-launch",
+        "spec-driven-development",
+        "test-driven-development"
+      ],
+      "description": "Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how all other skills are discovered and invoked."
+    }
+  ],
+  "personas": [
+    {
+      "name": "adversarial-reviewer",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "Red-team reviewer whose only job is to falsify — prove each acceptance criterion is NOT met and surface at least one Critical defect. Use as a mandatory disconfirming pass in /teikk-review and /teikk-ship. Banned from approving."
+    },
+    {
+      "name": "android-performance-auditor",
+      "version": "1.0.0",
+      "platform": "android",
+      "description": "Android performance auditor focused on App Startup, Frame Rendering (Jank), CPU/Memory profiling, and Jetpack Macrobenchmark analysis."
+    },
+    {
+      "name": "code-reviewer",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "Senior code reviewer that evaluates changes across five dimensions — correctness, readability, architecture, security, and performance. Use for thorough code review before merge."
+    },
+    {
+      "name": "flutter-expert",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "description": "Flutter specialist for cross-platform mobile (iOS + Android) using Flutter 3+. Use when building or reviewing Flutter widget trees, state management (Riverpod/BLoC), platform channels, or performance optimization for mobile targets."
+    },
+    {
+      "name": "kotlin-specialist",
+      "version": "1.0.0",
+      "platform": "android",
+      "description": "Android Kotlin specialist for Jetpack Compose UI, coroutines/Flow architecture, Hilt DI, Room/DataStore persistence, and Android-specific performance. Use when building or reviewing Android feature code in Kotlin."
+    },
+    {
+      "name": "mobile-app-developer",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "Senior mobile developer who evaluates cross-platform mobile decisions — iOS vs Android feature parity, native vs cross-platform framework trade-offs, store submission requirements, and shared architecture patterns. Use for decisions that span platforms or when a dedicated iOS/Android specialist hasn't been chosen yet."
+    },
+    {
+      "name": "security-auditor",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "Security engineer focused on vulnerability detection, threat modeling, and secure coding practices for Android applications. Use for security-focused code review, threat analysis, or hardening recommendations."
+    },
+    {
+      "name": "swift-expert",
+      "version": "1.0.0",
+      "platform": "ios",
+      "description": "Native iOS Swift specialist for SwiftUI, async/await concurrency, protocol-oriented architecture, and Apple Jetpack equivalents (Core Data, CloudKit, WidgetKit). Use when building or reviewing native iOS/macOS Swift code."
+    },
+    {
+      "name": "test-engineer",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "QA engineer specialized in test strategy, test writing, and coverage analysis. Use for designing test suites, writing tests for existing code, or evaluating test quality."
+    },
+    {
+      "name": "ui-ux-tester",
+      "version": "1.0.0",
+      "platform": "generic",
+      "description": "QA engineer specialized in exhaustive UI/UX testing of mobile and web applications — user flow validation, visual spacing audits, defect reporting with visual proof. Use when you need to find broken flows, confusing states, or visual inconsistencies before release."
+    }
+  ]
+}

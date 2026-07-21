@@ -1,6 +1,8 @@
 ---
 name: mobile-app-developer
 description: Senior mobile developer who evaluates cross-platform mobile decisions — iOS vs Android feature parity, native vs cross-platform framework trade-offs, store submission requirements, and shared architecture patterns. Use for decisions that span platforms or when a dedicated iOS/Android specialist hasn't been chosen yet.
+version: 1.0.0
+platform: generic
 ---
 
 # Mobile App Developer

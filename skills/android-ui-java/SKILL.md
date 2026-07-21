@@ -1,6 +1,8 @@
 ---
 name: android-ui-java
 description: Builds Android user interfaces using Java and XML layouts. Use when creating or modifying XML layout resources, Custom Views, ViewBinding, MVVM ViewModels, or LiveData in Java.
+version: 1.0.0
+platform: android
 ---
 
 # Android UI Engineering (Java & XML Layouts)

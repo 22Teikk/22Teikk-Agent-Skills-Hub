@@ -1,6 +1,8 @@
 ---
 name: test-driven-development
 description: Guides Red-Green-Refactor development. Use when implementing any new logic or fixing bugs. Use when you need to write tests, design test suites, or debug failing tests.
+version: 1.0.0
+platform: generic
 ---
 
 # Test-Driven Development (TDD)

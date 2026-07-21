@@ -1,6 +1,8 @@
 ---
 name: swift-expert
 description: Native iOS Swift specialist for SwiftUI, async/await concurrency, protocol-oriented architecture, and Apple Jetpack equivalents (Core Data, CloudKit, WidgetKit). Use when building or reviewing native iOS/macOS Swift code.
+version: 1.0.0
+platform: ios
 ---
 
 # Swift Expert

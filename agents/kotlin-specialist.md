@@ -1,6 +1,8 @@
 ---
 name: kotlin-specialist
 description: Android Kotlin specialist for Jetpack Compose UI, coroutines/Flow architecture, Hilt DI, Room/DataStore persistence, and Android-specific performance. Use when building or reviewing Android feature code in Kotlin.
+version: 1.0.0
+platform: android
 ---
 
 # Android Kotlin Specialist

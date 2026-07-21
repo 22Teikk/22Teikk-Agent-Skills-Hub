@@ -1,6 +1,8 @@
 ---
 name: ui-ux-tester
 description: QA engineer specialized in exhaustive UI/UX testing of mobile and web applications — user flow validation, visual spacing audits, defect reporting with visual proof. Use when you need to find broken flows, confusing states, or visual inconsistencies before release.
+version: 1.0.0
+platform: generic
 ---
 
 # UI/UX Tester

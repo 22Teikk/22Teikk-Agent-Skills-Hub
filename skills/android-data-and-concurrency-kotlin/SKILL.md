@@ -1,6 +1,8 @@
 ---
 name: android-data-and-concurrency-kotlin
 description: Handles data operations and concurrency in Kotlin. Use when writing Kotlin Coroutines, flows (StateFlow, SharedFlow), Retrofit network requests, Kotlin Serialization converters, or Room database operations.
+version: 1.0.0
+platform: android
 ---
 
 # Android Data and Concurrency (Kotlin Stack)

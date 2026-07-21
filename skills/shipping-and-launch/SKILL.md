@@ -1,6 +1,8 @@
 ---
 name: shipping-and-launch
 description: Prepares production launches. Use when preparing to deploy to Google Play Store or Firebase App Distribution. Use when you need a pre-launch checklist, when setting up mobile monitoring (Crashlytics/Vitals), when planning a staged rollout, or when defining a remote rollback/kill-switch strategy.
+version: 1.0.0
+platform: generic
 ---
 
 # Shipping and Launch (Android)

@@ -1,6 +1,8 @@
 ---
 name: machine-audit
 description: Use when a Claude Code session feels slow or expensive, or the user asks why a session cost/took so long, why cache-read/cache-write dominates the bill, or whether MCP servers/hooks/effort-level are wasting tokens. Diagnoses machine-level Claude Code configuration (~/.claude/settings.json, user-scope MCP servers, global hooks) — not this project's own skills, commands, or code. Do not use for code bugs, test failures, or workflow-quality questions — those belong to debugging-and-error-recovery instead.
+version: 1.0.0
+platform: generic
 ---
 
 # Machine Audit

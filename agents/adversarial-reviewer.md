@@ -1,6 +1,8 @@
 ---
 name: adversarial-reviewer
 description: Red-team reviewer whose only job is to falsify — prove each acceptance criterion is NOT met and surface at least one Critical defect. Use as a mandatory disconfirming pass in /teikk-review and /teikk-ship. Banned from approving.
+version: 1.0.0
+platform: generic
 ---
 
 # Adversarial Reviewer (Red Team)
