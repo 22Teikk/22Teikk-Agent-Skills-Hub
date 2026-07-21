@@ -42,6 +42,20 @@ Not every important decision rises to a full ADR (context, alternatives, consequ
 
 This file is owned by `documentation-and-adrs` (i.e., written via `/teikk-docs`), with one exception: `spec-driven-development` appends an entry directly when the architecture gate resolves (new project, or any feature with no inherited architecture) — because that decision is made and locked in during Specify, before `/teikk-docs` would naturally run, and by the time review/ship happens the reasoning would otherwise be lost to conversation history. No other command auto-writes to it; if a command surfaces a decision worth logging, it should tell the user to run `/teikk-docs` rather than appending silently.
 
+### Querying the Log (`scripts/decisions.js`)
+
+The log stays a hand-authored, append-only markdown file — but it is also **queryable** without changing how it's written. `scripts/decisions.js` parses the documented entry format (`## DATE — Title` + `**Context/Decision/Rejected/Reference:**`) and answers lookups, so "have we already decided this?" is a command, not a full-file re-read:
+
+```bash
+node scripts/decisions.js list                 # all decisions (date — title, decision, reference)
+node scripts/decisions.js find Room            # entries mentioning "Room" (searches every field)
+node scripts/decisions.js count                # how many decisions logged
+node scripts/decisions.js find auth --json     # machine-readable output for tooling
+node scripts/decisions.js list --file <path>   # point at a non-default DECISIONS.md
+```
+
+It looks for `.teikk/DECISIONS.md` then `.teikk/spec/DECISIONS.md` by default. **Before appending a new decision, `find` the topic first** — if a prior decision already covers it, reference that entry instead of logging a duplicate. This is what makes the log a reuse tool (decision lookup) rather than a write-only history.
+
 ### Format
 
 Append-only, most-recent entry last (chronological, so it reads as a history):

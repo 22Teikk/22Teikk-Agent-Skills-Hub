@@ -31,6 +31,7 @@
     "lib/",
     "scripts/postinstall.js",
     "scripts/rollback.sh",
+    "scripts/decisions.js",
     "registry.json",
     ".cursor/",
     ".agents/",
