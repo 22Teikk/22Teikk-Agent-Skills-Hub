@@ -12,6 +12,12 @@ Releases are cut automatically by GitHub Actions from branch pushes — no manua
 
 Each run computes the next tag, then publishes a git tag + GitHub Release (`--generate-notes`) targeting that commit. A commit already carrying an exact `v*` tag is skipped, so re-runs never duplicate a release. Install a specific release with `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#vX.Y.Z`.
 
+**Skipping a version bump.** A merge to `main`/`uat` normally publishes a new tag. To land a change WITHOUT a release:
+- Put `[skip release]` (or `[skip-release]`, case-insensitive) in the merge commit message — skips even if code changed.
+- Or make the merge **docs-only** — every changed file is `*.md` or under `docs/`. A mixed diff (any non-doc file) releases normally.
+
+If the pushed range can't be determined (first push, force-push), the guard fails safe and releases anyway — a real release is never silently swallowed.
+
 ## [Unreleased]
 
 Workflow-hub review pass: fixes a broken command reference, closes model-tiering and token-cost gaps, and adds compaction resilience. No breaking changes — all additions are opt-in or non-blocking.
