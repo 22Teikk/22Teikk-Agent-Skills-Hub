@@ -31,6 +31,26 @@ Workflow-hub review pass: fixes a broken command reference, closes model-tiering
 - **Three `alwaysApply: true` Cursor rules scoped down** (`code-review-and-quality.mdc`, `test-driven-development.mdc`, `incremental-implementation.mdc`) — these injected ~943 combined lines into every Cursor chat turn regardless of relevance. Now `alwaysApply: false` with `globs` matching source/test file patterns, consistent with how `android-stack.mdc`/`ios-stack.mdc`/`flutter-stack.mdc` were already scoped.
 - **README.md, CLAUDE.md command counts** updated from 19/21 to 22 across all target descriptions.
 
+## [5.0.0] — core/pack split
+
+**BREAKING:** the flat top-level `skills/` and `agents/` directories are gone. Content is now tiered — `core/skills/` (22 platform-neutral skills, always installed) and `core/agents/` (7 platform-neutral personas), plus per-platform packs: `packs/android/` (8 skills + 2 personas: `android-performance-auditor`, `kotlin-specialist`), `packs/ios/` (1 persona: `swift-expert`), `packs/flutter/` (1 persona: `flutter-expert`). Install now copies `core/` plus only the pack matching `.teikk/spec/PROJECT.yaml`'s `platform:` field, merged flat into the project's `skills/` + `agents/` — a generic/no-platform project receives just the 22 core skills + 7 core personas, an Android project receives 30 skills + 9 personas. Major bump because a project that previously received every skill in the repo now receives only its own platform's subset. `git mv` preserved file history across all 46 renames.
+
+### Added
+- **`value-critic` persona (11th persona)** — a scope/over-engineering critic that asks "is this worth building?"; wired into `AGENTS.md`'s intent-map (Define + Review) and registered in `.claude-plugin/plugin.json`.
+- **`lib/telemetry.sh` + `scripts/benchmark.js`** — an opt-in observability spine (env `TEIKK_TELEMETRY=on`, off by default so it's zero-overhead and privacy-safe by signature) plus a deterministic Framework Score benchmark (0.35·Quality + 0.30·Verification + 0.20·Efficiency + 0.15·ContextIntegrity). Documented in `references/observability-and-benchmark.md`.
+- **`hooks/lifecycle-telemetry.sh`** — wires 5 real Claude Code lifecycle events (`TaskCreated`, `TaskCompleted`, `SubagentStart`, `SubagentStop`, `Stop`) into `hooks/hooks.json` to emit telemetry; off by default.
+- **`scripts/decisions.js`** — a parser/query CLI over `.teikk/DECISIONS.md` (`list`/`find`/`count`/`--json`), so the decisions log is queryable instead of grep-only.
+- **`scripts/build-registry.js` + `registry.json`** — a generated manifest of every skill/persona with version, platform, and depends-on frontmatter, giving the new core/pack inventory a machine-checkable source of truth.
+- **Enforced guardrails (`hooks/guardrail-check.sh`, `hooks/pre-push.sh`, `hooks/GUARDRAILS.md`)** — governance checks now run pre-push instead of relying on review-time diligence alone.
+- **Failure-recovery playbook (`references/failure-recovery.md`, `scripts/rollback.sh`)** — a documented rollback procedure backed by a safety-tested script, for when a workflow step needs to be undone cleanly.
+- **ADR on subagent context budget (`references/adr-subagent-context-budget.md`)** — records the per-task context budget policy (no hard token cap), so the decision doesn't have to be re-litigated per task.
+- **Parking-lot convention** — `planning-and-task-breakdown` gained a `.teikk/PARKING-LOT.md` step to capture and re-surface deferred scope instead of losing it once a task list closes.
+
+### Changed
+- **`validate-skills.js` dead cross-reference check promoted from warn to error** — a reference to a non-existent skill or persona now fails CI instead of only logging a warning.
+- **`validate-parity.js` gained an `INTENTIONAL_DRIFT` allowlist** — silences known, deliberate target-content differences (13 warnings → 0), so genuine drift isn't buried in expected noise.
+- **Conditional intent-map in `AGENTS.md`** — platform-specific routing now keys off `PROJECT.yaml`'s `platform:` field instead of assuming Android, matching the new core/pack split.
+
 ## [4.x] — automated releases
 
 Cut automatically by the release automation above; no content changes beyond the commits each release targets.
@@ -157,6 +177,7 @@ Major release: multi-target parity, a single `.teikk/` output directory, and a n
 ## [1.3.0]
 - Wired the Android stack into the spec → plan → build → ship workflow.
 
+[5.0.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v5.0.0
 [2.3.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.3.0
 [2.2.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.2.0
 [2.1.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.1.0
