@@ -9,10 +9,12 @@ Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teik
 Primary targets: **Claude Code**, **Antigravity (IDE + CLI)**, **OpenCode**. Cursor and Gemini CLI are also supported.
 
 ```
-skills/       → 30 skills (SKILL.md per directory) — 1 standalone/opt-in (machine-audit), not phase-bound
-agents/       → 10 specialist personas (code-reviewer, adversarial-reviewer, test-engineer,
-                security-auditor, android-performance-auditor, kotlin-specialist, swift-expert,
-                flutter-expert, mobile-app-developer, ui-ux-tester)
+core/skills/  → 22 platform-neutral skills (SKILL.md per dir) — always installed; 1 standalone/opt-in (machine-audit)
+core/agents/  → 7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
+                security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
+packs/android/→ 8 Android skills + 2 personas (android-performance-auditor, kotlin-specialist)
+packs/ios/    → swift-expert persona   ·   packs/flutter/ → flutter-expert persona
+                (install copies core/ + only the pack matching PROJECT.yaml `platform:`, merged flat)
 hooks/        → Session lifecycle hooks
 .claude/      → Slash commands (22)                 [Claude Code]
 .agents/      → Rules (6) + workflows (22)          [Antigravity]
@@ -45,7 +47,7 @@ QA (optional, slow — pulled out of the verify loop): `/teikk-qa` runs E2E + UI
 
 ## Conventions
 
-- Every skill lives in `skills/<name>/SKILL.md`
+- Every skill lives in `core/skills/<name>/SKILL.md` (platform-neutral) or `packs/{android,ios,flutter}/skills/<name>/SKILL.md` (platform-specific); install merges the selected set flat into your project's `skills/`
 - YAML frontmatter with `name` and `description`
 - Spec covers nine areas including Architecture and Observability
 - Spec's `## Open Questions` is a hard gate — no `- [ ]` (unresolved) line may remain before `/teikk-spec` saves, and `/teikk-planning` re-checks it before breaking the spec into tasks

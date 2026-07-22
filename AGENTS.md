@@ -141,17 +141,17 @@ This ensures OpenCode behaves similarly to Claude Code with full workflow enforc
 
 This repo has three composable layers. They have different jobs and should not be confused:
 
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
-- **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The *who*.
+- **Skills** (`core/skills/<name>/SKILL.md` or `packs/<platform>/skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
+- **Personas** (`core/agents/<role>.md` or `packs/<platform>/agents/<role>.md`) — roles with a perspective and an output format. The *who*.
 - **Slash commands** (`.claude/commands/teikk-*.md`) — user-facing entry points. The *when*. The orchestration layer.
 
 Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
 
 The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/teikk-ship` to run `code-reviewer`, `adversarial-reviewer`, `security-auditor`, `test-engineer`, and `ui-ux-tester` concurrently and synthesize their reports. The final verdict is the **AND** of the constructive personas and the disconfirming `adversarial-reviewer` (a REFUTED verdict blocks GO). Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
 
-See [agents/README.md](agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
+See [core/agents/README.md](core/agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
 
-**Claude Code interop:** the personas in `agents/` work as Claude Code subagents (auto-discovered from this plugin's `agents/` directory) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
+**Claude Code interop:** the personas in `core/agents/` and `packs/<platform>/agents/` work as Claude Code subagents (auto-discovered from this plugin's agent directories) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
 
 ## Creating a New Skill
 
