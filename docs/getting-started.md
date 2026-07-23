@@ -13,7 +13,7 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### npm install (recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
 npx teikk-agents-skills init cursor    # or claude, antigravity, gemini, opencode, all
 ```
 
@@ -98,23 +98,29 @@ See [skill-anatomy.md](skill-anatomy.md) for the full specification.
 
 ## Using Agents
 
-The `agents/` directory contains pre-configured agent personas:
+The `agents/` directory contains pre-configured agent personas. The 7 platform-neutral ones (in `core/agents/`):
 
 | Agent | Purpose |
 |-------|---------|
 | `code-reviewer.md` | Five-axis code review |
+| `adversarial-reviewer.md` | Falsifies each AC — mandatory second pass at review/ship |
 | `test-engineer.md` | Test strategy and writing |
 | `security-auditor.md` | Vulnerability detection |
-| `android-performance-auditor.md` | App Startup and Frame Rendering performance audit (via `/teikk-androidperf`) |
+| `mobile-app-developer.md` | Native-vs-cross-platform + store readiness |
+| `ui-ux-tester.md` | Exhaustive UI/UX flow testing (via `/teikk-ux-test`) |
+| `value-critic.md` | "Is this worth building?" scope + over-engineering critic |
+
+Platform packs add specialists — e.g. `android-performance-auditor.md` (App Startup / Frame Rendering audit via `/teikk-androidperf`), `kotlin-specialist.md`, `swift-expert.md`, `flutter-expert.md` — installed only for the matching `platform:`.
 
 Load an agent definition when you need specialized review. For example, ask your coding agent to "review this change using the code-reviewer agent persona" and provide the agent definition.
 
 ## Using Commands
 
-The `.claude/commands/` directory contains slash commands for Claude Code:
+The `.claude/commands/` directory contains 23 slash commands for Claude Code. The lifecycle-critical ones:
 
 | Command | Skill Invoked |
 |---------|---------------|
+| `/teikk-map-code-base` | map-code-base (reverse-engineer the spec from an existing codebase) |
 | `/teikk-spec` | spec-driven-development |
 | `/teikk-planning` | planning-and-task-breakdown |
 | `/teikk-build` | incremental-implementation + test-driven-development |
@@ -123,6 +129,8 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 | `/teikk-review` | code-review-and-quality |
 | `/teikk-ship` | shipping-and-launch |
 | `/teikk-androidperf` | android-performance-auditor (specialist agent, Android apps only) |
+
+See **[workflow.md](workflow.md)** for all 23 commands grouped by phase, and **[prompting-guide.md](prompting-guide.md)** for the best prompt to give each one.
 
 ## Using References
 

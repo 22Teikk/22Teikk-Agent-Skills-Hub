@@ -102,10 +102,11 @@ This is useful when you want to ensure a specific workflow is followed without w
 
 ## Slash Commands
 
-The repo ships 7 slash commands under `.gemini/commands/` that map to the development lifecycle. Gemini CLI auto-discovers them when you run from the project root.
+The repo ships 23 slash commands under `.gemini/commands/` that map to the development lifecycle. Gemini CLI auto-discovers them when you run from the project root. A curated subset is shown below; see [workflow.md](workflow.md) for the full list.
 
 | Command | What it does |
 |---------|--------------|
+| `/teikk-map-code-base` | Reverse-engineer the spec from an existing codebase |
 | `/teikk-spec` | Write a structured spec before writing code |
 | `/teikk-planning` | Break work into small, verifiable tasks |
 | `/teikk-build` | Implement the next task incrementally |
