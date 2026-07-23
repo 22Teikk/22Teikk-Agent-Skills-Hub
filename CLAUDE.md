@@ -9,25 +9,25 @@ Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teik
 Primary targets: **Claude Code**, **Antigravity (IDE + CLI)**, **OpenCode**. Cursor and Gemini CLI are also supported.
 
 ```
-core/skills/  → 22 platform-neutral skills (SKILL.md per dir) — always installed; 1 standalone/opt-in (machine-audit)
+core/skills/  → 23 platform-neutral skills (SKILL.md per dir) — always installed; 2 standalone/opt-in (machine-audit, map-code-base)
 core/agents/  → 7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                 security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
 packs/android/→ 8 Android skills + 2 personas (android-performance-auditor, kotlin-specialist)
 packs/ios/    → swift-expert persona   ·   packs/flutter/ → flutter-expert persona
                 (install copies core/ + only the pack matching PROJECT.yaml `platform:`, merged flat)
 hooks/        → Session lifecycle hooks
-.claude/      → Slash commands (22)                 [Claude Code]
-.agents/      → Rules (6) + workflows (22)          [Antigravity]
-commands/     → TOML slash commands (22)            [OpenCode / Antigravity CLI]
-.cursor/      → Rules (6) + commands (22)           [Cursor]
-.gemini/      → TOML commands (22)                  [Gemini CLI]
+.claude/      → Slash commands (23)                 [Claude Code]
+.agents/      → Rules (6) + workflows (23)          [Antigravity]
+commands/     → TOML slash commands (23)            [OpenCode / Antigravity CLI]
+.cursor/      → Rules (6) + commands (23)           [Cursor]
+.gemini/      → TOML commands (23)                  [Gemini CLI]
 references/   → Supplementary checklists
 docs/         → Setup guides per IDE
 ```
 
 ## Skills by Phase
 
-**Define:** interview-me, idea-refine, spec-driven-development
+**Define:** interview-me, idea-refine, spec-driven-development, map-code-base (reverse: existing codebase → spec)
 **Plan:** planning-and-task-breakdown
 **Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, android-ui-kotlin, android-ui-java, android-data-and-concurrency-kotlin, android-data-and-concurrency-java, android-di-and-build, api-and-interface-design, observability-and-instrumentation
 **Verify (fast, core loop):** android-testing-and-benchmark-kotlin, android-testing-and-benchmark-java, debugging-and-error-recovery
@@ -37,7 +37,7 @@ docs/         → Setup guides per IDE
 
 ## Commands
 
-22 slash commands — see README.md for workflow guide.
+23 slash commands — see README.md for workflow guide.
 
 Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`
 
@@ -61,3 +61,67 @@ QA (optional, slow — pulled out of the verify loop): `/teikk-qa` runs E2E + UI
 
 - Always: Follow skill workflows; Hilt + Timber defaults for Android; Version Catalog for deps
 - Never: Add skills that are vague advice instead of actionable processes
+
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

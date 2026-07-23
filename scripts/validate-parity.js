@@ -150,7 +150,7 @@ const INTENTIONAL_DRIFT = {
   'teikk-androidperf':     { claude: 'f01c747e73d8', antigravity: '7d993e914fdb' },
   'teikk-build':           { claude: 'f52cefab951a', antigravity: 'dfd314e76be0' },
   'teikk-ci':              { claude: '8c98b309288c', antigravity: 'e952437c0c05' },
-  'teikk-code-simplify':   { claude: '941dd63e2338', antigravity: 'c54e72e52985' },
+  'teikk-code-simplify':   { claude: '13aae953e5bf', antigravity: '2128dee71f4b' },
   'teikk-docs':            { claude: '46e7d7ba7ca2', antigravity: '89a8d52c58f2' },
   'teikk-doctor':          { claude: '968391ef2dca', antigravity: 'ab0576fc2aaa' },
   'teikk-idea':            { claude: '53891f08346b', antigravity: 'd2356f18a5a3' },

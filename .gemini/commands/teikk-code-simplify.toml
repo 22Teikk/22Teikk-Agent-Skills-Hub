@@ -5,7 +5,7 @@ Read and follow `skills/code-simplification/SKILL.md`.
 
 Simplify recently changed code (or the specified scope) while preserving exact behavior:
 
-1. Read AGENTS.md and study project conventions
+1. Study the project's existing conventions (style, naming, structure) before changing anything
 2. Identify the target code — recent changes unless a broader scope is specified
 3. Understand the code's purpose, callers, edge cases, and test coverage before touching it
 4. Scan for simplification opportunities:

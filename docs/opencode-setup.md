@@ -8,7 +8,7 @@ OpenCode supports custom `/commands`, but does not have a native plugin system o
 
 Instead, we achieve parity through:
 
-- A strong system prompt (`AGENTS.md`)
+- A system prompt with skill routing (`AGENTS.md`, provided by you — see below)
 - The built-in `skill` tool
 - Consistent skill discovery from the `/skills` directory
 
@@ -26,20 +26,9 @@ This more closely matches how Claude Code behaves in practice, where skills are 
 
 ## Installation
 
-1. Clone the repository:
+`npx teikk-agents-skills init opencode` copies `skills/`, `agents/`, and the `.opencode/skills` symlink into your project — but does **not** write an `AGENTS.md`, since that file is project-specific system-prompt content, not something this tool should own or overwrite.
 
-```bash
-git clone https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
-```
-
-2. Open the project in OpenCode.
-
-3. Ensure the following files are present in your workspace:
-
-- `AGENTS.md` (root)
-- `skills/` directory
-
-No additional installation is required.
+To get the agent-driven routing described in this guide, add your own `AGENTS.md` at the project root that instructs the agent to check `skills/<skill-name>/SKILL.md` for a matching skill before acting, and to invoke the `skill` tool when one applies. This repo's own [`AGENTS.md`](../AGENTS.md) is a reference example of that kind of routing (written for this repo, not meant to be copied verbatim into an app project).
 
 ---
 

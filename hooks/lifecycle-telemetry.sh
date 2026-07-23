@@ -8,8 +8,8 @@
 # rather than inventing event names that never trigger.
 #
 # It only records telemetry — it never blocks or talks to the model. Like the
-# emitter it sources, it is OFF unless TEIKK_TELEMETRY=on, so the default cost
-# is a single guarded return. Observational hooks must always exit 0.
+# emitter it sources, it is ON by default; set TEIKK_TELEMETRY=off to disable,
+# reducing it to a single guarded return. Observational hooks must always exit 0.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 EMITTER="$SCRIPT_DIR/../lib/telemetry.sh"

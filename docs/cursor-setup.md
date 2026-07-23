@@ -7,11 +7,11 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 ### Option 1: npm (Recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, `references/`, and `AGENTS.md` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/spec/SPEC.md` and `.teikk/tasks/` are written).
+This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, and `references/` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/spec/SPEC.md` and `.teikk/tasks/` are written).
 
 Auto-install on every `npm install`:
 
@@ -34,10 +34,14 @@ cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/rules/*.mdc .cursor/rules/
 # Lifecycle slash commands
 cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/commands/teikk-*.md .cursor/commands/
 
-# Skill routing (optional — for strict lifecycle enforcement)
-cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
+
+# Optional: for strict lifecycle enforcement (agent auto-detects and invokes
+# skills without explicit slash commands), write your own project-specific
+# AGENTS.md instructing the agent to check skills/<name>/SKILL.md before
+# acting. Don't copy this repo's AGENTS.md verbatim — it documents this repo,
+# not your project.
 ```
 
 **Open this repo in Cursor** — the bundled `.cursor/` config loads automatically.
@@ -75,6 +79,7 @@ Save as `.cursor/commands/teikk-planning.md` → invoke with `/teikk-planning` i
 
 | Command | File | Skill / persona |
 |---------|------|-----------------|
+| `/teikk-map-code-base` | `teikk-map-code-base.md` | map-code-base |
 | `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
 | `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
 | `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |
