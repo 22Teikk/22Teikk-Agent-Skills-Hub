@@ -12,7 +12,7 @@ Antigravity 2.0 discovers project configuration automatically:
 |------|---------|
 | `.agents/rules/` | Always-on or model-triggered behavior guidelines |
 | `.agents/workflows/` | Slash commands (`/teikk-spec`, `/teikk-build`, `/teikk-ship`, …) |
-| `AGENTS.md` (repo root) | Skill routing and lifecycle mapping |
+| `AGENTS.md` (repo root, optional) | Skill routing and lifecycle mapping — write your own project-specific one if you want strict lifecycle enforcement |
 
 **Use this repo as-is** — open it in Antigravity and the bundled `.agents/` config loads automatically.
 
@@ -26,13 +26,13 @@ cp /path/to/22Teikk-Agent-Skills-Hub/.agents/rules/*.md .agents/rules/
 # Lifecycle slash commands
 cp /path/to/22Teikk-Agent-Skills-Hub/.agents/workflows/teikk-*.md .agents/workflows/
 
-# Skill routing (required for strict lifecycle enforcement)
-cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
 ```
 
 Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Antigravity agent panel. Workflows appear as `/` commands in chat.
+
+For strict lifecycle enforcement (the agent auto-detects and invokes skills without explicit slash commands), write your own project-specific `AGENTS.md` at the repo root instructing the agent to check `skills/<name>/SKILL.md` before acting. Don't copy this repo's `AGENTS.md` verbatim — it documents this repo, not your project.
 
 > **Antigravity 2.0 path:** Workspace rules default to `.agents/rules/` (backward compatible with `.agent/rules/`). Workflows default to `.agents/workflows/` (backward compatible with `.agent/workflows/`).
 
@@ -67,6 +67,7 @@ These three rules are bundled in `.agents/rules/` with `activation: always_on`:
 
 | Command | Workflow file | Skill / persona |
 |---------|---------------|-----------------|
+| `/teikk-map-code-base` | `teikk-map-code-base.md` | map-code-base |
 | `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
 | `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
 | `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |
@@ -104,7 +105,7 @@ In Antigravity chat:
 
 1. Open **Customizations → Rules** — confirm the three essential rules appear under Workspace.
 2. Type `/teikk` — autocomplete should list `/teikk-spec`, `/teikk-planning`, `/teikk-build`, `/teikk-test`, `/teikk-review`, `/teikk-ship`, and others.
-3. Ask the agent to "follow AGENTS.md skill routing" — it should invoke skills from `skills/` instead of improvising.
+3. If you wrote your own `AGENTS.md`, ask the agent to "follow AGENTS.md skill routing" — it should invoke skills from `skills/` instead of improvising.
 
 ## Troubleshooting
 
@@ -112,4 +113,4 @@ In Antigravity chat:
 |-------|-----|
 | Rules not loading | Confirm files are in `.agents/rules/` (not `.agent/rules/` unless using legacy path) |
 | Workflows missing | Confirm `teikk-*.md` files are in `.agents/workflows/` with YAML frontmatter |
-| Skills not found | Copy `skills/` and `AGENTS.md` into the project, or install the CLI plugin |
+| Skills not found | Copy `skills/` into the project, or install the CLI plugin |

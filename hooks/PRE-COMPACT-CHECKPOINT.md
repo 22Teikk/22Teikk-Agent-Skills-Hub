@@ -12,7 +12,9 @@ This hook doesn't add new state — it snapshots what's already authoritative (`
 
 ## Setup
 
-Add to `.claude/settings.json` (or `.claude/settings.local.json` for personal use):
+Installed via `npx teikk-agents-skills init claude` (or `update`)? This hook is already wired — `init`/`update` automatically merge it (and the other lifecycle hooks) into your project's `.claude/settings.json`, rewritten to use `${CLAUDE_PROJECT_DIR}`. See `lib/claude-hooks.js`. No manual setup needed.
+
+Installed by cloning the repo manually instead? Add this to `.claude/settings.json` (or `.claude/settings.local.json` for personal use):
 
 ```json
 {
@@ -32,7 +34,7 @@ Add to `.claude/settings.json` (or `.claude/settings.local.json` for personal us
 }
 ```
 
-`${CLAUDE_PROJECT_DIR}` resolves to the directory you launched Claude Code from. If `agent-skills` is installed as a plugin, this hook is already wired in `hooks/hooks.json` and needs no manual setup — the snippet above is only for standalone/manual installs.
+`${CLAUDE_PROJECT_DIR}` resolves to the directory you launched Claude Code from. If `agent-skills` is installed as a Claude Code plugin instead (`/plugin install`), this hook is already wired in `hooks/hooks.json` via `${CLAUDE_PLUGIN_ROOT}` and needs no manual setup either.
 
 ## How it works
 

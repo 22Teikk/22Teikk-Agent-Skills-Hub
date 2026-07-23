@@ -1,0 +1,39 @@
+description = "Onboard an existing codebase — reverse-engineer the .teikk/spec/ files from the code instead of hand-writing a spec"
+
+prompt = """
+Read and follow `skills/map-code-base/SKILL.md`.
+
+Use this on an EXISTING / legacy codebase that is adopting this skills pack, when there is no `.teikk/spec/SPEC.md` yet. Instead of interviewing you to write a spec forward (that is `/teikk-spec`), this scans the code you already have and reverse-engineers the same artifacts. For a brand-new project with no code, use `/teikk-spec` instead.
+
+## Scan first (read-only, evidence-first)
+
+Detect the platform and stack from build manifests — extend `source-driven-development`'s detection to all three platforms:
+- `build.gradle(.kts)` / `libs.versions.toml` / `settings.gradle.kts` → android (Kotlin/Java, Compose vs XML, min/target SDK, Hilt/Room/Retrofit)
+- `Package.swift` / `*.xcodeproj` / `*.xcworkspace` / `Podfile` → ios (Swift/SwiftUI, SPM vs CocoaPods)
+- `pubspec.yaml` → flutter (Dart, Riverpod/BLoC, GoRouter)
+- none → generic (language/framework from source + any package manifest)
+
+Also collect: inherited architecture (from source layout — name it, do NOT offer a menu), real build/test/lint commands, project structure, testing frameworks + locations, observability libraries in use, CI provider, E2E tooling, and a domain guess.
+
+## Detect, then confirm
+
+Present an `ASSUMPTIONS I'M MAKING` block populated from the scan (platform, stack, inherited architecture, domain, CI, E2E) and wait for the user to veto or correct before writing anything. You are inheriting what the code committed to, not choosing it.
+
+## Write under `.teikk/spec/`
+
+Produce the same drop-in artifacts as `/teikk-spec`, plus a project map:
+- `SPEC.md` — nine areas reverse-engineered from code; Architecture is the inherited pattern, named; reconstruct the Traceability Matrix from existing test classes (an AC with no behavioral test is a gap → Open Question).
+- `PROJECT.yaml` — same schema. `platforms` detected; `budgets`/`logging` use platform defaults (Android 2000/100/5 + timber, iOS 1500/150/5 + oslog, Flutter 2000/120/5 + logger); omit both blocks for generic. `domain`/`ci`/`e2e` derived or `generic`/`none`. `model_tiers` blank. Do not invent values.
+- `QUICKSTART.md` and `WORKFLOW.md` — fixed templates, written verbatim; skip silently if they already exist.
+- `PROJECT-MAP.md` — a per-area map of the existing code (one section per module: purpose, key files, pattern) using the `context-engineering` "Project Map" shape.
+
+## Open Questions gate (hard gate — before the map counts as done)
+
+Everything the code could not tell you (true business domain, intended performance budgets, an AC with no test, ambiguous architecture) goes in the spec's `## Open Questions`. Before finishing, every line must be `- [x] [question] → [resolution]` (asked directly in this session and resolved) or `- [~] [question] → deferred: [reason]` (user explicitly declined). Do NOT leave any `- [ ]` line — ask it directly, one at a time with your best guess attached, the same way `interview-me` does.
+
+## DECISIONS.md — usually skip
+
+A legacy project inherits its architecture (nothing new was decided), so do NOT append an architecture entry to `.teikk/DECISIONS.md`. Only record a genuine, hard-to-reverse judgment call made during reconstruction, as a reconstructed observation.
+
+Do not modify any source file — this command is read-only over the codebase and only writes under `.teikk/spec/`. Never overwrite an existing `SPEC.md`, `QUICKSTART.md`, or `WORKFLOW.md`.
+"""
