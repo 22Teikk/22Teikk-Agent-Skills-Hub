@@ -52,12 +52,13 @@ The frontmatter fields above are required. The section anatomy is a recommended 
 
 ## Testing Hooks
 
-The session-start hook (`hooks/session-start.sh`) injects the `using-agent-skills` meta-skill into every new Claude Code session. A regression test at `hooks/session-start-test.sh` validates the hook's JSON payload — both when `jq` is available and when it isn't.
+The session-start hook (`hooks/session-start.sh`) injects a small discovery index (`hooks/session-start-index.md`, ~29 lines) into every new Claude Code session — the full `using-agent-skills` skill (~199 lines) loads on-demand once a matching skill is identified. A regression test at `hooks/session-start-test.sh` validates the hook's JSON payload — both when `jq` is available and when it isn't.
 
 Run it before opening any PR that touches:
 
 - `hooks/session-start.sh`
-- `skills/using-agent-skills/SKILL.md` (the meta-skill content embedded by the hook)
+- `hooks/session-start-index.md` (the trimmed index embedded by the hook)
+- `skills/using-agent-skills/SKILL.md` (the full skill loaded on-demand after index matching)
 
 ```bash
 bash hooks/session-start-test.sh

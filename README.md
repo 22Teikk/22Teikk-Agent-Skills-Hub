@@ -214,7 +214,7 @@ If a plan has no waves, `ultra` behaves exactly like `auto` — it never invents
 | Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
 | End-to-end | `/teikk-quick-implement` |
 
-30 skills total — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md`).
+38 skills total (22 core + 8 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
 
 ---
 
@@ -300,11 +300,13 @@ npx teikk-agents-skills init claude
 core/skills/     22 platform-neutral workflow skills (SKILL.md each) — always installed
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
-packs/android/   8 Android skills + 2 personas (android-performance-auditor, kotlin-specialist)
-packs/ios/       swift-expert persona
-packs/flutter/   flutter-expert persona
-                 → install copies core + only the pack matching PROJECT.yaml `platform:`,
-                   merged into a flat skills/ + agents/ in your project
+packs/android/   8 Android skills (ui/data/di/test per Kotlin+Java) + 2 personas
+                 (android-performance-auditor, kotlin-specialist)
+packs/ios/       4 iOS skills (ui/data/di/test) + swift-expert persona
+packs/flutter/   4 Flutter skills (ui/data/di/test) + flutter-expert persona
+                 → install copies core + only the pack matching `.teikk/spec/PROJECT.yaml`
+                   `platform:`, merged into a flat skills/ + agents/ in your project
+                 Total: 38 skills (22 core + 16 pack) + 11 personas across packs + core
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
 .claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)

@@ -18,11 +18,11 @@ Replace `cursor` with your IDE / CLI:
 
 | Target | IDE / CLI | What gets copied into your project |
 |--------|-----------|-------------------------------------|
-| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
-| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
-| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/`, `AGENTS.md` |
+| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/` |
+| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `references/` |
+| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/` |
 | `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/`, `skills/` (with `.gemini/skills` symlink) |
-| `opencode` | [OpenCode](opencode-setup.md) | `AGENTS.md`, `skills/`, `agents/`, and `.opencode/skills` symlink |
+| `opencode` | [OpenCode](opencode-setup.md) | `skills/`, `agents/`, and `.opencode/skills` symlink (see OpenCode setup for opt-in `AGENTS.md` copy) |
 | `all` | Every target above | Merged copies for multi-tool teams |
 
 List targets:
@@ -78,12 +78,13 @@ npx teikk-agents-skills uninstall
 # BEGIN teikk-agents-skills (managed by npm — do not edit)
 .cursor/
 .teikk/
-AGENTS.md
 agents/
 references/
 skills/
 # END teikk-agents-skills
 ```
+
+> `AGENTS.md` is no longer shipped by any target (since v5 — see CHANGELOG). If you authored your own project-local `AGENTS.md`, it stays untracked on you. The managed block no longer includes it.
 
 Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/spec/SPEC.md`, `.teikk/tasks/`, `.teikk/DECISIONS.md`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
 

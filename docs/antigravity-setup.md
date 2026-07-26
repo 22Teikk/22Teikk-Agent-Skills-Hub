@@ -10,26 +10,28 @@ Antigravity 2.0 discovers project configuration automatically:
 
 | Path | Purpose |
 |------|---------|
-| `.agents/rules/` | Always-on or model-triggered behavior guidelines |
+| `.agents/rules/` | Model-triggered behavior guidelines (scoped by activation mode, not always-on) |
 | `.agents/workflows/` | Slash commands (`/teikk-spec`, `/teikk-build`, `/teikk-ship`, …) |
-| `AGENTS.md` (repo root) | Skill routing and lifecycle mapping |
+| `AGENTS.md` (optional, manual copy) | Skill routing + lifecycle mapping — NOT shipped since v5 (see CHANGELOG). Routing happens via slash commands, skill frontmatter descriptions, or the `using-agent-skills` meta-skill. |
 
 **Use this repo as-is** — open it in Antigravity and the bundled `.agents/` config loads automatically.
 
 **Use in another project** — copy the pieces you need:
 
 ```bash
-# Essential rules (always-on engineering workflows)
+# Rules (model-triggered — scoped, not always-on)
 mkdir -p .agents/rules .agents/workflows
 cp /path/to/22Teikk-Agent-Skills-Hub/.agents/rules/*.md .agents/rules/
 
 # Lifecycle slash commands
 cp /path/to/22Teikk-Agent-Skills-Hub/.agents/workflows/teikk-*.md .agents/workflows/
 
-# Skill routing (required for strict lifecycle enforcement)
-cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
+# Skills + personas (for the slash commands to invoke)
 cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
+
+# Optional: AGENTS.md (not shipped since v5 — only needed if you want implicit skill routing without slash commands)
+# cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
 ```
 
 Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Antigravity agent panel. Workflows appear as `/` commands in chat.
@@ -55,13 +57,15 @@ The plugin exposes commands from `commands/*.toml` and discovers skills from `sk
 
 ## Recommended Configuration
 
-### Essential Rules (Always On)
+### Scoped Rules (Model-Triggered)
 
-These three rules are bundled in `.agents/rules/` with `activation: always_on`:
+Three core rules ship in `.agents/rules/` with `activation: model_decision` (scoped down from `always_on` to cut always-on context cost):
 
 1. `test-driven-development.md` — TDD workflow and Prove-It pattern
 2. `code-review-and-quality.md` — Five-axis review
 3. `incremental-implementation.md` — Build in small verifiable slices
+
+Add a `globs` field (or stricter `activation: always_on`) only if your project genuinely needs the rule on every turn — see Customizations → Rules in the Antigravity agent panel.
 
 ### Lifecycle Workflows (Slash Commands)
 
@@ -102,9 +106,9 @@ Set `activation: model_decision` (or configure via **Customizations → Rules**)
 
 In Antigravity chat:
 
-1. Open **Customizations → Rules** — confirm the three essential rules appear under Workspace.
+1. Open **Customizations → Rules** — confirm the three core rules appear under Workspace (with `model_decision` activation).
 2. Type `/teikk` — autocomplete should list `/teikk-spec`, `/teikk-planning`, `/teikk-build`, `/teikk-test`, `/teikk-review`, `/teikk-ship`, and others.
-3. Ask the agent to "follow AGENTS.md skill routing" — it should invoke skills from `skills/` instead of improvising.
+3. Invoke any slash command (e.g. `/teikk-spec`) — it should load the corresponding skill and follow it instead of improvising.
 
 ## Troubleshooting
 
@@ -112,4 +116,4 @@ In Antigravity chat:
 |-------|-----|
 | Rules not loading | Confirm files are in `.agents/rules/` (not `.agent/rules/` unless using legacy path) |
 | Workflows missing | Confirm `teikk-*.md` files are in `.agents/workflows/` with YAML frontmatter |
-| Skills not found | Copy `skills/` and `AGENTS.md` into the project, or install the CLI plugin |
+| Skills not found | Copy `skills/` into the project, or install the CLI plugin. (`AGENTS.md` is optional and not auto-shipped since v5 — only needed if you want implicit routing without slash commands.) |

@@ -45,6 +45,24 @@ Workflow-hub review pass: fixes a broken command reference, closes model-tiering
 - **`doubt-driven-development` cross-model CLI section lifted to `references/cross-model-cli.md`** (~54 → ~29 lines in skill, –24 net) — the platform-version-specific CLI invocation syntax (Codex `--sandbox read-only`, Gemini `--approval-mode plan`, stdin-vs-shell-quoting pattern, pre-flight checks) moved out of the always-loaded skill into an appendix read on-demand when actually invoking a cross-model CLI. The skill now owns only the *decision rules* (always offer in interactive, always announce skip in non-interactive, never silently fall back); the appendix owns the *invocation mechanics*.
 - **Five longest skill descriptions trimmed to ≤290 chars** (`machine-audit` 507 → 238, `interview-me` 485 → 286, `doubt-driven-development` 339 → 284, `idea-refine` 335 → 247, `flutter-di-and-build` 301 → 216) — descriptions are loaded once per session for skill discovery; trimming the worst offenders cuts ~175 tokens per discovery pass across all 38 skills. Trigger contexts preserved; only verbose prose removed.
 
+## [Unreleased] — context-window optimization
+
+Two follow-on commits to the workflow-hub review pass above. Both reduce per-invocation context cost in target projects (where the savings compound across every session) with no behavior change. Additive — users on prior versions keep working unchanged.
+
+### Changed
+- **Stop shipping `AGENTS.md` to target projects** — `lib/targets.js` no longer copies `AGENTS.md` to any of the 5 targets (was previously in `copyPaths` for `cursor`, `claude`, `antigravity`, `opencode`). The file cost ~5K tokens of always-on context loaded into every session regardless of whether the project needed skill routing. Skill routing in target projects now happens via: explicit slash commands (`/teikk-spec`, `/teikk-build`, …), skill frontmatter descriptions (LLM-driven fallback), or the opt-in `using-agent-skills` meta-skill. `AGENTS.md` remains in the hub repo for contributors with a new scope disclaimer at the top, and OpenCode users who want the implicit intent-routing pattern can still copy it manually (it is the only target where slash commands are not natively supported). Removed `scripts/test-install.js`'s v2→v3 symlink migration assertion for `AGENTS.md` since there is nothing to migrate from anymore. Net: -1021 lines across 61 files; -5K tokens/session always-on cost removed.
+
+- **Trim duplicated content + convert 32 references/*.md lookups to `@path` lazy-load** — two-phase reduction across commands and skills:
+  - **Commands trimmed**: 7 canonical TOML commands shrunk by replacing duplicated boilerplate with pointers to the canonical skill. `/teikk-build` 99→23 lines (-77%), `/teikk-ship` 94→51 (-46%), `/teikk-spec` 88→56 (-36%), `/teikk-e2e` 49→27 (-45%), `/teikk-test` 44→31 (-30%), `/teikk-planning` 43→28 (-35%), `/teikk-qa` 36→29 (-19%). The trimmed copy no longer has its own RED→GREEN list, skill-routing table, or Phase B checklist — those live once in the corresponding skill (`incremental-implementation`, `code-review-and-quality`, `spec-driven-development`, `android-e2e-maestro`, etc.) and are loaded on-demand. 4 platform variants per command stay mechanically in sync via `sync-targets.js`.
+  - **`@path` lazy-load**: 32 cross-references in 16 skills converted from prose ("Read `references/domain-guardrails.md`", "see `references/orchestration-patterns.md`") to `@path` syntax that Claude Code reads into context only when the skill is actually invoked. Before: every skill session that mentioned a reference pre-loaded ~50-100 lines of that reference into the context window. After: references load only when the calling skill triggers them. The most-frequent wins: `domain-guardrails.md` (14 sites), `ci-templates.md` (6), `orchestration-patterns.md` (5). Prose retained for cross-skill references (model invokes the skill, doesn't load the file) and for runtime `Read X` actions.
+  - Net: -1017 lines across 61 files; estimated ~4.5K tokens saved per invocation across the affected skills (compounds across every session that touches any of them).
+
+### Verification
+- `sync-targets.js`: 0 drift.
+- `validate-parity.js`: 0 errors.
+- `test-install.js`: 5/5 passed.
+- Working tree: clean (0 uncommitted files).
+
 ## [4.x] — automated releases
 
 Cut automatically by the release automation above; no content changes beyond the commits each release targets.
