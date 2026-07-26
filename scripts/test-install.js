@@ -218,9 +218,9 @@ function runV2Migration() {
       fs.mkdirSync(path.dirname(absLink), { recursive: true });
       fs.symlinkSync(legacyTarget, absLink);
     }
-    const legacyAgentsMd = path.join(fakeLegacyDir, 'AGENTS.md');
-    fs.writeFileSync(legacyAgentsMd, '# stale\n');
-    fs.symlinkSync(legacyAgentsMd, path.join(tmp, 'AGENTS.md'));
+    // NOTE: AGENTS.md is no longer shipped by any target (see lib/targets.js).
+    // We don't simulate a legacy AGENTS.md symlink here — pre-3.0 installs that
+    // symlinked it are the user's own file to clean up, not ours to migrate.
 
     const update = spawnSync(
       process.execPath,
@@ -229,7 +229,7 @@ function runV2Migration() {
     );
     assert(update.status === 0, `v2 migration failed: ${update.stderr}`);
 
-    for (const relPath of [...v2Paths, 'AGENTS.md']) {
+    for (const relPath of v2Paths) {
       const abs = path.join(tmp, relPath);
       assert(
         !fs.lstatSync(abs).isSymbolicLink(),

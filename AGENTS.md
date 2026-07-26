@@ -1,6 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents (Claude Code, Cursor, Antigravity, etc.) when working with code in this repository.
+> **Scope: hub repo only.** This file is for contributors developing the `teikk-agents-skills` framework in this repository. It is **NOT** shipped to target projects on install (see `lib/targets.js` — AGENTS.md was removed from all targets to save ~5K tokens of always-on context per session in consumer projects). Skill routing in target projects happens via explicit slash commands (`/teikk-spec`, `/teikk-build`, …), skill frontmatter descriptions, or the opt-in `using-agent-skills` skill — not via an auto-loaded AGENTS.md.
+
+This file provides guidance to AI coding agents (Claude Code, Cursor, Antigravity, etc.) when working on the workflow framework itself.
 
 ## Repository Overview
 
