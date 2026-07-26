@@ -1,32 +1,42 @@
 #!/bin/bash
-# lifecycle-telemetry.sh — records framework lifecycle events as telemetry.
-#
-# Wired to Claude Code's real lifecycle events (SubagentStart, SubagentStop,
-# TaskCreated, TaskCompleted, Stop) in hooks.json. Each event passes its name
-# as $1. This closes the audit's "before-task / before-spawn / after-spawn /
-# before-finish / summary" gap using the events Claude Code ACTUALLY fires,
-# rather than inventing event names that never trigger.
-#
-# It only records telemetry — it never blocks or talks to the model. Like the
-# emitter it sources, it is OFF unless TEIKK_TELEMETRY=on, so the default cost
-# is a single guarded return. Observational hooks must always exit 0.
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EMITTER="$SCRIPT_DIR/../lib/telemetry.sh"
 
 # shellcheck source=/dev/null
 [ -f "$EMITTER" ] && . "$EMITTER"
 
 EVENT="${1:-lifecycle}"
-export TEIKK_PROJECT="${CLAUDE_PROJECT_DIR:-.}"
+export TEIKK_PROJECT="${TEIKK_PROJECT:-.}"
 
 case "$EVENT" in
   SubagentStart) teikk_emit subagent_spawned ;;
-  SubagentStop)  teikk_emit subagent_stopped ;;
-  TaskCreated)   teikk_emit task_started ;;
+  SubagentStop) teikk_emit subagent_stopped ;;
+  TaskCreated) teikk_emit task_started ;;
   TaskCompleted) teikk_emit task_completed ok ;;
-  Stop)          teikk_emit turn_finished ;;
-  *)             teikk_emit "$EVENT" ;;
-esac 2>/dev/null || true
+  Stop) teikk_emit turn_finished ;;
+
+  PreToolUse) teikk_emit tool_invoked ;;
+  PostToolUse) teikk_emit tool_completed ok ;;
+  PostToolUseFailure) teikk_emit tool_failed err ;;
+
+  UserPromptSubmit)
+    PROMPT="${CLAUDE_USER_PROMPT:-}"
+    if echo "$PROMPT" | grep -qE '^/?teikk-[a-z-]+'; then
+      CMD=$(echo "$PROMPT" | grep -oE '/?teikk-[a-z-]+' | head -1)
+      teikk_emit slash_command_invoked ok null "{\"command\":\"$CMD\"}"
+    else
+      teikk_emit user_prompt ok
+    fi
+    ;;
+
+  SessionStart) teikk_emit session_started ok ;;
+  SessionEnd) teikk_emit session_ended ok ;;
+  PreCompact) teikk_emit pre_compact ok ;;
+
+  Notification) teikk_emit notification_received ok ;;
+  StopFailure) teikk_emit turn_failed err ;;
+
+  *) teikk_emit "$EVENT" ;;
+esac
 
 exit 0
