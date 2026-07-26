@@ -2,8 +2,10 @@ description = "Diagnose Claude Code machine-level configuration (settings.json, 
 
 prompt = """
 Invoke the teikk-agents-skills:machine-audit skill (`skills/machine-audit/SKILL.md`).
+<!-- @override:claude -->Invoke the teikk-agents-skills:machine-audit skill.<!-- @end -->
 
 This command is standalone and user-initiated only — it is not part of the DEFINE→SHIP lifecycle and no other /teikk-* command invokes it automatically.
+<!-- @override:claude,antigravity -->This command is **standalone and user-initiated only** — it is not part of the DEFINE→SHIP lifecycle and no other `/teikk-*` command invokes it automatically.<!-- @end -->
 
 ## When to run
 

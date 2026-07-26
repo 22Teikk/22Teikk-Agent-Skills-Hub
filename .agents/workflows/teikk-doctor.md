@@ -1,6 +1,4 @@
----
-description: Audit the agent-skills project setup and write a health report to .teikk/DOCTOR.md
----
+# Audit the agent-skills project setup and write a health report to .teikk/DOCTOR.md
 
 No skill invocation needed — this command performs orchestrated file checks directly.
 

@@ -88,3 +88,16 @@ Identify the project stack before writing code: minimum iOS/macOS version, Swift
 - **Invoke via:** `/teikk-build` (BUILD phase — for iOS-specific feature implementation).
 - **Do not invoke from another persona.** See [agents/README.md](README.md).
 - **Model tier:** typically `medium` — implementing a well-scoped task against established Swift/SwiftUI conventions. Self-classify `high` for a non-obvious concurrency/data-flow design decision. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+
+## Skills I route to
+
+When a feature slice needs deeper process than a quick review, I drop into these skills (all under `packs/ios/skills/`). Always read the relevant skill before writing code in that area.
+
+| Skill | I route here when… |
+|---|---|
+| `ios-ui` (`packs/ios/skills/ios-ui/SKILL.md`) | Building or modifying a SwiftUI screen, an `@Observable` view model, a `NavigationStack` route, a custom `ViewModifier`, or accessibility semantics. |
+| `ios-data-and-concurrency` (`packs/ios/skills/ios-data-and-concurrency/SKILL.md`) | Writing a repository, network layer, SwiftData `@Model`, actor for shared mutable state, `AsyncSequence` / `AsyncStream` producer, or `os.Logger` instrumentation. |
+| `ios-di-and-build` (`packs/ios/skills/ios-di-and-build/SKILL.md`) | Adding/upgrading an SPM dependency, designing the composition root, configuring `.xcconfig`, code signing, SwiftLint rules, or Xcode Cloud / GitHub Actions CI. |
+| `ios-testing-and-benchmark` (`packs/ios/skills/ios-testing-and-benchmark/SKILL.md`) | Writing XCTest `async throws` tests, `URLProtocol` stubs, SwiftData in-memory tests, XCUITest flows, or `XCTMetric` benchmarks + OS signposts. |
+
+**Routing rule:** if the task crosses more than one of these areas (e.g. "add a new screen backed by a new SwiftData model with tests"), read each skill in order — UI first (so the screen shape drives the model), then data, then DI/build (so the composition root knows about the new repo), then tests (so the test plan is real, not a mock-verification).

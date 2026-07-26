@@ -89,3 +89,17 @@ Identify the project stack before writing code: Flutter version, state managemen
 - **Invoke via:** `/teikk-build` (BUILD phase — for Flutter feature implementation).
 - **Do not invoke from another persona.** See [agents/README.md](README.md).
 - **Model tier:** typically `medium` — implementing a well-scoped task against established Flutter/state-management conventions. Self-classify `high` for a non-obvious widget-tree/state design decision. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+
+## Skills I route to
+
+When a `/teikk-build` task touches a concern outside this persona's scope, route it to a pack skill. Cross-reference (do not duplicate):
+
+| Concern | Skill |
+|---|---|
+| Compose a screen, widget tree, GoRouter route, Riverpod `Notifier`, accessibility, perf (rebuilds, lists, images) | `packs/flutter/skills/flutter-ui/SKILL.md` |
+| HTTP (`dio`), JSON (`freezed`/`json_serializable`), local DB (`drift`/`hive`), isolates, Riverpod `AsyncValue` providers | `packs/flutter/skills/flutter-data-and-concurrency/SKILL.md` |
+| `pubspec.yaml`, Riverpod-as-DI wiring, `--dart-define` flavors, `build_runner`, asset bundling, GitHub Actions CI | `packs/flutter/skills/flutter-di-and-build/SKILL.md` |
+| `flutter_test` widget tests, `mocktail`, golden tests, `integration_test`, drift in-memory DAO tests, Patrol, `Timeline` benchmarks | `packs/flutter/skills/flutter-testing-and-benchmark/SKILL.md` |
+| Pack manifest — which skills ship, what `/teikk-flutter-setup` plants | `packs/flutter/SKILL.md` |
+
+State-management reference: **Riverpod** (the project default set by `/teikk-flutter-setup`). The BLoC variant is documented inline inside `flutter-ui` and `flutter-data-and-concurrency` for projects that chose `flutter_bloc`. Never mix both in the same feature subtree.

@@ -2,6 +2,7 @@ description = "Retrofit logging/analytics/perf traces onto existing code, or set
 
 prompt = """
 Read and follow `skills/observability-and-instrumentation/SKILL.md`.
+<!-- @override:claude -->Invoke the teikk-agents-skills:observability-and-instrumentation skill.<!-- @end -->
 
 ## Scope — this is a retrofit/audit tool, not the primary logging path
 

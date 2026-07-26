@@ -2,6 +2,7 @@ description = "Audit the agent-skills project setup and write a health report to
 
 prompt = """
 No skill invocation needed — this command performs orchestrated file checks directly.
+<!-- @override:claude -->Audit project setup. Run 10 checks; record as ✓ (pass), ✗ (fail), ⚠ (warn):<!-- @end -->
 
 Run the following checks in sequence. For each check, record the result as one of: ✓ (pass), ✗ (fail), or ⚠ (warn).
 

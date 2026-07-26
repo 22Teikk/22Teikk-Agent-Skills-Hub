@@ -55,81 +55,7 @@ Pull Request Opened
 
 ## GitHub Actions Configuration
 
-### Basic CI Pipeline
-
-```yaml
-# .github/workflows/ci.yml
-name: CI
-
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Lint
-        run: ./gradlew lint
-
-      - name: Test
-        run: ./gradlew test
-
-      - name: Build
-        run: ./gradlew assembleDebug
-```
-
-### With Local Integration Tests
-
-```yaml
-  integration-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-      - name: Run Integration Tests
-        run: ./gradlew testDebugUnitTest --tests "*IntegrationTest"
-```
-
-> **Note:** Even for CI-only test databases, use GitHub Secrets for credentials rather than hardcoding values. This builds good habits and prevents accidental reuse of test credentials in other contexts.
-
-### E2E Tests
-
-```yaml
-  ui-tests:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Run instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          script: ./gradlew connectedDebugAndroidTest
-```
+> **Templates are in @references/ci-templates.md.** This skill owns the *decisions* (which gates, in what order, why each matters); the appendix owns the YAML copy-paste blocks (basic CI, integration tests, E2E, preview deploy, rollback, dependabot, caching+parallelism, feature-flag pattern). Read the appendix when actually wiring up a workflow — don't load ~150 lines of YAML into context just to skim them.
 
 ## Feeding CI Failures Back to Agents
 
@@ -162,31 +88,7 @@ Build error → Agent checks config and dependencies
 
 ### Preview Deployments
 
-Every PR gets a preview build deployed to testing tracks (e.g. Firebase App Distribution) for QA verification:
-
-```yaml
-# Deploy debug build to Firebase App Distribution on PR
-deploy-preview:
-  runs-on: ubuntu-latest
-  if: github.event_name == 'pull_request'
-  steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-    - name: Assemble Debug APK
-      run: ./gradlew assembleDebug
-    - name: Upload to Firebase App Distribution
-      uses: wzieba/Firebase-App-Distribution@v1
-      with:
-        appId: ${{ secrets.FIREBASE_APP_ID }}
-        token: ${{ secrets.FIREBASE_CLI_TOKEN }}
-        groups: qa-testers
-        file: app/build/outputs/apk/debug/app-debug.apk
-```
+Every PR gets a preview build deployed to testing tracks (e.g. Firebase App Distribution) for QA verification. See @references/ci-templates.md → "Preview Deployments" for the workflow YAML.
 
 ### Feature Flags
 
@@ -196,14 +98,7 @@ Feature flags decouple deployment from release. Deploy incomplete or risky featu
 - **Roll back without redeploying.** Disable the flag remotely instead of releasing a new APK.
 - **Canary new features.** Enable for 1% of users, then 10%, then 100%.
 
-```kotlin
-// Simple Remote Config feature flag pattern
-if (remoteConfig.getBoolean("new_checkout_flow")) {
-    launchNewCheckoutFlow()
-} else {
-    launchLegacyCheckoutFlow()
-}
-```
+The Kotlin Remote Config pattern is in @references/ci-templates.md → "Feature Flag Pattern" — load only when wiring the check into actual code.
 
 **Flag lifecycle:** Create → Enable for testing → Canary → Full rollout → Remove the flag and dead code. Flags that live forever become technical debt — set a cleanup date when you create them.
 
@@ -227,27 +122,7 @@ PR merged to main
 
 ### Rollback Plan
 
-Every deployment should be reversible:
-
-```yaml
-# Manual rollback workflow
-name: Rollback
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to rollback to'
-        required: true
-
-jobs:
-  rollback:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Rollback deployment
-        run: |
-          # Deploy the specified previous version
-          npx vercel rollback ${{ inputs.version }}
-```
+Every deployment should be reversible. See @references/ci-templates.md → "Rollback Workflow" for the manual-rollback dispatch YAML.
 
 ## Environment Management
 
@@ -265,16 +140,7 @@ CI should never have production secrets. Use separate secrets for CI testing.
 
 ### Dependabot / Renovate
 
-```yaml
-# .github/dependabot.yml
-version: 2
-updates:
-  - package-ecosystem: gradle
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-```
+Schedule automated dependency PRs weekly; cap concurrent open PRs so review bandwidth stays sane. Full `.github/dependabot.yml` template is in @references/ci-templates.md → "Dependabot / Renovate".
 
 ### Build Cop Role
 
@@ -307,33 +173,13 @@ Slow CI pipeline?
     └── GitHub-hosted larger runners or self-hosted for CPU-heavy builds
 ```
 
-**Example: caching and parallelism**
-```yaml
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with: { java-version: '17', distribution: 'temurin', cache: 'gradle' }
-      - run: ./gradlew lint
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with: { java-version: '17', distribution: 'temurin', cache: 'gradle' }
-      - run: ./gradlew test
-```
+**Example: caching and parallelism** — see @references/ci-templates.md → "Caching + Parallelism" for the full workflow with `lint` and `test` jobs split across runners and `setup-java` cache enabled.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "CI is too slow" | Optimize the pipeline (see CI Optimization below), don't skip it. A 5-minute pipeline prevents hours of debugging. |
+| "CI is too slow" | Optimize the pipeline (see `## CI Optimization` below), don't skip it. A 5-minute pipeline prevents hours of debugging. |
 | "This change is trivial, skip CI" | Trivial changes break builds. CI is fast for trivial changes anyway. |
 | "The test is flaky, just re-run" | Flaky tests mask real bugs and waste everyone's time. Fix the flakiness. |
 | "We'll add CI later" | Projects without CI accumulate broken states. Set it up on day one. |

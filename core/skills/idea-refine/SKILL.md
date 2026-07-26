@@ -1,6 +1,6 @@
 ---
 name: idea-refine
-description: Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. Triggers on "ideate", "refine this idea", or "stress-test my plan".
+description: Refines vague ideas into sharp, actionable concepts through structured divergent/convergent thinking. Use when an idea is still vague, when stress-testing assumptions before committing to a plan, or when expanding options before converging on one.
 version: 1.0.0
 platform: generic
 ---
@@ -83,7 +83,7 @@ When the user invokes this skill with an idea (`$ARGUMENTS`), guide them through
 
 **If running inside a codebase:** Use `Glob`, `Grep`, and `Read` to scan for relevant context — existing architecture, patterns, constraints, prior art. Ground your variations in what actually exists. Reference specific files and patterns when relevant.
 
-Read `frameworks.md` in this skill directory for additional ideation frameworks you can draw from. Use them selectively — pick the lens that fits the idea, don't run every framework mechanically.
+Read @frameworks.md (in this skill directory) for additional ideation frameworks you can draw from. Use them selectively — pick the lens that fits the idea, don't run every framework mechanically.
 
 #### Phase 2: Evaluate & Converge
 
@@ -96,7 +96,7 @@ After the user reacts to Phase 1 (indicates which ideas resonate, pushes back, a
    - **Feasibility:** What's the technical and resource cost? What's the hardest part?
    - **Differentiation:** What makes this genuinely different? Would someone switch from their current solution?
 
-   Read `refinement-criteria.md` in this skill directory for the full evaluation rubric.
+   Read @refinement-criteria.md (in this skill directory) for the full evaluation rubric.
 
 3. **Surface hidden assumptions.** For each direction, explicitly name:
    - What you're betting is true (but haven't validated)
@@ -155,7 +155,7 @@ Ask the user if they'd like to save this to `.teikk/ideas/[idea-name].md` (or a 
 
 Direct, thoughtful, slightly provocative. You're a sharp thinking partner, not a facilitator reading from a script. Channel the energy of "that's interesting, but what if..." -- always pushing one step further without being exhausting.
 
-Read `examples.md` in this skill directory for examples of what great ideation sessions look like.
+Read @examples.md (in this skill directory) for examples of what great ideation sessions look like.
 
 ## Red Flags
 
