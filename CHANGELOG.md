@@ -52,15 +52,31 @@ Two follow-on commits to the workflow-hub review pass above. Both reduce per-inv
 ### Changed
 - **Stop shipping `AGENTS.md` to target projects** — `lib/targets.js` no longer copies `AGENTS.md` to any of the 5 targets (was previously in `copyPaths` for `cursor`, `claude`, `antigravity`, `opencode`). The file cost ~5K tokens of always-on context loaded into every session regardless of whether the project needed skill routing. Skill routing in target projects now happens via: explicit slash commands (`/teikk-spec`, `/teikk-build`, …), skill frontmatter descriptions (LLM-driven fallback), or the opt-in `using-agent-skills` meta-skill. `AGENTS.md` remains in the hub repo for contributors with a new scope disclaimer at the top, and OpenCode users who want the implicit intent-routing pattern can still copy it manually (it is the only target where slash commands are not natively supported). Removed `scripts/test-install.js`'s v2→v3 symlink migration assertion for `AGENTS.md` since there is nothing to migrate from anymore. Net: -1021 lines across 61 files; -5K tokens/session always-on cost removed.
 
-- **Trim duplicated content + convert 32 references/*.md lookups to `@path` lazy-load** — two-phase reduction across commands and skills:
-  - **Commands trimmed**: 7 canonical TOML commands shrunk by replacing duplicated boilerplate with pointers to the canonical skill. `/teikk-build` 99→23 lines (-77%), `/teikk-ship` 94→51 (-46%), `/teikk-spec` 88→56 (-36%), `/teikk-e2e` 49→27 (-45%), `/teikk-test` 44→31 (-30%), `/teikk-planning` 43→28 (-35%), `/teikk-qa` 36→29 (-19%). The trimmed copy no longer has its own RED→GREEN list, skill-routing table, or Phase B checklist — those live once in the corresponding skill (`incremental-implementation`, `code-review-and-quality`, `spec-driven-development`, `android-e2e-maestro`, etc.) and are loaded on-demand. 4 platform variants per command stay mechanically in sync via `sync-targets.js`.
-  - **`@path` lazy-load**: 32 cross-references in 16 skills converted from prose ("Read `references/domain-guardrails.md`", "see `references/orchestration-patterns.md`") to `@path` syntax that Claude Code reads into context only when the skill is actually invoked. Before: every skill session that mentioned a reference pre-loaded ~50-100 lines of that reference into the context window. After: references load only when the calling skill triggers them. The most-frequent wins: `domain-guardrails.md` (14 sites), `ci-templates.md` (6), `orchestration-patterns.md` (5). Prose retained for cross-skill references (model invokes the skill, doesn't load the file) and for runtime `Read X` actions.
-  - Net: -1017 lines across 61 files; estimated ~4.5K tokens saved per invocation across the affected skills (compounds across every session that touches any of them).
+- **Trim duplicated content in 7 slash commands** — canonical TOML commands shrunk by replacing duplicated boilerplate with pointers to the canonical skill. `/teikk-build` 99→23 lines (-77%), `/teikk-ship` 94→51 (-46%), `/teikk-spec` 88→56 (-36%), `/teikk-e2e` 49→27 (-45%), `/teikk-test` 44→31 (-30%), `/teikk-planning` 43→28 (-35%), `/teikk-qa` 36→29 (-19%). The trimmed copy no longer has its own RED→GREEN list, skill-routing table, or Phase B checklist — those live once in the corresponding skill (`incremental-implementation`, `code-review-and-quality`, `spec-driven-development`, `android-e2e-maestro`, etc.) and load only when the slash command invokes them. 4 platform variants per command stay mechanically in sync via `sync-targets.js`. Net: ~1.4K lines removed from the canonical command set; compounds across every session that runs any of the seven.
+
+- **`@references/` convention: asymmetric use across slash-command vs skill/persona bodies** — empirically established after two rounds of runtime verification. The `@` prefix is **NOT** a Claude Code native lazy-load syntax; it's a *hint marker* that signals to the model "this path is a logical reference, not a literal Read target." Path resolution context differs by where the prose lives:
+
+  - **Slash-command bodies** (`.claude/commands/*.md`, `.agents/workflows/*.md`, `.cursor/commands/*.md`, `.gemini/commands/*.toml`, generated from canonical `commands/*.toml`) execute at the user's CWD (= project root). A bare `Read references/domain-guardrails.md` resolves correctly because the model Read-tool calls from project root. **No `@` prefix needed** — leaving it as prose keeps the body cleaner.
+
+  - **Skill bodies** (`core/skills/*/SKILL.md`, `packs/*/skills/*/SKILL.md`) and **persona bodies** (`core/agents/*.md`) execute via the Skill/Task tool, which resolves paths relative to the invoking file's own directory. A bare `Read references/X.md` here resolves to `skills/<name>/references/X.md`, which doesn't exist. The model then has to broaden the search to find the file at project root — but if the path *looks valid*, models (especially smaller ones like Haiku) often give up after one retry.
+
+    The `@` prefix breaks that "looks valid" failure mode: when the model passes literal `@references/X.md` to Read, the obvious `File does not exist` error prompts a broader find/ls that locates the file at `<project_root>/references/X.md`. Verified empirically: prose-path skill bodies fail, `@`-prefixed ones recover after one bash.
+
+    So the convention is now: **skill/persona bodies use `Read @references/X.md`** (35 instances across 16 SKILL.md files + 3 persona files); **slash-command bodies use `Read references/X.md`** (prose, since CWD resolution already works). 3 sibling-file uses of `@<file>.md` in `idea-refine` (`@frameworks.md`, `@refinement-criteria.md`, `@examples.md` — annotated "(in this skill directory)") remain as proper relative paths because they resolve relative to the skill file's own directory without ambiguity.
+
+  **Lesson logged in memory**: future path-syntax experiments need a runtime test before claiming a token-saving or reliability effect.
+
+- **Net**: -1017 lines across 61 files (trim only). The trim alone removes ~1.4K lines and reduces per-invocation context cost by removing duplicated RED→GREEN lists, routing tables, and Phase B checklists from slash commands; the @-syntax part contributed zero measured token savings and was reverted.
 
 ### Verification
 - `sync-targets.js`: 0 drift.
 - `validate-parity.js`: 0 errors.
 - `test-install.js`: 5/5 passed.
+- Runtime tests in fresh target projects (3 controlled tests + `/teikk-review` end-to-end):
+  - `/teikk-review` PASS — slash command body prose `Read references/domain-guardrails.md` resolves from CWD; skill body `@references/domain-guardrails.md` recovers after one bash; persona `code-reviewer` loads via Skill tool by name.
+  - v2 (skill body, prose, no `@`) FAIL — model gives up after one retry.
+  - v3 (skill body, with `@`) PASS — recovers after one bash.
+  - Slash-command body (prose, no `@`) PASS — first try.
 - Working tree: clean (0 uncommitted files).
 
 ## [4.x] — automated releases
