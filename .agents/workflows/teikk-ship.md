@@ -73,6 +73,19 @@ Read `docs/commands/appendices/ship-decision-template.md` and use its template b
 6. Never count boilerplate/mock-only/label-only tests toward coverage; "PARTIAL" coverage of an AC = not done.
 7. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.
 
+## Telemetry emit (optional, opt-in via env)
+
+If `TEIKK_TELEMETRY=on` is set in the environment, emit verdict and duplication events via the bash wrapper so offline Framework Score has real signal:
+
+```bash
+source hooks/emit.sh
+teikk_emit_cmd verification_passed ok 0 "{\"verdict\":\"$VERDICT\",\"blockers\":$BLOCKER_COUNT}"
+# or on NO-GO:
+teikk_emit_cmd verification_failed failed 0 "{\"verdict\":\"NO-GO\",\"reason\":\"<primary blocker>\"}"
+```
+
+When two personas surface the same finding, emit `duplicate_detected ok` with the finding category in the meta so the offline analysis can distinguish novel findings from cross-persona echoes. The wrapper fails open — never blocks the ship. Skip silently if `TEIKK_TELEMETRY` is unset or not `on`.
+
 ## Phase D — Persistent ship report
 
 After Phase C, write `.teikk/SHIP-REPORT.md` using the Phase D template block from `docs/commands/appendices/ship-decision-template.md` (overwrite if it already exists — the latest run is always authoritative). After writing `.teikk/SHIP-REPORT.md`, `.teikk/cache/ship-reports.md` has served its purpose (its content is now durably captured in the persisted report) — leave it in place for debugging a re-run, but do not treat it as an artifact to reference outside this command.

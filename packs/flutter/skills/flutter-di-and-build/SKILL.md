@@ -1,6 +1,6 @@
 ---
 name: flutter-di-and-build
-description: Configures Flutter dependency injection, dependency management, and build environments. Use when editing pubspec.yaml dependency pins, setting up Riverpod providers as DI, configuring flavors with --flavor/--dart-define, running build_runner code generation, or defining GitHub Actions CI for Flutter.
+description: Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter.
 version: 1.0.0
 platform: flutter
 depends-on:

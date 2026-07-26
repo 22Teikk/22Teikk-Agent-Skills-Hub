@@ -36,6 +36,17 @@ Read `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PRO
 
 **When to still use `/teikk-observability` directly:** retrofitting logging onto pre-existing code that has none, or adding analytics events / performance traces that span more than the current task's scope. Routine per-task logging always happens inline here.
 
+## Telemetry emit (optional, opt-in via env)
+
+If `TEIKK_TELEMETRY=on` is set in the environment, emit per-task verification events via the bash wrapper so offline Framework Score has real signal:
+
+```bash
+source hooks/emit.sh
+teikk_emit_cmd verification_passed ok "$task_duration_ms" "{\"task\":\"Task $N\",\"commit\":\"$(git rev-parse --short HEAD)\"}"
+```
+
+On regression or build failure in step 6 or 7 above, emit `verification_failed failed` with the failure reason in the meta. See `references/observability-and-benchmark.md` for the full event surface. The wrapper fails open — never blocks the build. Skip silently if `TEIKK_TELEMETRY` is unset or not `on`.
+
 ## Modes
 
 - **`/teikk-build`** — implement the *next* pending task, then stop.
