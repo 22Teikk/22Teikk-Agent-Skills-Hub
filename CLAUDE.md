@@ -53,7 +53,7 @@ QA (optional, slow — pulled out of the verify loop): `/teikk-qa` runs E2E + UI
 - Every skill lives in `core/skills/<name>/SKILL.md` (platform-neutral) or `packs/<platform>/skills/<name>/SKILL.md` (platform-scoped); the install layer merges both into a flat `skills/<name>/` in the target project
 - YAML frontmatter with `name` and `description`
 - Spec covers nine areas including Architecture and Observability
-- Spec's `## Open Questions` is a hard gate — no `- [ ]` (unresolved) line may remain before `/teikk-spec` saves, and `/teikk-planning` re-checks it before breaking the spec into tasks
+- Spec's `## Open Questions` is a hard gate — no `- [ ]` (unresolved) line may remain before `/teikk-spec` saves, and `/teikk-planning` re-checks it before breaking the spec into tasks. The gate is script-enforced via `bash scripts/check-open-questions.sh` (referenced by `/teikk-build` and `/teikk-planning`); falls back to the manual prose check in the skills if the script is missing (older installs)
 - Android plans require Phase 0 Foundation before feature slices
 - **All Specify-phase output goes under `.teikk/spec/`** (SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md) — commands fall back to the pre-3.1 `.teikk/SPEC.md` root path for older projects
 - **`.teikk/DECISIONS.md`** — append-only log of significant, already-implemented decisions (architecture choice, hard-to-reverse trade-off); written only via `/teikk-docs` or the `/teikk-spec` architecture gate, never for routine implementation choices

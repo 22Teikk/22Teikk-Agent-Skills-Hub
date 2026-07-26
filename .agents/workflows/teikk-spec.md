@@ -1,6 +1,6 @@
 # Start spec-driven development — write a structured specification before writing code
 
-Read and follow `skills/spec-driven-development/SKILL.md`.
+Invoke the teikk-agents-skills:spec-driven-development skill.
 
 Begin by understanding what the user wants to build. Ask clarifying questions about:
 1. The objective and target users

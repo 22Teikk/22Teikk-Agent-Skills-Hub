@@ -1,5 +1,7 @@
 # Implement tasks incrementally — build, test, verify, commit. Add "auto" to run the whole plan in one approved pass, or "ultra" to also run independent tasks in parallel worktrees.
 
+**Open Questions gate (hard gate, automated):** Before reading any skill, run `bash scripts/check-open-questions.sh` from the repo root. If it exits non-zero, STOP — show the user the unresolved items and ask them to either resolve (mark `- [x]`) or defer (mark `- [~]`) each before continuing. This is a script-enforced version of the prose gate in `spec-driven-development` and `planning-and-task-breakdown`; the prose says "ask and resolve," the script enforces "do not proceed with any `- [ ]` left." If the script is not present (older installs), fall back to the manual check described in those skills.
+
 Invoke the teikk-agents-skills:incremental-implementation skill alongside `skills/test-driven-development/SKILL.md` and `skills/observability-and-instrumentation/SKILL.md`.
 
 ## Skill routing (before each task)

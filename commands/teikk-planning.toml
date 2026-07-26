@@ -1,6 +1,8 @@
 description = "Break work into small verifiable tasks with acceptance criteria and dependency ordering"
 
 prompt = """
+**Open Questions gate (hard gate, automated):** Before planning, run `bash scripts/check-open-questions.sh` from the repo root. If it exits non-zero, STOP — show the user the unresolved items and ask them to either resolve (mark `- [x]`) or defer (mark `- [~]`) each before continuing. The script is the script-enforced version of the manual check below; if the script is not present, fall back to the manual check.
+
 Read and follow `skills/planning-and-task-breakdown/SKILL.md`.
 <!-- @override:claude,antigravity -->Invoke the teikk-agents-skills:planning-and-task-breakdown skill.<!-- @end -->
 

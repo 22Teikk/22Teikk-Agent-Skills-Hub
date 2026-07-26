@@ -2,7 +2,7 @@
 
 Invoke the teikk-agents-skills:machine-audit skill (`skills/machine-audit/SKILL.md`).
 
-This command is standalone and user-initiated only — it is not part of the DEFINE→SHIP lifecycle and no other /teikk-* command invokes it automatically.
+This command is **standalone and user-initiated only** — it is not part of the DEFINE→SHIP lifecycle and no other `/teikk-*` command invokes it automatically.
 
 ## When to run
 

@@ -1,6 +1,6 @@
 # Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
 
-Read and follow `skills/shipping-and-launch/SKILL.md`.
+Invoke the teikk-agents-skills:shipping-and-launch skill.
 
 `/teikk-ship` is a **fan-out orchestrator**. It runs five specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 

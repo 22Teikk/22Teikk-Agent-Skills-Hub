@@ -2,7 +2,7 @@
 description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
 ---
 
-Invoke the teikk-agents-skills:code-review-and-quality skill.
+Invoke the teikk-agents-skills:code-review-and-quality skill. Read `agents/code-reviewer.md`.
 
 Before reviewing, read `.teikk/spec/PROJECT.yaml` if it exists (fall back to `.teikk/PROJECT.yaml` for older projects) and use its `domain` field as the authoritative domain source. Load `references/domain-guardrails.md` for this domain — a violated domain invariant (e.g. money as `Double` in a finance app) is Critical. If neither PROJECT.yaml path exists, fall back to reading the spec's `Domain:` field (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`).
 

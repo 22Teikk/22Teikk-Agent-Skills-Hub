@@ -1,6 +1,6 @@
 # Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
 
-Read and follow `skills/test-driven-development/SKILL.md`.
+Invoke the teikk-agents-skills:test-driven-development skill.
 
 Read the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) to determine the platform before routing tests. If `.teikk/tasks/todo.md` exists, also read its `**Current task:**` line and jump to that task's `## Task N:` section in `.teikk/tasks/plan.md` for the specific acceptance criteria to verify — don't re-scan the whole plan. This is a read-only lookup; `/teikk-test` does not update `todo.md`.
 

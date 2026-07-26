@@ -2,9 +2,9 @@
 description: Diagnose Claude Code machine-level configuration (settings.json, MCP servers, hooks) for cost/latency problems unrelated to this project's workflow
 ---
 
-Invoke the teikk-agents-skills:machine-audit skill (`skills/machine-audit/SKILL.md`).
+Invoke the teikk-agents-skills:machine-audit skill.
 
-This command is standalone and user-initiated only — it is not part of the DEFINE→SHIP lifecycle and no other /teikk-* command invokes it automatically.
+This command is **standalone and user-initiated only** — it is not part of the DEFINE→SHIP lifecycle and no other `/teikk-*` command invokes it automatically.
 
 ## When to run
 
