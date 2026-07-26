@@ -78,6 +78,30 @@ C. MVI (unidirectional state + reducer)
 
 Only after the human confirms do you write Area 3. Record **both the chosen option and the rejected alternatives** so the decision is traceable — this feeds the plan's `## Architecture Decisions`, any ADR (`.teikk/adr/`), and a one-line entry in `.teikk/DECISIONS.md` (see `documentation-and-adrs` — this is a significant, hard-to-reverse decision, so it belongs in the log). If the project already has an architecture (existing codebase, project rules, or a parent SPEC), skip the menu and inherit it — but state which one you inherited so the human can veto.
 
+#### Research — auto-triggered inline (not a separate phase)
+
+When drafting the spec, the agent may hit moments where it doesn't have enough authoritative information to commit to a tech choice, architecture option, or domain handling. Instead of asking the user immediately (pushes research cost onto them) or guessing (locks in outdated patterns), spawn a Claude Code **`Explore` subagent** to read official docs and return a tight digest.
+
+**Auto-trigger conditions** — fire this when ANY of these is true:
+- A major tech choice is unfamiliar or hasn't been touched by this repo in >12 months (e.g. user named a library/version you're not 100% sure about)
+- The `Domain:` is `finance`, `health`, or `auth` (high-stakes — silent bugs are expensive; pair with `references/domain-guardrails.md`)
+- The architecture menu offers >1 viable option whose trade-offs aren't obvious from the spec context (e.g. Hilt vs Koin, MVVM + Clean vs MVI, Compose vs XML)
+- The user names a specific library/version that the agent's training data may have stale info on
+
+**When NOT to fire** — skip research when:
+- The user has an existing codebase whose patterns are inherited (the spec defers to existing code, doesn't pick new patterns)
+- The choice is local-scope (one function's logic, no library decision)
+- The spec is a small bug fix or refactor with no architectural choice to research
+- The same question has already been researched in this session (don't re-fetch what you have)
+
+**Mechanism** — same as Pattern 5 (`Research isolation`) in `references/orchestration-patterns.md`:
+- Spawn `Explore` (Haiku, read-only, denied write/edit tools) with a focused prompt: "Fetch official docs for X. Return: (1) recommended pattern for our use case, (2) known pitfalls / edge cases, (3) one URL per claim."
+- The main agent reads the digest, folds citations into the relevant spec section (Tech Stack, Architecture, or Boundaries — not a separate "Research Notes" appendix that bloats the file), and only then asks the user the next decision question with evidence in hand.
+- Research never replaces the user-facing decision — it only arms the agent to ask better questions and anchor the spec in current best practice.
+- The `Explore` subagent is Haiku by design; the cost is small enough that one focused call per decision-point is fine, but **do not fan out multiple `Explore` calls in parallel for the same spec** — the digests get out of sync.
+
+**Cite in the spec body, not in a side appendix.** A citation in a "Research Notes" section that nobody reads is documentation theater. The citation belongs next to the decision it supports — e.g. under Tech Stack, after naming Hilt: `(https://developer.android.com/training/dependency-injection/hilt-android, fetched 2026-07-XX)`. Future readers see the source where they need it.
+
 **Write a spec document covering these nine core areas:**
 
 1. **Objective** — What are we building and why? Who is the user? What does success look like? **Declare the `Domain:`** (e.g. finance, health, auth, generic) — this drives the domain guardrails loaded at review/ship time (`references/domain-guardrails.md`). If the app handles a value that must never be silently wrong (money, dose, coordinate, token expiry), naming the domain here is what makes the review catch it.

@@ -68,15 +68,15 @@ logging:
   library: <platform default or spec value>
 
 model_tiers:
-  low:
-  medium:
-  high:
-  ultra:
+  low: haiku
+  medium: sonnet
+  high: opus
+  ultra: fable
 ```
 
 Do not invent values; use `generic` for domain and `none` for ci/e2e when not stated.
 
-`model_tiers` is optional and left blank by default. Personas and subagent calls throughout this workflow classify their own task as low/medium/high/ultra complexity (see `agents/README.md`'s tiering guidance). If this project's harness supports per-call model selection, ask the user whether they want to fill in a concrete model name per tier now (e.g. `low: haiku`, `medium: sonnet`, `high: opus`, `ultra: opus`) — otherwise leave the block blank and every call runs at the harness's session default. Never hardcode a specific model name into any skill, persona, or command file; `model_tiers` in this project-local file is the only place a model name should live.
+`model_tiers` ships with sensible defaults (the concrete model names per tier live in the `PROJECT.yaml` template above — see it for the actual values) so personas and subagent calls that self-classify their task complexity as `low`/`medium`/`high`/`ultra` (see `agents/README.md`'s tiering guidance) get a concrete model per tier — instead of every call running at the harness's session default and erasing the tiering signal. Override any value by editing `.teikk/spec/PROJECT.yaml` directly. On harnesses with different model catalogs (Gemini CLI), the lookup is best-effort and falls back to session default — never a hard requirement. This prompt intentionally does not name specific models — `PROJECT.yaml` is the single source of truth for which model name maps to which tier in any given user's project; skills, commands, and personas reference the concept, not the names.
 
 ## Architecture decision → DECISIONS.md
 

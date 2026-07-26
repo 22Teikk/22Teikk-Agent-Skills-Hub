@@ -25,6 +25,21 @@ teikk_emit <event> [status] [duration_ms] [meta_json]
 
 High-signal events only: `session_started`, `context_reset`, `task_started`, `task_completed`, `verification_passed`, `verification_failed`, `duplicate_detected`, `decision_created`, `decision_reused`. Never log prompts, context, or chain-of-thought.
 
+## Event emission sources
+
+Events split between two surfaces, by who triggers them:
+
+| Surface | Trigger | Events emitted | File |
+|---------|---------|----------------|------|
+| Claude Code hook | Platform lifecycle (session start/end, tool calls, subagent spawn/stop, task create/complete, pre-compaction) | `session_started`, `session_ended`, `context_reset`, `subagent_spawned`, `subagent_stopped`, `task_started`, `task_completed`, `turn_finished`, `turn_failed`, `tool_invoked`, `tool_completed`, `tool_failed`, `slash_command_invoked`, `user_prompt`, `notification_received` | `hooks/lifecycle-telemetry.sh` |
+| Bash wrapper | Commands themselves emit framework-level events at verification / decision points | `verification_passed`, `verification_failed`, `duplicate_detected`, `decision_created`, `decision_reused` | `hooks/emit.sh` (sourced by the calling command) |
+
+**`hooks/emit.sh`** is the bash-side wrapper: it resolves the project root via `$TEIKK_PROJECT` or `git rev-parse`, sources `lib/telemetry.sh`, and exposes `teikk_emit_cmd <event> <status> [dur_ms] [meta_json]`. Any command prompt can instruct the agent to call it via the Bash tool at the relevant gate (e.g. "after the test suite passes, source `hooks/emit.sh` and emit `verification_passed ok` with the test count in meta"). Fails open — never blocks the agent.
+
+**Why split:** the Claude Code hook surface cannot emit framework-specific events because no platform hook fires at "test suite passed" or "decision was appended." Commands themselves are the only reliable trigger, and they already run via Bash for the underlying tool (`./gradlew test`, `maestro test`, etc.) — one more `teikk_emit` call adds zero friction.
+
+**PreCompact → `context_reset` mapping:** the hook emits `context_reset` (not `pre_compact`) on the `PreCompact` event because that is the only observable signal that the context window is about to be reset — there is no `PostCompact` event in the Claude Code hook surface. `context_reset` count is the offline proxy for "how often does this session approach its context limit."
+
 ## Benchmark & dashboard (offline, deterministic)
 
 ```bash

@@ -31,7 +31,11 @@ case "$EVENT" in
 
   SessionStart) teikk_emit session_started ok ;;
   SessionEnd) teikk_emit session_ended ok ;;
-  PreCompact) teikk_emit pre_compact ok ;;
+  # PreCompact fires immediately before context compaction — treat that as the
+  # observable "context_reset" signal. The docs list `context_reset` as a
+  # high-signal event; this line is the only place that should emit it (an
+  # explicit PostCompact event does not exist in the Claude Code hook surface).
+  PreCompact) teikk_emit context_reset ok ;;
 
   Notification) teikk_emit notification_received ok ;;
   StopFailure) teikk_emit turn_failed err ;;

@@ -35,6 +35,25 @@ Before writing any code, operate in read-only mode:
 
 **Do NOT write code during planning.** The output is a plan document, not implementation.
 
+#### Research — auto-triggered inline when reading unfamiliar code
+
+While Step 1 reads the codebase to map existing patterns, the planner may find libraries, build plugins, or framework patterns it cannot evaluate from memory (or whose memory is stale). Spawn a Claude Code **`Explore` subagent** (Pattern 5 — see `references/orchestration-patterns.md`) to verify before committing the plan to a stack assumption that turns out to be outdated.
+
+**Auto-trigger:** fire when ANY of these is true while reading the codebase:
+- A library, plugin, or framework named in the existing code is unfamiliar to the planner
+- A dependency was last verified >12 months ago, OR the planner is unsure about its current maintenance status / latest stable version
+- A code path uses an API marked with version availability (`@available(iOS 17, *)`, `@SinceKotlin`, `@RequiresApi`) and the planner doesn't know the version compatibility shape
+- A task would otherwise write "use the standard X approach" without knowing whether X is still standard
+
+**Skip when:** every dependency is already well-known and current. The cost of firing `Explore` on every task is non-zero; fire only when the planner would otherwise guess.
+
+**Output handling** — keep `plan.md` readable:
+- Cite the source inline in the task's `**Files likely touched:**` block, OR in the task description, OR in a small "Verified libraries" appendix at the end of `plan.md` (≤10 lines)
+- Never inline a long research output into `plan.md` — the plan is for execution, not research archive
+- The digest that came back from `Explore` does NOT live in `plan.md` — it lives in the agent's session context; only the citations and the resolved assumption land in the plan
+
+**Do NOT skip dependency-version checks just because the codebase already uses the library.** "It's already in the project" doesn't mean "the current version is the one you'd recommend today." Verify.
+
 #### Open Questions Gate (hard gate — check before proceeding)
 
 Read the spec's `## Open Questions` section. This is a second checkpoint on top of the one `spec-driven-development` already runs at spec-writing time — specs get edited by hand, or a stale spec from a previous session may not have gone through that gate at all.
