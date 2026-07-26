@@ -2,6 +2,7 @@ description = "Start spec-driven development — write a structured specificatio
 
 prompt = """
 Read and follow `skills/spec-driven-development/SKILL.md`.
+<!-- @override:claude,antigravity -->Invoke the teikk-agents-skills:spec-driven-development skill.<!-- @end -->
 
 Begin by understanding what the user wants to build. Ask clarifying questions about:
 1. The objective and target users

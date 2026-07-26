@@ -2,6 +2,7 @@ description = "Implement tasks incrementally — build, test, verify, commit. Ad
 
 prompt = """
 Read and follow `skills/incremental-implementation/SKILL.md` alongside `skills/test-driven-development/SKILL.md` and `skills/observability-and-instrumentation/SKILL.md`.
+<!-- @override:claude,antigravity -->Invoke the teikk-agents-skills:incremental-implementation skill alongside `skills/test-driven-development/SKILL.md` and `skills/observability-and-instrumentation/SKILL.md`.<!-- @end -->
 
 ## Skill routing (before each task)
 

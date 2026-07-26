@@ -9,10 +9,15 @@ Repository: [22Teikk/22Teikk-Agent-Skills-Hub](https://github.com/22Teikk/22Teik
 Primary targets: **Claude Code**, **Antigravity (IDE + CLI)**, **OpenCode**. Cursor and Gemini CLI are also supported.
 
 ```
-skills/       → 30 skills (SKILL.md per directory) — 1 standalone/opt-in (machine-audit), not phase-bound
-agents/       → 10 specialist personas (code-reviewer, adversarial-reviewer, test-engineer,
-                security-auditor, android-performance-auditor, kotlin-specialist, swift-expert,
-                flutter-expert, mobile-app-developer, ui-ux-tester)
+core/         → Platform-neutral: 22 skills + 7 agents — always installed
+                skills live at `core/skills/<name>/SKILL.md`
+                agents live at `core/agents/<name>.md`
+packs/        → Platform-scoped (post-5.0.0 split) — installed per `.teikk/PROJECT.yaml` `platform:` field
+  android/    → 8 skills + 2 personas (kotlin-specialist, android-performance-auditor)
+  ios/        → 1 persona (swift-expert)
+  flutter/    → 1 persona (flutter-expert)
+                Skills at `packs/<platform>/skills/<name>/SKILL.md`
+                Total 11 personas across packs + core
 hooks/        → Session lifecycle hooks
 .claude/      → Slash commands (22)                 [Claude Code]
 .agents/      → Rules (6) + workflows (22)          [Antigravity]
@@ -45,7 +50,7 @@ QA (optional, slow — pulled out of the verify loop): `/teikk-qa` runs E2E + UI
 
 ## Conventions
 
-- Every skill lives in `skills/<name>/SKILL.md`
+- Every skill lives in `core/skills/<name>/SKILL.md` (platform-neutral) or `packs/<platform>/skills/<name>/SKILL.md` (platform-scoped); the install layer merges both into a flat `skills/<name>/` in the target project
 - YAML frontmatter with `name` and `description`
 - Spec covers nine areas including Architecture and Observability
 - Spec's `## Open Questions` is a hard gate — no `- [ ]` (unresolved) line may remain before `/teikk-spec` saves, and `/teikk-planning` re-checks it before breaking the spec into tasks

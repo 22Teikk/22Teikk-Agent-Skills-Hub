@@ -1,6 +1,4 @@
----
-description: Set up Flutter foundation — flavor config, state management, logging, Crashlytics
----
+# Set up Flutter foundation — flavor config, state management, logging, Crashlytics
 
 Read `agents/flutter-expert.md`.
 

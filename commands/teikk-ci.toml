@@ -2,6 +2,7 @@ description = "Set up or modify CI/CD pipelines and quality gates"
 
 prompt = """
 Read and follow `skills/ci-cd-and-automation/SKILL.md`.
+<!-- @override:claude -->Invoke the teikk-agents-skills:ci-cd-and-automation skill.<!-- @end -->
 
 Use when adding GitHub Actions, Gradle CI tasks, or deploy automation. For Android DI/build conventions, cross-check `skills/android-di-and-build/SKILL.md`.
 

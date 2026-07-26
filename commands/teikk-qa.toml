@@ -11,6 +11,7 @@ Only if the spec (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) decla
 
 Detect the platform from SPEC, then run the matching suite:
 - **Android (`E2E: Maestro`)** — Read and follow `skills/android-e2e-maestro/SKILL.md`. Run existing flows in `.teikk/maestro/flows/` with `maestro test`, or write the flow first if missing.
+  <!-- @override:claude,antigravity -->- **Android (`E2E: Maestro`)** — Invoke the teikk-agents-skills:android-e2e-maestro skill. Run existing flows in `.teikk/maestro/flows/` with `maestro test`, or write the flow first if missing.<!-- @end -->
 - **iOS (`E2E: XCUITest`)** — Read `agents/swift-expert.md`. Run/write XCUITest via `xcodebuild test`.
 - **Flutter (`E2E: integration_test`)** — Read `agents/flutter-expert.md`. Run/write `integration_test/` via `flutter test`.
 

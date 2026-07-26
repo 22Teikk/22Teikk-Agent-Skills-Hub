@@ -13,7 +13,7 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 ### Core Rules
 
 - If a task matches a skill, you MUST invoke it
-- Skills are located in `skills/<skill-name>/SKILL.md`
+- Skills are located in `core/skills/<skill-name>/SKILL.md` (platform-neutral) or `packs/<platform>/skills/<skill-name>/SKILL.md` (platform-scoped)
 - Never implement directly if a skill applies
 - Always follow the skill instructions exactly (do not partially apply them)
 
@@ -141,7 +141,7 @@ This ensures OpenCode behaves similarly to Claude Code with full workflow enforc
 
 This repo has three composable layers. They have different jobs and should not be confused:
 
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
+- **Skills** (`core/skills/<name>/SKILL.md` or `packs/<platform>/skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
 - **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The *who*.
 - **Slash commands** (`.claude/commands/teikk-*.md`) — user-facing entry points. The *when*. The orchestration layer.
 
@@ -158,12 +158,11 @@ See [agents/README.md](agents/README.md) for the decision matrix and [references
 ### Directory Structure
 
 ```
-skills/
+core/skills/         # Platform-neutral skills (or packs/<platform>/skills/ for platform-scoped)
   {skill-name}/           # kebab-case directory name
     SKILL.md              # Required: skill definition
     scripts/              # Required: executable scripts
       {script-name}.sh    # Bash scripts (preferred)
-  {skill-name}.zip        # Required: packaged for distribution
 ```
 
 ### Naming Conventions
@@ -252,7 +251,7 @@ Document these two installation methods for users:
 
 **Claude Code:**
 ```bash
-cp -r skills/{skill-name} ~/.claude/skills/
+cp -r core/skills/{skill-name} ~/.claude/skills/   # or packs/<platform>/skills/{skill-name} for platform-scoped skills
 ```
 
 **claude.ai:**

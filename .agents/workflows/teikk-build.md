@@ -1,6 +1,4 @@
----
-description: Implement tasks incrementally — build, test, verify, commit. Add "auto" to run the whole plan in one approved pass, or "ultra" to also run independent tasks in parallel worktrees.
----
+# Implement tasks incrementally — build, test, verify, commit. Add "auto" to run the whole plan in one approved pass, or "ultra" to also run independent tasks in parallel worktrees.
 
 Invoke the teikk-agents-skills:incremental-implementation skill alongside `skills/test-driven-development/SKILL.md` and `skills/observability-and-instrumentation/SKILL.md`.
 
@@ -61,20 +59,20 @@ Using the task found above:
 5. Implement the minimum code to pass the test, instrumenting logging inline per the section above (GREEN)
 6. Run the full test suite to check for regressions
 7. Run the build to verify compilation
-8. Commit with a descriptive message (follow the teikk-agents-skills:git-workflow-and-versioning skill)
+8. Commit with a descriptive message (follow `skills/git-workflow-and-versioning/SKILL.md`)
 9. Flip the task's `todo.md` checkbox to `[x]`, advance `**Current task:**` to the next `[ ]` task (or clear it if none remain), then mark the task complete and stop
 
 ## Autonomous: the whole plan (`/teikk-build auto`)
 
 1. **Require a spec.** Look for `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`, then a legacy `SPEC.md`/`docs/SPEC.md` at the repo root if present). If none exists, stop — tell the user to run `/teikk-spec` first.
 2. **Establish a clean baseline.** Run `git status --porcelain`. Stop if uncommitted changes exist outside planning artifacts.
-3. **Plan if needed.** If no `.teikk/tasks/plan.md`, follow the teikk-agents-skills:planning-and-task-breakdown skill.
+3. **Plan if needed.** If no `.teikk/tasks/plan.md`, follow `skills/planning-and-task-breakdown/SKILL.md`.
 4. **Single checkpoint.** Present the full plan and wait for approval.
 5. **Execute every task in dependency order.** RED → GREEN (with inline logging) → regression → build → commit → mark complete. One commit per task.
-6. **Stop and ask** when tests fail, spec is ambiguous, or task is high-risk — follow the teikk-agents-skills:debugging-and-error-recovery skill or `skills/doubt-driven-development/SKILL.md`.
+6. **Stop and ask** when tests fail, spec is ambiguous, or task is high-risk — follow `skills/debugging-and-error-recovery/SKILL.md` or `skills/doubt-driven-development/SKILL.md`.
 7. **Summarize at the end.**
 
-If any step fails, follow the teikk-agents-skills:debugging-and-error-recovery skill.
+If any step fails, follow `skills/debugging-and-error-recovery/SKILL.md`.
 
 ## Ultra: wave-parallel execution (`/teikk-build ultra`)
 
@@ -102,7 +100,7 @@ Same entry conditions as `auto` (steps 1-4 above: spec required, clean baseline,
    ./gradlew test && ./gradlew assembleDebug   # or the project's equivalent
    ```
    - Merge succeeds + tests pass + build succeeds → flip that task's `todo.md` checkbox to `[x]`, update the `M/K tasks in_progress` counter, remove the worktree (`git worktree remove ../<repo-name>-task-<N>`), continue to the next task's merge.
-   - **Merge conflict, or tests/build fail after a clean merge** → **STOP the entire wave.** Do not attempt automatic conflict resolution and do not merge the remaining tasks. Follow the teikk-agents-skills:debugging-and-error-recovery skill: preserve the unmerged worktree, report exactly which task collided and on which file, and ask the user how to proceed (resolve manually, re-scope one of the two tasks, or demote both to sequential and rerun as `auto` from this point).
+   - **Merge conflict, or tests/build fail after a clean merge** → **STOP the entire wave.** Do not attempt automatic conflict resolution and do not merge the remaining tasks. Follow `skills/debugging-and-error-recovery/SKILL.md`: preserve the unmerged worktree, report exactly which task collided and on which file, and ask the user how to proceed (resolve manually, re-scope one of the two tasks, or demote both to sequential and rerun as `auto` from this point).
 7. **Close out the wave.** Once every task in the wave is merged and `[x]`, clear `**Current wave:**` and set `**Current task:**` to whatever plan item follows the wave (or clear it if the wave was the last item). This is the same pointer contract `auto` uses — a resumed session after a wave completes sees a normal single `**Current task:**` line, not wave state.
 
 ### Cleaning up a stopped wave before any rerun

@@ -1,8 +1,6 @@
----
-description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
----
+# Break work into small verifiable tasks with acceptance criteria and dependency ordering
 
-Invoke the teikk-agents-skills:planning-and-task-breakdown skill.
+Read and follow `skills/planning-and-task-breakdown/SKILL.md`.
 
 Read the existing spec — check `.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.md` (older, pre-folder-layout projects) if that path doesn't exist — and relevant codebase sections. Then:
 

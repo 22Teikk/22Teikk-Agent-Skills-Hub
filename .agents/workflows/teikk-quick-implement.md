@@ -1,6 +1,4 @@
----
-description: Implement one task end-to-end with automatic context compaction — build, test, review, ship in one session
----
+# Implement one task end-to-end with automatic context compaction — build, test, review, ship in one session
 
 Execute a single task from `.teikk/tasks/plan.md` through all four phases (build, test, review, ship) in one continuous session. This command is for when you want to implement a task and get a final verdict without multiple separate invocations.
 

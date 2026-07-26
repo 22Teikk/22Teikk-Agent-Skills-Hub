@@ -1,6 +1,4 @@
----
-description: Write and verify E2E tests for critical user journeys (opt-in). Platform-aware: Maestro (Android), XCUITest (iOS), integration_test (Flutter).
----
+# Write and verify E2E tests for critical user journeys (opt-in). Platform-aware: Maestro (Android), XCUITest (iOS), integration_test (Flutter).
 
 **Opt-in only — part of the optional `/teikk-qa` pass, not the core verify loop.** E2E can run for minutes on a device/emulator. Do not run unless SPEC declares an E2E strategy or the user explicitly requests a flow.
 

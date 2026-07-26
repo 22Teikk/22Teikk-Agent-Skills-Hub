@@ -4,58 +4,233 @@ description: Start spec-driven development — write a structured specification 
 
 Invoke the teikk-agents-skills:spec-driven-development skill.
 
-Ask clarifying questions about: objective, target users, core features, acceptance criteria, **platform** (Android/iOS/Flutter), tech stack, architecture, observability, E2E opt-in, boundaries.
+Begin by understanding what the user wants to build. Ask clarifying questions about:
+1. The objective and target users
+2. Core features and acceptance criteria
+3. **Platform** — Android (Kotlin/Compose), iOS (Swift/SwiftUI), Flutter, or cross-platform? If unsure, read `agents/mobile-app-developer.md` to evaluate trade-offs first
+4. Tech stack defaults by platform:
+   - Android → Kotlin + Compose, Hilt, Room, Timber/Crashlytics
+   - iOS → Swift + SwiftUI, SPM, Core Data / SwiftData, os_log + Crashlytics
+   - Flutter → Dart + Flutter 3, Riverpod or BLoC, GoRouter, logging plugin
+5. Architecture (layers, modules, DI framework)
+6. Observability (logging, crash reporting, analytics — define before coding)
+7. E2E testing opt-in: `E2E: none` (default) | `E2E: Maestro` (Android) | `E2E: XCUITest` (iOS) | `E2E: integration_test` (Flutter)
+8. Boundaries (always do / ask first / never do)
 
-**Platform defaults:**
-- Android → Kotlin + Compose, Hilt, Room, Timber/Crashlytics
-- iOS → Swift + SwiftUI, SPM, Core Data, os_log + Crashlytics
-- Flutter → Dart + Flutter 3, Riverpod/BLoC, GoRouter, logging
+Generate a spec covering all nine core areas from the skill: objective, tech stack, architecture, observability, commands, project structure, code style, testing strategy, and boundaries.
 
-Generate spec covering: objective, tech stack, architecture, observability, commands, project structure, code style, testing strategy, boundaries.
-
-Surface platform assumptions explicitly. Ask user to confirm before writing.
+Surface any platform assumptions explicitly and ask the user to confirm or correct before writing the spec.
 
 ## Open Questions gate (hard gate — before saving)
 
 Track every unresolved item in the spec's `## Open Questions` section as you draft it. Before saving the final spec, every line must be `- [x] [question] → [resolution]` (asked directly in this session and resolved) or `- [~] [question] → deferred: [reason]` (user explicitly declined to decide now). Do NOT save a spec with any `- [ ]` (unresolved) line — ask it directly, one question at a time with your best guess attached (same pattern as `interview-me`), before proceeding. This is a hard gate, not a suggestion.
 
-## Output files
+## Output location
 
-Save to `.teikk/spec/SPEC.md` (this is a path change from pre-3.1 installs, which wrote `.teikk/SPEC.md` at the root — commands reading the spec check `.teikk/spec/SPEC.md` first and fall back to `.teikk/SPEC.md` for older projects, so no manual migration is required). Then write three companion files in the same folder (skip if exist):
+Save the spec as `.teikk/spec/SPEC.md` (the tool auto-creates and gitignores `.teikk/`) and confirm with the user before proceeding. This is a path change from pre-3.1 installs, which wrote `.teikk/SPEC.md` at the root — commands reading the spec check `.teikk/spec/SPEC.md` first and fall back to `.teikk/SPEC.md` for older projects, so no manual migration is required, but new specs always go in `.teikk/spec/`.
 
-**1. `.teikk/spec/PROJECT.yaml`** — Extract from spec:
+After writing `.teikk/spec/SPEC.md`, also write `.teikk/spec/PROJECT.yaml`. Extract the following values from the spec you just wrote:
+
+- `name` — the project or app name from the Objective section
+- `platforms` — list derived from Tech Stack (one or more of: android, ios, flutter)
+- `domain` — the `Domain:` field from the Objective section (finance | health | auth | generic)
+- `ci` — the CI platform used by this project (github-actions | gitlab-ci | bitrise | circle-ci | fastlane | none). If the project has no CI pipeline, use `none` — /teikk-ship will skip CI checks.
+- `e2e` — the `E2E:` field from the Testing Strategy section (none | Maestro | XCUITest | integration_test)
+- `budgets` block: use platform defaults unless the spec stated explicit values:
+  - Android: startup_cold_ms: 2000, memory_mb: 100, jank_frames: 5
+  - iOS: startup_cold_ms: 1500, memory_mb: 150, jank_frames: 5
+  - Flutter: startup_cold_ms: 2000, memory_mb: 120, jank_frames: 5
+  - Generic (no platform match): omit the budgets block
+- `logging.library` — the logging library from the Observability section, or the platform default if the spec didn't name one:
+  - Android: `timber` (default) | `logcat` (raw, discouraged — only if the user explicitly insisted)
+  - iOS: `oslog` (default) | `cocoalumberjack`
+  - Flutter: `logger` (default) | `logging` | `print` (discouraged — only if the user explicitly insisted)
+  - Generic (no platform match): omit the `logging` block
+  - This value is what `/teikk-build` reads to instrument logging inline while implementing a task — it is set once here so build never has to ask again.
+
+Write the file in this exact YAML structure:
+
 ```yaml
-name: <from Objective>
-platforms: [android|ios|flutter]
-domain: finance|health|auth|generic
-ci: github-actions|gitlab-ci|bitrise|circle-ci|fastlane|none
-e2e: none|Maestro|XCUITest|integration_test
-budgets: {startup_cold_ms, memory_mb, jank_frames}  # platform defaults
-logging: {library}  # timber (Android) | oslog (iOS) | logger (Flutter) — platform default unless spec says otherwise; /teikk-build reads this to instrument logging inline
-model_tiers: {low, medium, high, ultra}  # optional, blank by default — see below
-```
+name: <extracted>
+platforms: [<extracted>]
+domain: <extracted>
+ci: <extracted>
+e2e: <extracted>
 
-**Model tiers (optional, blank by default).** Personas and subagent calls throughout this workflow classify their own task as `low`/`medium`/`high`/`ultra` complexity (see `agents/README.md`'s tiering table). If this project's harness supports per-call model selection (e.g. Claude Code's `model` field, an OpenCode agent config), the user can fill in a concrete model name per tier here — e.g.:
-```yaml
+budgets:
+  startup_cold_ms: <platform default or spec value>
+  memory_mb: <platform default or spec value>
+  jank_frames: <platform default or spec value>
+
+logging:
+  library: <platform default or spec value>
+
 model_tiers:
-  low: haiku          # or your harness's fast/cheap model
-  medium: sonnet       # or your harness's balanced model
-  high: opus           # or your harness's strongest reasoning model
-  ultra: opus           # reserve for genuinely hard, multi-hypothesis work; may equal `high`
+  low:
+  medium:
+  high:
+  ultra:
 ```
-This keeps model choice project-local and provider-agnostic — no model name is hardcoded into any skill, persona, or command. Leave the block empty/omit it entirely to use the harness's default model for every call; a persona or command with no matching tier value simply runs at the session default.
 
-**2. `.teikk/spec/QUICKSTART.md`** — First-run guide (workflow diagram, what `.teikk/` is, what to commit, MCP setup, command reference).
+Do not invent values; use `generic` for domain and `none` for ci/e2e when not stated.
 
-**3. `.teikk/spec/WORKFLOW.md`** — Decision tree: "Where are you now?" → "What command next?" (one task vs all tasks vs end-to-end modes, troubleshooting, pro tips).
+`model_tiers` is optional and left blank by default. Personas and subagent calls throughout this workflow classify their own task as low/medium/high/ultra complexity (see `agents/README.md`'s tiering guidance). If this project's harness supports per-call model selection, ask the user whether they want to fill in a concrete model name per tier now (e.g. `low: haiku`, `medium: sonnet`, `high: opus`, `ultra: opus`) — otherwise leave the block blank and every call runs at the harness's session default. Never hardcode a specific model name into any skill, persona, or command file; `model_tiers` in this project-local file is the only place a model name should live.
 
 ## Architecture decision → DECISIONS.md
 
-If the architecture gate ran (new project, or a feature with no inherited architecture), append one entry to `.teikk/DECISIONS.md` recording the chosen architecture and the rejected alternatives (create the file with its header if it doesn't exist yet — format in the teikk-agents-skills:documentation-and-adrs skill). Skip if the project inherited an existing architecture.
+If the architecture gate ran (new project, or a feature with no inherited architecture — see `skills/spec-driven-development/SKILL.md`), append one entry to `.teikk/DECISIONS.md` recording the chosen architecture and the rejected alternatives (create the file with its header if it doesn't exist yet — format is in `skills/documentation-and-adrs/SKILL.md`). Skip this step if the project inherited an existing architecture (nothing new was decided).
 
-## Tech stack by platform
+Then, check whether `.teikk/spec/QUICKSTART.md` already exists. If it does NOT exist, write it using this fixed template (do not customize it — the content is intentional):
 
-- **Android Phase 0:** Hilt DI + Version Catalog before features
-- **iOS Phase 0:** SPM + SwiftLint + logging before features  
-- **Flutter Phase 0:** flavors + state management + logging before features
-</content>
+```markdown
+# teikk-agents-skills — Quick Start
+
+## Workflow
+
+```
+DEFINE → PLAN → BUILD → VERIFY → REVIEW → SHIP
+/teikk-spec  /teikk-planning  /teikk-build  /teikk-test  /teikk-review  /teikk-ship
+```
+
+You just ran `/teikk-spec`. Your next command is `/teikk-planning`.
+
+## What is `.teikk/`?
+
+All workflow outputs live here — spec (`spec/`), tasks, ideas, ADRs, decisions log, E2E flows, hook caches. It is gitignored automatically on install. Do not commit it; do not edit files in it by hand unless instructed.
+
+- `.teikk/spec/` — everything from `/teikk-spec` (SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md), grouped in one folder
+- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see `skills/documentation-and-adrs/SKILL.md`.
+
+## What to commit
+
+- Commit `.teikk-agents-skills.json` — this is your install manifest (version, targets, owned files list).
+- Do NOT commit `.teikk/` — it is gitignored by the installer.
+
+## MCP servers
+
+`/teikk-qa` requires the `mobile-mcp` MCP server for UI/UX testing on iOS simulators and Android emulators. Install it separately; without it, Stage 2 of `/teikk-qa` cannot take screenshots or drive the device. All other commands work without any MCP server.
+
+## Command reference
+
+| Command | When to use |
+|---------|-------------|
+| `/teikk-spec` | Start here — write the spec before any code |
+| `/teikk-planning` | Break the spec into tasks with acceptance criteria |
+| `/teikk-build` | Implement one task (TDD: red → green → commit) |
+| `/teikk-test` | Run the full test suite and fix failures |
+| `/teikk-review` | Five-axis code review + adversarial pass |
+| `/teikk-ship` | Pre-launch checklist — produces a go/no-go verdict |
+| `/teikk-qa` | Deep QA with E2E + UI/UX testing (opt-in, slow) |
+| `/teikk-docs` | Write or update ADRs and README |
+| `/teikk-idea` | Refine a rough concept before speccing it |
+```
+
+If `.teikk/spec/QUICKSTART.md` already exists, skip this step silently — do not overwrite it.
+
+Then, check whether `.teikk/spec/WORKFLOW.md` already exists. If it does NOT exist, write it using this template:
+
+```markdown
+# teikk-agents-skills — Workflow Decision Tree
+
+You just completed `/teikk-spec`. This decision tree helps you pick the next command.
+
+## Where are you now?
+
+### ✓ You have a SPEC.md
+
+**→ Next step: Break the spec into tasks**
+```
+/teikk-planning    # Creates .teikk/tasks/plan.md + todo.md
+```
+
+Then:
+- For Android projects: Phase 0 sets up Hilt + Timber (do this before features)
+- For iOS projects: Phase 0 sets up SPM + SwiftLint + logging
+- For Flutter projects: Phase 0 sets up flavors + Riverpod/BLoC + logging
+
+---
+
+### ✓ You have a plan.md and tasks
+
+**Pick your mode:**
+
+#### One task at a time (most common)
+```
+/teikk-build       # Implement one task (TDD: RED → GREEN → regression → commit)
+/teikk-test        # Run full test suite
+/teikk-review      # Five-axis code review + adversarial pass
+/teikk-ship        # Final go/no-go verdict
+```
+
+#### All tasks together (faster, needs approval once)
+```
+/teikk-build auto  # Agent runs all remaining tasks in dependency order
+/teikk-test        # Verify everything passes
+/teikk-review      # Review all changes
+/teikk-ship        # Final verdict
+```
+
+#### One task end-to-end (faster, single session)
+```
+/teikk-quick-implement  # build → test → review → ship in one go
+                        # (use when context allows; 33–56k tokens)
+```
+
+---
+
+### ✓ Task is done, code is written
+
+**→ Run the review/ship phases:**
+```
+/teikk-test        # VERIFY: run the full test suite
+/teikk-review      # Five-axis review + adversarial pass
+/teikk-ship        # Two-tier verdict (GO production / GO demo / NO-GO)
+```
+
+---
+
+### ✓ Everything is implemented and reviewed
+
+**→ Ship it:**
+```
+/teikk-ship        # Final checklist: personas + skill checks + verdict
+```
+
+If **GO**: merge and deploy.
+If **GO (demo/portfolio)**: merge but note the production blockers for later.
+If **NO-GO**: fix the blockers and re-run `/teikk-review` + `/teikk-ship`.
+
+---
+
+### ❌ Something feels wrong
+
+**Run diagnostics:**
+```
+/teikk-doctor           # Audit your agent-skills setup
+/teikk-machine-audit    # Diagnose your Claude Code environment
+```
+
+---
+
+### 🎯 Other commands
+
+| When | Command |
+|------|---------|
+| Code works but is complex | `/teikk-code-simplify` |
+| Android performance issue | `/teikk-androidperf` |
+| Need ADRs or README updates | `/teikk-docs` |
+| Need to debug a failure | `/teikk-machine-audit` |
+| Want to refine a vague idea before speccing | `/teikk-idea` |
+| Completely unclear what to build | `/teikk-interview` |
+
+---
+
+### 💡 Pro tips
+
+- **Don't skip `/teikk-test` or `/teikk-review`** — they catch issues early
+- **Commit after each task** — one commit per task makes history clean and rollback easy
+- **Use Phase 0 first** — platform foundation (Hilt, SPM, BLoC) before features
+- **If stuck:** run `/teikk-doctor` to rule out setup issues, then `/teikk-machine-audit` to rule out environment issues
+```
+
+If `.teikk/spec/WORKFLOW.md` already exists, skip this step silently — do not overwrite it.

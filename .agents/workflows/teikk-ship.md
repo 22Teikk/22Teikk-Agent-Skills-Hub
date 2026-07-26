@@ -1,8 +1,6 @@
----
-description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
----
+# Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
 
-Invoke the teikk-agents-skills:shipping-and-launch skill.
+Read and follow `skills/shipping-and-launch/SKILL.md`.
 
 `/teikk-ship` is a **fan-out orchestrator**. It runs five specialist personas in parallel, merges their reports, then runs skill-based ship checks before a go/no-go decision.
 
@@ -18,12 +16,7 @@ Adopt each persona from `agents/`:
 4. **`test-engineer`** — Read `agents/test-engineer.md`. Test-quality audit — disqualify boilerplate/mock-verification/label-only tests; require a Room in-memory DAO test for the data layer.
 5. **`ui-ux-tester`** — Read `agents/ui-ux-tester.md`. Critical user flows, visual spacing, defect report.
 
-**Write each report to disk as soon as it lands — do not hold five full reports in context until Phase D.** As each subagent returns, append its full report to `.teikk/cache/ship-reports.md` under a `## <persona name>` heading (create the file fresh at the start of Phase A; this is scratch state for this run only, not a persisted artifact — `.teikk/SHIP-REPORT.md` in Phase D remains the durable one). This serves two purposes:
-
-1. **Context economy.** Keep only a one-line summary of each report (verdict + Critical count) in the active conversation; read the full report back from `.teikk/cache/ship-reports.md` only when Phase C's merge step needs the details, not before.
-2. **Compaction resilience.** If a compaction event lands mid-fan-out (five persona calls is the longest-running phase in this workflow), the reports already on disk survive it — Phase C can resume by reading `.teikk/cache/ship-reports.md` instead of re-running personas whose reports were lost to a summary.
-
-If a subagent's report doesn't land (timeout, error), record that explicitly in `.teikk/cache/ship-reports.md` under its heading (`FAILED: <reason>`) rather than silently proceeding with four reports — Phase C's merge step must account for a missing persona, not treat silence as a pass.
+Write each report to disk as soon as it lands — do not hold five full reports in context until Phase D. As each subagent returns, append its full report to `.teikk/cache/ship-reports.md` under a `## <persona name>` heading (create the file fresh at the start of Phase A; this is scratch state for this run only, not a persisted artifact — `.teikk/SHIP-REPORT.md` in Phase D remains the durable one). This keeps only a one-line summary (verdict + Critical count) in the active conversation, and means a compaction event mid-fan-out doesn't lose reports that already landed. If a subagent's report doesn't land (timeout, error), record that explicitly under its heading (`FAILED: <reason>`) rather than silently proceeding with four reports.
 
 ## Phase B — Skill-based ship checks
 
@@ -41,7 +34,7 @@ After persona reports, verify against these skills (read and check, do not skip)
 | Atomic commits, clean history | `skills/git-workflow-and-versioning/SKILL.md` |
 | Security hardening | `skills/security-and-hardening/SKILL.md` |
 | **SPEC↔Test traceability (hard gate)** | Read the spec's (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`) Traceability Matrix. For **every** acceptance criterion, confirm a **behavioral** test exists and executes it. Mock-only, boilerplate (`ExampleUnitTest`), and label-only tests count as ZERO. Any AC without a behavioral test → **blocker**. There is no "PARTIAL = pass". |
-| Store readiness (both platforms) | Read `agents/mobile-app-developer.md` — verify privacy manifest, targetSdkVersion, 64-bit, crash-free ≥ 99.9% |
+| Store readiness (both platforms) | Read `agents/mobile-app-developer.md` — verify privacy manifest, targetSdkVersion, 64-bit, crash-free >= 99.9% |
 
 Merge with persona findings:
 
@@ -58,7 +51,7 @@ Merge with persona findings:
    - Android + `E2E: Maestro` → run `maestro test .teikk/maestro/flows/` via `skills/android-e2e-maestro/SKILL.md`
    - iOS + `E2E: XCUITest` → run `xcodebuild test` via `agents/swift-expert.md`
    - Flutter + `E2E: integration_test` → run `flutter test integration_test/` via `agents/flutter-expert.md`
-   - `E2E: none` or no `.e2e/` → skip silently
+   - `E2E: none` or no e2e dir → skip silently
 
 ## Phase C — Decision and rollback
 
@@ -106,7 +99,7 @@ Produce a **two-tier** verdict — never a single ambiguous "GO" that reads like
 4. **Final verdict = AND of constructive personas and the adversarial pass.** A REFUTED adversarial verdict, any PROVEN-FALSE acceptance criterion, or any AC without a behavioral test → cannot be GO (production).
 5. Critical finding → default NO-GO unless user accepts risk explicitly.
 6. Never count boilerplate/mock-only/label-only tests toward coverage; "PARTIAL" coverage of an AC = not done.
-7. Skip fan-out only if ≤2 files, <50 lines, no auth/payments/data/config touch.
+7. Skip fan-out only if <=2 files, <50 lines, no auth/payments/data/config touch.
 
 ## Phase D — Persistent ship report
 

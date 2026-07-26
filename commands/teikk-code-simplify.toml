@@ -2,6 +2,7 @@ description = "Simplify code for clarity and maintainability — reduce complexi
 
 prompt = """
 Read and follow `skills/code-simplification/SKILL.md`.
+<!-- @override:claude -->Invoke the teikk-agents-skills:code-simplification skill.<!-- @end -->
 
 Simplify recently changed code (or the specified scope) while preserving exact behavior:
 

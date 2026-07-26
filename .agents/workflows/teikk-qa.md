@@ -1,6 +1,4 @@
----
-description: Optional deep-QA pass (slow) — E2E journeys + exhaustive UI/UX testing. Not part of the core verify/TDD loop.
----
+# Optional deep-QA pass (slow) — E2E journeys + exhaustive UI/UX testing. Not part of the core verify/TDD loop.
 
 **Optional and slow — opt-in only.** `/teikk-qa` is a deep quality pass that runs E2E journey tests and exhaustive UI/UX testing. It is **not part of the core verify loop** (`/teikk-test`) and is **never run automatically**. Invoke it deliberately before a release or milestone, when you can afford the runtime — both stages can take many minutes on real devices, emulators, or simulators.
 

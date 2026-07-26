@@ -1,13 +1,11 @@
----
-description: Start spec-driven development — write a structured specification before writing code
----
+# Start spec-driven development — write a structured specification before writing code
 
-Invoke the teikk-agents-skills:spec-driven-development skill.
+Read and follow `skills/spec-driven-development/SKILL.md`.
 
 Begin by understanding what the user wants to build. Ask clarifying questions about:
 1. The objective and target users
 2. Core features and acceptance criteria
-3. **Platform** — Android (Kotlin/Compose), iOS (Swift/SwiftUI), Flutter, or cross-platform? If unsure, invoke `agents/mobile-app-developer.md` to evaluate trade-offs first
+3. **Platform** — Android (Kotlin/Compose), iOS (Swift/SwiftUI), Flutter, or cross-platform? If unsure, read `agents/mobile-app-developer.md` to evaluate trade-offs first
 4. Tech stack defaults by platform:
    - Android → Kotlin + Compose, Hilt, Room, Timber/Crashlytics
    - iOS → Swift + SwiftUI, SPM, Core Data / SwiftData, os_log + Crashlytics
@@ -234,4 +232,3 @@ If **NO-GO**: fix the blockers and re-run `/teikk-review` + `/teikk-ship`.
 ```
 
 If `.teikk/spec/WORKFLOW.md` already exists, skip this step silently — do not overwrite it.
-</content>
