@@ -3,7 +3,7 @@ name: ios-data-and-concurrency
 description: Handles iOS data operations and concurrency. Use when writing async/await code, `Task`/`TaskGroup`, actors, `AsyncSequence`/`AsyncStream`, SwiftData (`@Model`, `@Query`), URLSession with `async let`, or Codable networking.
 version: 1.0.0
 platform: ios
-depends-on: []
+depends-on: [ios-ui]
 ---
 
 # iOS Data and Concurrency (Swift 5.9+)

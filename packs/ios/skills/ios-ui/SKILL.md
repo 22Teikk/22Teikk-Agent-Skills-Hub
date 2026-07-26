@@ -3,7 +3,7 @@ name: ios-ui
 description: Builds iOS user interfaces using SwiftUI and the Observation framework. Use when creating or modifying SwiftUI views, `@Observable` view models, `NavigationStack` routes, `List`/`LazyVGrid`, async view work via `.task`, or accessibility modifiers.
 version: 1.0.0
 platform: ios
-depends-on:
+depends-on: [ios-data-and-concurrency]
   - ios-data-and-concurrency
 ---
 

@@ -308,7 +308,7 @@ function runStaleCleanup() {
 
 // The claude target's hooks/hooks.json uses ${CLAUDE_PLUGIN_ROOT}, which only
 // resolves for plugin-marketplace installs. A plain npm/CLI install must wire
-// the same 7 lifecycle hooks into the project's own .claude/settings.json
+// the same lifecycle hooks into the project's own .claude/settings.json
 // (rewritten to ${CLAUDE_PROJECT_DIR}), additively — preserving any hooks or
 // other settings the user already had — and unwire only what it added on
 // uninstall.
@@ -428,10 +428,15 @@ function runClaudeHooksWiring() {
     );
 
     // Manifest records exactly what was wired, so uninstall can remove only that.
+    // Count derived from the canonical hooks/hooks.json (one entry per hook,
+    // not per event — SessionStart and PreCompact each have two entries).
+    const expectedHookCount = Object.values(
+      JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'hooks', 'hooks.json'), 'utf8')).hooks,
+    ).reduce((n, groups) => n + groups.reduce((m, g) => m + (g.hooks || []).length, 0), 0);
     const manifest = JSON.parse(fs.readFileSync(path.join(tmp, MANIFEST_FILE), 'utf8'));
     assert(
-      Array.isArray(manifest.claudeHooks) && manifest.claudeHooks.length === 7,
-      'manifest missing claudeHooks list',
+      Array.isArray(manifest.claudeHooks) && manifest.claudeHooks.length === expectedHookCount,
+      `manifest.claudeHooks length mismatch — expected ${expectedHookCount} from hooks/hooks.json, got ${manifest.claudeHooks?.length}`,
     );
 
     // Re-running install (update) must not duplicate hook entries.
