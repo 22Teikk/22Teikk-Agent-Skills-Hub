@@ -3,7 +3,7 @@ name: flutter-data-and-concurrency
 description: Handles data operations and concurrency in Flutter Dart 3+ projects. Use when writing Dart isolates, Stream/Future pipelines, dio HTTP requests, JSON serialization with json_serializable/freezed, drift relational queries, Hive key-value boxes, or Riverpod AsyncValue providers.
 version: 1.0.0
 platform: flutter
-depends-on:
+depends-on: [flutter-ui]
   - observability-and-instrumentation
   - flutter-ui
 ---
@@ -106,8 +106,8 @@ class TransactionDto with _$TransactionDto {
 
 ### 5. Local persistence — relational: `drift` (preferred) / key-value: `hive`
 
-- **Relational data, joins, queries, migrations** → `drift`. Schema lives as typed Dart classes; queries are type-safe at compile time.
-- **Simple key-value blobs, settings, cached JSON** → `hive` / `hive_ce` (community-maintained fork) or `shared_preferences`.
+- **Relational data, joins, queries, migrations** — use `drift`. Schema lives as typed Dart classes; queries are type-safe at compile time.
+- **Simple key-value blobs, settings, cached JSON** — use `hive` / `hive_ce` (community-maintained fork) or `shared_preferences`.
 - Access the database only through a repository; never expose a `Database` / `Box` directly to a widget or provider.
 
 ```dart

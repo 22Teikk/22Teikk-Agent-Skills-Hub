@@ -120,7 +120,37 @@
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [],
-      "description": "Subjects every non-trivial decision to a fresh-context adversarial review before it stands. Use when correctness matters more than speed, when working in unfamiliar code, when stakes are high (production, security-sensitive logic, irreversible operations), or any time a confident output would be cheaper to verify now than to debug later."
+      "description": "Adversarial fresh-context review for non-trivial decisions before they stand. Use when correctness matters more than speed, in unfamiliar code, for high stakes (production, security, irreversible operations), or when a confident output would be cheaper to verify now than debug later."
+    },
+    {
+      "name": "flutter-data-and-concurrency",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-ui"
+      ],
+      "description": "Handles data operations and concurrency in Flutter Dart 3+ projects. Use when writing Dart isolates, Stream/Future pipelines, dio HTTP requests, JSON serialization with json_serializable/freezed, drift relational queries, Hive key-value boxes, or Riverpod AsyncValue providers."
+    },
+    {
+      "name": "flutter-di-and-build",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter."
+    },
+    {
+      "name": "flutter-testing-and-benchmark",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, Riverpod ProviderContainer tests, widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks."
+    },
+    {
+      "name": "flutter-ui",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Builds Flutter user interfaces using Dart 3+, Flutter 3+, and Riverpod (with BLoC variant). Use when creating or modifying widget trees, StatelessWidget/StatefulWidget, GoRouter routes, screen-level Riverpod Notifiers, or loading images via cached_network_image."
     },
     {
       "name": "git-workflow-and-versioning",
@@ -134,7 +164,7 @@
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [],
-      "description": "Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. Triggers on \"ideate\", \"refine this idea\", or \"stress-test my plan\"."
+      "description": "Refines vague ideas into sharp, actionable concepts through structured divergent/convergent thinking. Use when an idea is still vague, when stress-testing assumptions before committing to a plan, or when expanding options before converging on one."
     },
     {
       "name": "incremental-implementation",
@@ -151,14 +181,46 @@
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [],
-      "description": "Extracts what the user actually wants instead of what they think they should want. Achieves this through one-question-at-a-time interview until ~95% confidence about the underlying intent. Use when an ask is underspecified (\"build me X\" without \"for whom\" or \"why now\"), when the user explicitly invokes (\"interview me\", \"grill me\", \"are we sure?\", \"stress-test my thinking\"), or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists."
+      "description": "Extracts the user's actual intent via one-question-at-a-time interview until ~95% confidence. Use when an ask is underspecified, when the user invokes \"interview me\"/\"grill me\"/\"stress-test my thinking\", or when silently filling in ambiguous requirements before any plan or code exists."
+    },
+    {
+      "name": "ios-data-and-concurrency",
+      "version": "1.0.0",
+      "platform": "ios",
+      "dependsOn": [
+        "ios-ui"
+      ],
+      "description": "Handles iOS data operations and concurrency. Use when writing async/await code, `Task`/`TaskGroup`, actors, `AsyncSequence`/`AsyncStream`, SwiftData (`@Model`, `@Query`), URLSession with `async let`, or Codable networking."
+    },
+    {
+      "name": "ios-di-and-build",
+      "version": "1.0.0",
+      "platform": "ios",
+      "dependsOn": [],
+      "description": "Configures iOS dependency injection and build environments. Use when adding SPM dependencies, setting up SwiftLint, configuring Xcode build phases or schemes, managing code signing, or wiring up Xcode Cloud / GitHub Actions CI."
+    },
+    {
+      "name": "ios-testing-and-benchmark",
+      "version": "1.0.0",
+      "platform": "ios",
+      "dependsOn": [],
+      "description": "Implements iOS unit, UI, and performance testing. Use when writing XCTest unit tests with `async throws`, XCUITest flows, `XCTMetric` measurements, OS signposts for Instruments, or in-memory SwiftData / URLSession test doubles."
+    },
+    {
+      "name": "ios-ui",
+      "version": "1.0.0",
+      "platform": "ios",
+      "dependsOn": [
+        "ios-data-and-concurrency"
+      ],
+      "description": "Builds iOS user interfaces using SwiftUI and the Observation framework. Use when creating or modifying SwiftUI views, `@Observable` view models, `NavigationStack` routes, `List`/`LazyVGrid`, async view work via `.task`, or accessibility modifiers."
     },
     {
       "name": "machine-audit",
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [],
-      "description": "Use when a Claude Code session feels slow or expensive, or the user asks why a session cost/took so long, why cache-read/cache-write dominates the bill, or whether MCP servers/hooks/effort-level are wasting tokens. Diagnoses machine-level Claude Code configuration (~/.claude/settings.json, user-scope MCP servers, global hooks) — not this project's own skills, commands, or code. Do not use for code bugs, test failures, or workflow-quality questions — those belong to debugging-and-error-recovery instead."
+      "description": "Diagnoses machine-level Claude Code config (~/.claude/settings.json, user-scope MCP, global hooks). Use when a session feels slow/expensive or the user asks about cost/latency drivers. Not for code bugs — see debugging-and-error-recovery."
     },
     {
       "name": "map-code-base",
