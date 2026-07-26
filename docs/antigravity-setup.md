@@ -36,6 +36,8 @@ cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
 
 Rules in `.agents/rules/` are loaded via **Customizations → Rules** in the Antigravity agent panel. Workflows appear as `/` commands in chat.
 
+For strict lifecycle enforcement (the agent auto-detects and invokes skills without explicit slash commands), write your own project-specific `AGENTS.md` at the repo root instructing the agent to check `skills/<name>/SKILL.md` before acting. Don't copy this repo's `AGENTS.md` verbatim — it documents this repo, not your project.
+
 > **Antigravity 2.0 path:** Workspace rules default to `.agents/rules/` (backward compatible with `.agent/rules/`). Workflows default to `.agents/workflows/` (backward compatible with `.agent/workflows/`).
 
 ### Option 2: Antigravity CLI Plugin
@@ -71,6 +73,7 @@ Add a `globs` field (or stricter `activation: always_on`) only if your project g
 
 | Command | Workflow file | Skill / persona |
 |---------|---------------|-----------------|
+| `/teikk-map-code-base` | `teikk-map-code-base.md` | map-code-base |
 | `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
 | `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
 | `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |

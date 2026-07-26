@@ -15,7 +15,7 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 
 ## Install
 
-All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository remains clean — the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output (SPEC, tasks, E2E flows, caches). Install is additive: it copies beside your own files and never deletes your `.claude/` config.
+All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository stays clean: the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output. Install is additive — it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
 npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
@@ -35,175 +35,36 @@ Auto-install on `npm install` — add to your project's `package.json`:
 
 Primary targets: `claude` | `antigravity` | `opencode`. Also supported: `cursor` | `gemini` | `all`
 
-Setup guides: [docs/](docs/)
+Full install/update/uninstall + `.gitignore` behavior: **[docs/npm-install.md](docs/npm-install.md)**.
 
 ---
 
-## Uninstall
+## Documentation
 
-### CLI (recommended)
+Start here, then follow the topic you need. The README is a hub — the detail lives in `docs/`.
 
-```bash
-npx teikk-agents-skills uninstall
-```
+| Topic | Read |
+|-------|------|
+| **Getting started** — how skills work, loading them into any agent | [docs/getting-started.md](docs/getting-started.md) |
+| **Prompting guide** — best prompts per phase (context, templates, anti-patterns) | [docs/prompting-guide.md](docs/prompting-guide.md) |
+| **Workflow & commands** — which command when, all 23 commands, AC→test traceability, QA | [docs/workflow.md](docs/workflow.md) |
+| **Generated files** — the `.teikk/` layout, `todo.md` resume, `ultra` worktrees | [docs/generated-files.md](docs/generated-files.md) |
+| **Diagnostics** — `/teikk-doctor` (project) + `/teikk-machine-audit` (environment) | [docs/diagnostics.md](docs/diagnostics.md) |
+| **Framework internals** — telemetry/benchmark, guardrails, failure recovery, CLIs | [docs/framework-internals.md](docs/framework-internals.md) |
+| **npm install** — auto-install, update, uninstall, `.gitignore` | [docs/npm-install.md](docs/npm-install.md) |
+| **Skill anatomy** — structure of a `SKILL.md`, contributing new skills | [docs/skill-anatomy.md](docs/skill-anatomy.md) |
 
-Removes only the files it created (`.cursor/`, `.claude/commands/`, `.agents/`, `.gemini/`, etc.) — your own files (e.g. `.claude/settings.local.json`) are left untouched — cleans the managed `.gitignore` block, and removes the manifest.
-
-### Then remove the npm package
-
-```bash
-npm uninstall teikk-agents-skills
-```
-
-### Manual removal
-
-If you installed without npm, delete the copied directories and remove the `# >>> teikk-agents-skills` block from `.gitignore`:
-
-```bash
-# In your project (only the files this tool copied — your own .claude/settings*.json is left alone):
-rm -rf .cursor/rules/ .cursor/commands/ .claude/commands/ .agents/ .gemini/ .opencode/ .serena/
-# Optionally remove workflow output:
-rm -rf .teikk/
-# Edit .gitignore — remove the managed block between:
-#   # >>> teikk-agents-skills ...
-#   # <<< teikk-agents-skills
-```
+**Per-IDE setup:** [Cursor](docs/cursor-setup.md) · [Antigravity](docs/antigravity-setup.md) · [Gemini CLI](docs/gemini-cli-setup.md) · [OpenCode](docs/opencode-setup.md) · [Claude Code](docs/getting-started.md)
 
 ---
 
-## Workflow — which command when
+## Commands at a glance (23)
 
-### Typical new feature
-
-```
-/teikk-interview     ← ask unclear? skip if you know what you want
-/teikk-idea          ← exploring options? skip if direction is clear
-/teikk-spec          ← lock WHAT + platform (Android/iOS/Flutter) + stack + arch + observability + E2E opt-in
-/teikk-planning      ← break into tasks (Phase 0: platform foundation first)
-/teikk-build         ← one task at a time
-/teikk-build auto    ← approve plan once, agent runs all tasks
-/teikk-build ultra   ← same as auto, plus runs independent tasks in parallel git worktrees
-/teikk-test          ← VERIFY: TDD unit + Compose/XCTest/widget tests (fast, core loop)
-/teikk-review        ← before merge
-/teikk-ship          ← go/no-go + store readiness
-
-── optional, slow — run before a release, not in the TDD loop ──
-/teikk-qa            ← deep-QA pass: E2E journeys + exhaustive UI/UX testing
-/teikk-e2e           ← E2E only: Maestro (Android) | XCUITest (iOS) | integration_test (Flutter)
-/teikk-ux-test       ← UI/UX only: exhaustive flow testing + defect report
-
-── faster when context allows — build + test + review + ship in one session ──
-/teikk-quick-implement  ← implement one task end-to-end with auto context compaction
-```
-
-### Setup & specialists
-
-| Command | When |
-|---------|------|
-| `/teikk-android-setup` | New Android project — Hilt, Version Catalog, Gradle |
-| `/teikk-ios-setup` | New iOS project — SPM, SwiftLint, logging, Crashlytics |
-| `/teikk-flutter-setup` | New Flutter project — flavors, Riverpod/BLoC, GoRouter, logging |
-| `/teikk-observability` | Retrofit logging/analytics/perf traces onto existing code, or scope beyond one task (routine logging is now inline in `/teikk-build`) |
-| `/teikk-ci` | GitHub Actions / quality gates |
-| `/teikk-docs` | ADRs, README updates |
-| `/teikk-code-simplify` | Code works but too complex |
-| `/teikk-androidperf` | Startup / jank audit (Android) |
-
----
-
-## Test Traceability — AC → Test Mapping
-
-Every acceptance criterion must map to a **behavioral test** (not a mock, not boilerplate). `/teikk-planning` includes a **traceability checklist** that validates this before you write code:
-
-**Valid mappings:**
-- ✓ `AC: Users can save → SaveViewModelTest.save_updatesDatabase (unit)`
-- ✓ `AC: Total is calculated → TransactionDaoTest.insertAndSum (integration, Room in-memory)`
-- ✓ `AC: Payment processes → E2E maestro flow (e2e)`
-
-**Invalid mappings (caught as blockers at ship time):**
-- ✗ `AC: UI shows data → ExampleInstrumentedTest` (boilerplate template, not behavioral)
-- ✗ `AC: Button appears → mock repository returns true` (mock-only, not real implementation)
-- ✗ `AC: User can login → assertVisible("Login Button")` (label-only, no value assertion)
-
-**SHIP-REPORT.md traceability matrix** lists every AC and whether it has a behavioral test. Any AC without a test is a **production blocker** at `/teikk-ship` time.
-
----
-
-## QA — optional, slow, opt-in
-
-E2E and UI/UX testing are pulled **out of the core verify loop** because they can run for minutes on a device/emulator. Run them deliberately before a release via `/teikk-qa` (or the two commands individually):
-
-- `/teikk-qa` — umbrella pass: runs E2E (if SPEC declares it) **then** exhaustive UI/UX testing, and merges one QA verdict. Args: `e2e` | `ux` | a flow name.
-- `/teikk-e2e` — E2E only. Platform-aware: Maestro YAML (Android), XCUITest Swift (iOS), `integration_test` Dart (Flutter).
-- `/teikk-ux-test` — UI/UX only, via the `ui-ux-tester` persona (mobile-mcp for mobile; browser-automation MCP for web).
-
-E2E opt-in is declared in SPEC: `E2E: none` (default) | `E2E: Maestro` | `E2E: XCUITest` | `E2E: integration_test`. None of these run inside `/teikk-build` or `/teikk-test`.
-
-Android Maestro skill: `skills/android-e2e-maestro/SKILL.md`
-
----
-
-## Generated files — everything lands in `.teikk/`
-
-Every workflow writes its output under a single project-local `.teikk/` directory, so nothing is scattered across your repo and one `.gitignore` line covers it all (added automatically on install):
-
-```
-.teikk/
-├─ spec/                /teikk-spec — everything from the Specify phase, one folder:
-│  ├─ SPEC.md           what to build
-│  ├─ PROJECT.yaml      metadata: platform, domain, CI, E2E, budgets, logging.library
-│  ├─ QUICKSTART.md     first-run guide
-│  └─ WORKFLOW.md       decision tree: what command to run next
-├─ DECISIONS.md         /teikk-docs (+ architecture gate) → append-only log of significant, already-implemented decisions
-├─ DOCTOR.md            /teikk-doctor (project setup health audit)
-├─ SHIP-REPORT.md       /teikk-ship (go/no-go verdict + traceability + blockers)
-├─ tasks/               /teikk-planning → plan.md (full detail), todo.md (task index — O(1) resume)
-├─ ideas/               /teikk-idea → refined idea one-pagers
-├─ intent/              /teikk-interview → captured project intent
-├─ adr/                 /teikk-docs → Architecture Decision Records
-├─ maestro/flows/       /teikk-e2e (Android)
-└─ cache/               hook caches (sdd, simplify-ignore) — never leaves the project
-```
-
-> Everything a workflow generates lives here — no more `docs/ideas/`, `docs/decisions/`, or scattered files in your repo. ADRs are gitignored by default; if you want them version-controlled, un-ignore the folder (`!.teikk/adr/`).
->
-> **Pre-3.1 projects:** `/teikk-spec` used to write `SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, and `WORKFLOW.md` directly at the `.teikk/` root instead of under `.teikk/spec/`. Every command that reads the spec checks `.teikk/spec/SPEC.md` first and falls back to `.teikk/SPEC.md` automatically — no manual migration needed. New specs always write to `.teikk/spec/`.
-
-### Resuming after context is cleared — `todo.md` as an O(1) task index
-
-`plan.md` holds full task detail (description, ACs, verification steps) — expensive to read, written once. `todo.md` holds only status — one checkbox line per task plus a **`Current task:`** pointer at the top — cheap to read, checked every time a session resumes. `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` all read `todo.md`'s pointer first instead of re-scanning the whole plan; only `/teikk-build` flips checkboxes and advances the pointer.
-
-```markdown
-**Current task:** Task 3 — in_progress
-
-- [x] Task 1: User registration
-- [x] Task 2: User login
-- [~] Task 3: Task creation
-- [ ] Task 4: Task list view
-```
-
-### `/teikk-build ultra` — parallel worktrees for independent tasks
-
-`auto` runs every task one at a time, even ones with no dependency on each other. `ultra` runs the same plan, but any tasks `/teikk-planning` marked `Parallel-safe: yes` and grouped into a `### Wave N (parallel-safe)` batch (≤4 tasks, non-overlapping files) get their own git worktree and run concurrently, then merge back sequentially with a full test+build check after each merge:
-
-```markdown
-### Wave 1 (parallel-safe)
-- [ ] Task 3: User profile screen — Parallel-safe: yes
-- [ ] Task 4: Settings screen — Parallel-safe: yes
-- [ ] Task 5: Notifications screen — Parallel-safe: yes
-```
-
-If a plan has no waves, `ultra` behaves exactly like `auto` — it never invents parallelism a plan didn't declare, and a merge conflict or post-merge test/build failure stops the whole wave rather than resolving itself silently. See `skills/planning-and-task-breakdown/SKILL.md` (Step 5.5) for how waves are declared, and the `/teikk-build` command file for the full Wave Execution algorithm.
-
-**Install is additive.** Files land *next to* your own — `init claude` copies only into `.claude/commands/`, so an existing `.claude/settings.local.json` or your own slash commands are never deleted (a file it can't safely place is reported and left untouched). `uninstall` removes only the files it created.
-
----
-
-## All commands (22)
+Entry points into the lifecycle. Full descriptions and prompt templates in [docs/workflow.md](docs/workflow.md) and [docs/prompting-guide.md](docs/prompting-guide.md).
 
 | Phase | Command |
 |-------|---------|
-| Define | `/teikk-interview`, `/teikk-idea`, `/teikk-spec` |
+| Define | `/teikk-interview`, `/teikk-idea`, `/teikk-spec`, `/teikk-map-code-base` |
 | Plan | `/teikk-planning` |
 | Build | `/teikk-build`, `/teikk-android-setup`, `/teikk-ios-setup`, `/teikk-flutter-setup`, `/teikk-observability` |
 | Verify | `/teikk-test` |
@@ -214,82 +75,103 @@ If a plan has no waves, `ultra` behaves exactly like `auto` — it never invents
 | Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
 | End-to-end | `/teikk-quick-implement` |
 
-38 skills total (22 core + 8 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+Key lifecycle: `/teikk-spec` → `/teikk-planning` → `/teikk-build` → `/teikk-review` → `/teikk-ship`.
 
 ---
 
-## End-to-end implementation
+## Uninstall
 
-- `/teikk-quick-implement` — **chains build → test → review → ship in one session** with automatic context compaction if running low on tokens. Use when you have a single, well-scoped task and want a final verdict without multiple command invocations. Estimated cost: 33–56k tokens. **Not recommended for exploratory work or when token budget is tight** — use individual commands instead.
+```bash
+npx teikk-agents-skills uninstall   # removes only files it created; cleans the managed .gitignore block
+npm uninstall teikk-agents-skills
+```
 
----
-
-## Diagnostics — health checks & troubleshooting
-
-Both commands are **standalone, opt-in, not part of the core DEFINE→SHIP workflow**. Run them when you need a health check or debugging. Together they form a troubleshooting toolkit for the two layers: your **project setup** (doctor) and your **Claude Code environment** (machine-audit).
-
-### `/teikk-doctor` — Project setup audit
-
-Audits the **agent-skills workflow health** in your project. Writes `.teikk/DOCTOR.md` with a pass/warn/fail checklist.
-
-**Checks:**
-1. Gitignore — `.teikk/` in managed block ✓/✗
-2. Manifest — `.teikk-agents-skills.json` present and valid ✓/✗
-3. Spec — `.teikk/SPEC.md` present and complete (all 8 sections) ✓/⚠/✗
-4. PROJECT.yaml — `.teikk/PROJECT.yaml` present ✓/⚠
-5. Mobile-mcp — configured if Android/E2E project ✓/⚠/skip
-6. E2E tooling — maestro/xcodebuild/flutter on PATH ✓/⚠/skip
-7. Tasks — plan.md and todo.md present ✓/⚠/skip
-8. Git tree — clean or dirty (informational) ✓/⚠
-
-**Run when:**
-- Project feels broken or workflow output is missing
-- You just installed agent-skills and want to verify setup
-- MCP servers are failing or E2E tests won't run
-- Before sharing the project with someone else
-
-**Output:** `.teikk/DOCTOR.md` (pass/warn/fail table + next-action recommendations)
-
-### `/teikk-machine-audit` — Claude Code environment audit
-
-Diagnoses your **Claude Code configuration and performance**. Run this when a session feels slow or expensive and you want to rule out workflow overhead.
-
-**Checks:**
-- `.claude/settings.json` and `.claude/settings.local.json` (permissions, hooks, MCP servers)
-- MCP server health and connectivity
-- Global hooks (are they causing slowdowns?)
-- Token/cost instrumentation (is telemetry running?)
-- Cache state and memory usage
-- Known performance bottlenecks in your config
-
-**Run when:**
-- Sessions feel unusually slow or expensive
-- MCP servers are timing out or disconnecting
-- You suspect a misconfigured hook or permission is causing issues
-- Switching to a new machine or Claude Code version
-- Before opening a support ticket (rules out workflow as root cause)
-
-**Output:** Detailed environment report with recommendations for improvements
+Manual removal and details: [docs/npm-install.md](docs/npm-install.md).
 
 ---
 
-### Using both together
+## Framework internals — optional tooling
 
-**Typical troubleshooting flow:**
+Everything in this section is **optional, off/opt-in by default, and not part of the core DEFINE→SHIP loop**. Skip it entirely if you just want the workflow commands above.
 
-1. Something feels wrong → Run `/teikk-doctor` first (quick project-level check)
-2. Doctor is green but you're still stuck → Run `/teikk-machine-audit` (diagnose the IDE/agent layer)
-3. Both green? → Issue is in your project code, not the workflow or environment
-4. Both red? → You have infrastructure + setup issues to fix first before resuming work
+### Framework observability & benchmark
 
-**In a new project:**
+Measures the **framework's own quality** — not your app's. Zero runtime AI, zero prompt/context overhead, offline, deterministic, and fully disable-able.
+
+- **Emitter:** `lib/telemetry.sh` — off by default, no-ops entirely unless the env var `TEIKK_TELEMETRY=on` is set. Privacy-safe by construction: the function only accepts scalar `event`/`status`/`duration`/`meta` values, with no parameter for prompt or context content.
+- **Storage:** `.teikk/cache/telemetry/events.jsonl` — append-only JSONL, gitignored, never leaves the project.
+- **Benchmark CLI** (offline, deterministic — the same events always produce the same score):
+
+```bash
+node scripts/benchmark.js                              # dashboard from the events file
+node scripts/benchmark.js --json --out score.json      # machine-readable score
+node scripts/benchmark.js --baseline prev-score.json   # delta vs a previous release
+```
+
+**Framework Score formula:**
 
 ```
-npm install teikk-agents-skills
-npx teikk-agents-skills init claude
-/teikk-doctor        ← verify install succeeded
-/teikk-machine-audit ← verify your Claude Code is healthy
-/teikk-spec          ← now you're ready to start
+score = 0.35·Quality + 0.30·Verification + 0.20·Efficiency + 0.15·ContextIntegrity
+```
+
+Quality = task success rate; Verification = verification pass rate; Efficiency = 1 − duplicate-work penalty; ContextIntegrity = 1 − context-reset penalty.
+
+**Lifecycle collection (Claude Code only):** `hooks/lifecycle-telemetry.sh` wires 5 real Claude Code events into `hooks/hooks.json` — `TaskCreated`, `TaskCompleted`, `SubagentStart`, `SubagentStop`, `Stop`. Observational only — never blocks, always exits 0 — and off by default. This is the **collection** half; `scripts/benchmark.js` is the **analysis** half and runs anywhere against any `events.jsonl`. See `hooks/LIFECYCLE-TELEMETRY.md`.
+
+### Enforced guardrails
+
+Three guardrails enforced by executable scripts, not just prose — portable across all 5 agents because they're plain shell plus a git hook. See `hooks/GUARDRAILS.md`.
+
+1. **Secret-push protection** — `hooks/pre-push.sh` calls `guardrail-check.sh scan-secrets` and blocks `git push` when the push range adds a sensitive file (`.env`, `*.pem`, `*.keystore`, `*.jks`, `id_rsa`, `secrets.*`, `google-services.json`, `GoogleService-Info.plist`). Template/example/doc variants are exempt (`.env.example`, `*.sample`, `*.md`). Fail-closed on a detected secret; fail-open only when the scanning tooling itself is absent.
+2. **Destructive-command deny-list** — the agent runs `hooks/guardrail-check.sh deny-command "<cmd>"` before running a composed shell command; exit 1 means destructive (e.g. `git push --force`, `git reset --hard`, `rm -rf`, `DROP TABLE`, `kubectl delete`) — surface it to the user instead of auto-running.
+3. **Sensitive-file "Allowed" confirmation gate.**
+
+38 skills total (22 core + 8 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+
+```bash
+git config core.hooksPath hooks
+# OR
+ln -sf ../../hooks/pre-push.sh .git/hooks/pre-push
+```
+
+### Failure recovery & rollback
+
+A set of decision rules — no runtime daemon — plus a git-level rollback helper. The goal: never leave the tree broken, never retry blindly, never lose more than one increment. See `references/failure-recovery.md`.
+
+**Bounded, cause-aware retry policy:**
+- Sub-agent timeout → retry once, with narrower scope
+- Transient tool error → 2 retries with backoff
+- Deterministic tool error (bad args, missing file) → 0 retries — fix the cause instead
+- Hook failure → 0 retries (fail-open by design)
+- Verification REJECT → no auto-retry — fix, then re-run once
+
+**Hard rule:** after 3 consecutive failures of the same operation, stop, revert to the last known-good state, and escalate.
+
+`scripts/rollback.sh` is destructive but safe-by-default — it always shows what it would discard first, refuses to destroy uncommitted work without `--force`, and a human confirms while an agent only proposes:
+
+```bash
+scripts/rollback.sh --dry-run          # preview — non-destructive, always run first
+scripts/rollback.sh --to-last-commit   # reset tree to HEAD (destructive)
+scripts/rollback.sh --to <sha>         # reset to a known-good sha (destructive)
+```
+
+### `value-critic` — scope critic persona
+
+`core/agents/value-critic.md` asks "is this worth building?" — a scope and over-engineering critic wired into the intent-map at two points: the Define phase (scope stress-test before committing to a plan) and the Review phase (flagging over-engineering or scope creep in a diff). It's a review perspective, not a command.
+
+### Parking-lot for deferred scope
+
+`planning-and-task-breakdown` writes deferred or out-of-scope items to `.teikk/PARKING-LOT.md` instead of losing them when a task list closes, then re-surfaces them at the start of the next `/teikk-planning` run.
+
+### Decisions log CLI
+
+`scripts/decisions.js` is a query CLI over the append-only `.teikk/DECISIONS.md` log (it also checks `.teikk/spec/DECISIONS.md` by default), making the log queryable instead of grep-only.
+
+```bash
+node scripts/decisions.js list
+node scripts/decisions.js find <term>
+node scripts/decisions.js count
+node scripts/decisions.js list --json   # machine-readable output
 ```
 
 ---
@@ -297,7 +179,7 @@ npx teikk-agents-skills init claude
 ## Project layout
 
 ```
-core/skills/     22 platform-neutral workflow skills (SKILL.md each) — always installed
+core/skills/     23 platform-neutral workflow skills (SKILL.md each) — always installed
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
 packs/android/   8 Android skills (ui/data/di/test per Kotlin+Java) + 2 personas
@@ -310,8 +192,8 @@ packs/flutter/   4 Flutter skills (ui/data/di/test) + flutter-expert persona
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
 .claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
-.agents/         Antigravity rules (6) + workflows (22)
-commands/        OpenCode TOML commands (22)
+.agents/         Antigravity rules (6) + workflows (23)
+commands/        OpenCode TOML commands (23)
 references/      testing, security, performance, accessibility checklists
 .teikk/          (generated at runtime) all workflow output — gitignored
 ```

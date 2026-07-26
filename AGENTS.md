@@ -30,7 +30,7 @@ The agent should automatically map user intent to skills and personas.
 - `platform: flutter` → apply only the **Flutter** rows (`flutter-expert`, Riverpod/BLoC, `integration_test`).
 - `platform:` absent, `generic`, or non-mobile (e.g. `backend`, `web`, `cli`, `library`) → apply **only the platform-neutral rows**; skip every mobile-specific skill and persona. Do not assume Android.
 
-The **platform-neutral core always applies regardless of platform**: `interview-me`, `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `context-engineering`, `source-driven-development`, `doubt-driven-development`, `api-and-interface-design`, `debugging-and-error-recovery`, `code-review-and-quality`, `code-simplification`, `security-and-hardening`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `documentation-and-adrs`, `deprecation-and-migration`, `observability-and-instrumentation`, and the `code-reviewer` / `adversarial-reviewer` / `security-auditor` / `test-engineer` personas. Rows tagged with a specific platform stack (Android/iOS/Flutter) are applied **only** when `PROJECT.yaml` selects that platform.
+The **platform-neutral core always applies regardless of platform**: `interview-me`, `idea-refine`, `spec-driven-development`, `map-code-base`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `context-engineering`, `source-driven-development`, `doubt-driven-development`, `api-and-interface-design`, `debugging-and-error-recovery`, `code-review-and-quality`, `code-simplification`, `security-and-hardening`, `git-workflow-and-versioning`, `ci-cd-and-automation`, `documentation-and-adrs`, `deprecation-and-migration`, `observability-and-instrumentation`, and the `code-reviewer` / `adversarial-reviewer` / `security-auditor` / `test-engineer` personas. Rows tagged with a specific platform stack (Android/iOS/Flutter) are applied **only** when `PROJECT.yaml` selects that platform.
 
 **Define**
 - Underspecified ask / "interview me" → `interview-me`
@@ -151,9 +151,9 @@ Composition rule: **the user (or a slash command) is the orchestrator. Personas 
 
 The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/teikk-ship` to run `code-reviewer`, `adversarial-reviewer`, `security-auditor`, `test-engineer`, and `ui-ux-tester` concurrently and synthesize their reports. The final verdict is the **AND** of the constructive personas and the disconfirming `adversarial-reviewer` (a REFUTED verdict blocks GO). Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
 
-See [agents/README.md](agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
+See [core/agents/README.md](core/agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
 
-**Claude Code interop:** the personas in `agents/` work as Claude Code subagents (auto-discovered from this plugin's `agents/` directory) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
+**Claude Code interop:** the personas in `core/agents/` and `packs/<platform>/agents/` work as Claude Code subagents (auto-discovered from this plugin's agent directories) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
 
 ## Creating a New Skill
 

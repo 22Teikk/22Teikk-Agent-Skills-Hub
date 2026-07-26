@@ -80,6 +80,9 @@ npx teikk-agents-skills uninstall
 .teikk/
 agents/
 references/
+scripts/benchmark.js
+scripts/decisions.js
+scripts/rollback.sh
 skills/
 # END teikk-agents-skills
 ```
@@ -89,6 +92,8 @@ skills/
 Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/spec/SPEC.md`, `.teikk/tasks/`, `.teikk/DECISIONS.md`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
 
 Do not edit lines between the markers manually — re-run `npx teikk-agents-skills update` after changing targets.
+
+**`.claude/settings.json` is deliberately NOT in this block.** For the `claude` target, `init`/`update` auto-wire 7 lifecycle hooks (telemetry, pre-compact checkpoint, session start) into it — but unlike everything else the CLI copies, Claude Code settings are meant to be team-shared, so it's left for you to commit or gitignore as you prefer. If you commit it, every hook command is wrapped in an existence guard so a teammate who pulls it before running `init claude` themselves gets a silent no-op instead of a "file not found" error, until they run `init`/`update` and get the gitignored `hooks/`, `lib/telemetry.sh`, and `scripts/` files on disk too. See `hooks/LIFECYCLE-TELEMETRY.md`.
 
 ## Install manifest
 
@@ -175,7 +180,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
-| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.2.0 --save-dev` |
+| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

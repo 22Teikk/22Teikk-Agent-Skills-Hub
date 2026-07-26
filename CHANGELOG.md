@@ -12,6 +12,12 @@ Releases are cut automatically by GitHub Actions from branch pushes — no manua
 
 Each run computes the next tag, then publishes a git tag + GitHub Release (`--generate-notes`) targeting that commit. A commit already carrying an exact `v*` tag is skipped, so re-runs never duplicate a release. Install a specific release with `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#vX.Y.Z`.
 
+**Skipping a version bump.** A merge to `main`/`uat` normally publishes a new tag. To land a change WITHOUT a release:
+- Put `[skip release]` (or `[skip-release]`, case-insensitive) in the merge commit message — skips even if code changed.
+- Or make the merge **docs-only** — every changed file is `*.md` or under `docs/`. A mixed diff (any non-doc file) releases normally.
+
+If the pushed range can't be determined (first push, force-push), the guard fails safe and releases anyway — a real release is never silently swallowed.
+
 ## [Unreleased]
 
 Workflow-hub review pass: fixes a broken command reference, closes model-tiering and token-cost gaps, and adds compaction resilience. No breaking changes — all additions are opt-in or non-blocking.
@@ -34,7 +40,13 @@ Workflow-hub review pass: fixes a broken command reference, closes model-tiering
 - **`validate-parity.js` content-drift warning (non-blocking)** — hashes `.claude/commands/*.md` against `.agents/workflows/*.md` for every shared command name and warns (does not fail CI) when they differ, since Cursor/Gemini are already mechanically kept in sync by `sync-targets.js` but Claude/Antigravity have always been hand-maintained with no drift signal.
 - **Release CI warns on `plugin.json` version drift (non-blocking)** — `.github/workflows/release.yml` now checks `.claude-plugin/plugin.json`'s `version` field against the newly published tag after each release and emits a GitHub Actions warning annotation (not a failure) if they've diverged, since that field is hand-maintained and had silently drifted two major versions behind (`2.2.0` while the repo was on `4.2.0`).
 
+### Fixed
+- **`lib/telemetry.sh` was never copied into an installed project** — `hooks/lifecycle-telemetry.sh` sources `../lib/telemetry.sh`, but `lib/` wasn't in any target's `copyPaths`, so the hook silently no-op'd (the `[ -f "$EMITTER" ]` guard failed) in every npm-installed project regardless of the `TEIKK_TELEMETRY` default. Added `lib/telemetry.sh` to the `claude` target's `copyPaths` (and a matching `.gitignore` entry) — the one file the hook actually needs, not the whole `lib/` implementation directory.
+- **`lib/telemetry.sh` emitted malformed JSON on every call using the default `meta` argument** — the unescaped `"${4:-{}}"` parameter expansion made bash treat the parameter as terminated at the first unescaped `}`, appending a stray `}` after every emitted line when an explicit `meta` arg was passed (e.g. `..."meta":{}}` instead of `..."meta":{}`); the reverse fix attempt (escaping the closing brace) broke the *no-argument* case instead, emitting a literal backslash. Fixed by wrapping the default in nested double quotes (`"${4:-"{}"}"`), which parses correctly in both cases. `scripts/benchmark.js`'s JSON parser silently dropped every malformed line, so `Total events` always read as if telemetry had recorded nothing. Pre-existing bug, surfaced by turning telemetry on by default (below) — previously only reachable by users who had opted in.
+
 ### Changed
+- **Telemetry now ON by default** (`TEIKK_TELEMETRY` default flipped from `off` to `on`; disable with `TEIKK_TELEMETRY=off`) — framework-quality observability now works out of the box instead of requiring an env var most users would never discover. Still zero-leak (scalar `event`/`status`/`duration`/`meta` only) and still writes to a gitignored, project-local `.teikk/cache/telemetry/events.jsonl`.
+- **`AGENTS.md` no longer copied by install**, for any target — the shipped file is this repo's own dev-facing routing doc (references "this repository", includes skill-authoring instructions) and was wrong content to drop into an installed project. `claude`/`cursor`/`antigravity` don't need it (they read `CLAUDE.md`/rules/workflows instead); `opencode` — the only target that relied on it for skill routing — now expects the user to supply their own project-specific `AGENTS.md` (see `docs/opencode-setup.md`). `docs/cursor-setup.md` and `docs/antigravity-setup.md`'s manual-copy instructions updated the same way. `commands/teikk-code-simplify.toml`'s "Read AGENTS.md" step (propagated to all 5 targets, including a now-stale `INTENTIONAL_DRIFT` hash in `validate-parity.js`) was the one command still assuming the file was always present — reworded to not assume any specific file exists.
 - **`.claude-plugin/plugin.json` version synced** from stale `2.2.0` to `4.2.0` — Claude Code plugin installs read this field directly, so the stale value meant plugin-mode installs were reporting a version 2 major releases behind what `npm install`-based installs got.
 - **Session-start injection trimmed from ~199 lines to ~29** (`hooks/session-start.sh` now injects the new `hooks/session-start-index.md` instead of the full skill — the `.sh` itself stays ~28 lines) — every new session previously had the full `using-agent-skills/SKILL.md` (Core Operating Behaviors, Failure Modes, Quick Reference table) injected as a fixed cost regardless of whether that session needed skill discovery. The trimmed index keeps only the discovery flowchart; the full skill is now read on-demand once a matching skill is identified, the same loading model every other skill in this repo already uses.
 - **Three `alwaysApply: true` Cursor rules scoped down** (`code-review-and-quality.mdc`, `test-driven-development.mdc`, `incremental-implementation.mdc`) — these injected ~943 combined lines into every Cursor chat turn regardless of relevance. Now `alwaysApply: false` with `globs` matching source/test file patterns, consistent with how `android-stack.mdc`/`ios-stack.mdc`/`flutter-stack.mdc` were already scoped.
@@ -205,6 +217,7 @@ Major release: multi-target parity, a single `.teikk/` output directory, and a n
 ## [1.3.0]
 - Wired the Android stack into the spec → plan → build → ship workflow.
 
+[5.0.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v5.0.0
 [2.3.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.3.0
 [2.2.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.2.0
 [2.1.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.1.0

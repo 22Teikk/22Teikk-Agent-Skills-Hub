@@ -161,6 +161,13 @@
       "description": "Use when a Claude Code session feels slow or expensive, or the user asks why a session cost/took so long, why cache-read/cache-write dominates the bill, or whether MCP servers/hooks/effort-level are wasting tokens. Diagnoses machine-level Claude Code configuration (~/.claude/settings.json, user-scope MCP servers, global hooks) — not this project's own skills, commands, or code. Do not use for code bugs, test failures, or workflow-quality questions — those belong to debugging-and-error-recovery instead."
     },
     {
+      "name": "map-code-base",
+      "version": "1.0.0",
+      "platform": "generic",
+      "dependsOn": [],
+      "description": "Reverse-engineers the .teikk/spec/ artifacts from an existing codebase. Use when adopting this skills pack on a legacy or already-built project and you want to skip hand-writing a spec — it scans the code to produce SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md, and a PROJECT-MAP.md. Use instead of /teikk-spec when the project already exists and can be read rather than interviewed."
+    },
+    {
       "name": "observability-and-instrumentation",
       "version": "1.0.0",
       "platform": "generic",

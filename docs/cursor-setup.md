@@ -7,7 +7,7 @@ Cursor supports two workspace layers: **Rules** (always-on behavior) and **Comma
 ### Option 1: npm (Recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v2.1.0 --save-dev
+npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
 npx teikk-agents-skills init cursor
 ```
 
@@ -79,6 +79,7 @@ Save as `.cursor/commands/teikk-planning.md` → invoke with `/teikk-planning` i
 
 | Command | File | Skill / persona |
 |---------|------|-----------------|
+| `/teikk-map-code-base` | `teikk-map-code-base.md` | map-code-base |
 | `/teikk-spec` | `teikk-spec.md` | spec-driven-development |
 | `/teikk-planning` | `teikk-planning.md` | planning-and-task-breakdown |
 | `/teikk-build` | `teikk-build.md` | incremental-implementation + TDD |

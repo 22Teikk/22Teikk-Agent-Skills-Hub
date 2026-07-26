@@ -106,6 +106,7 @@ The repo ships 22 slash commands under `.gemini/commands/` (TOML format) that ma
 
 | Command | What it does |
 |---------|--------------|
+| `/teikk-map-code-base` | Reverse-engineer the spec from an existing codebase |
 | `/teikk-spec` | Write a structured spec before writing code |
 | `/teikk-planning` | Break work into small, verifiable tasks |
 | `/teikk-build` | Implement the next task incrementally |

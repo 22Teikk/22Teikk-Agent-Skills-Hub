@@ -56,6 +56,43 @@ jobs:
             exit 0
           fi
 
+          # --- Skip-release guard -------------------------------------------------
+          # (a) explicit opt-out via commit message
+          commit_msg="$(git log -1 --pretty=%B HEAD)"
+          if echo "$commit_msg" | grep -iqE '\[skip[ -]release\]'; then
+            echo "HEAD commit requests [skip release] — publishing without a version bump."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # (b) docs-only diff → no version bump.
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          zero="0000000000000000000000000000000000000000"
+          range_ok=false
+          changed=""
+          if [ -n "$before" ] && [ "$before" != "$zero" ] && git cat-file -e "$before^{commit}" 2>/dev/null; then
+            if changed="$(git diff --name-only "$before" "$after" 2>/dev/null)"; then
+              range_ok=true
+            fi
+          fi
+
+          if [ "$range_ok" = true ]; then
+            if [ -z "$changed" ]; then
+              echo "No file changes detected in range; proceeding with release."
+            elif echo "$changed" | grep -qvE '(\.md$|^docs/)'; then
+              echo "Non-docs changes present; proceeding with release."
+            else
+              echo "Docs-only change detected — publishing without a version bump."
+              echo "Changed files:"; echo "$changed" | sed 's/^/  /'
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            echo "Push range indeterminate — cannot classify as docs-only; proceeding with release (fail-safe)."
+          fi
+          # --- end guard ----------------------------------------------------------
+
           latest_tag="$(git tag --list 'v*' --sort=-v:refname | head -n1)"
           if [ -z "$latest_tag" ]; then
             latest_tag="v0.0.0"
