@@ -13,6 +13,8 @@ npx teikk-agents-skills init cursor
 
 This copies `.cursor/rules/`, `.cursor/commands/`, `skills/`, `agents/`, and `references/` into your project, then updates `.gitignore` to exclude installed files and the `.teikk/` directory (where workflow artifacts like `.teikk/spec/SPEC.md` and `.teikk/tasks/` are written).
 
+> `AGENTS.md` is **not** shipped to the cursor target (since v5 — see CHANGELOG). Skill routing is via slash commands, skill frontmatter descriptions, or the opt-in `using-agent-skills` meta-skill. Author your own project-local `AGENTS.md` if you want always-on routing rules.
+
 Auto-install on every `npm install`:
 
 ```json
@@ -34,14 +36,12 @@ cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/rules/*.mdc .cursor/rules/
 # Lifecycle slash commands
 cp /path/to/22Teikk-Agent-Skills-Hub/.cursor/commands/teikk-*.md .cursor/commands/
 
+# Skills + personas (for the slash commands to invoke)
 cp -r /path/to/22Teikk-Agent-Skills-Hub/skills .
 cp -r /path/to/22Teikk-Agent-Skills-Hub/agents .
 
-# Optional: for strict lifecycle enforcement (agent auto-detects and invokes
-# skills without explicit slash commands), write your own project-specific
-# AGENTS.md instructing the agent to check skills/<name>/SKILL.md before
-# acting. Don't copy this repo's AGENTS.md verbatim — it documents this repo,
-# not your project.
+# Optional: AGENTS.md (not shipped since v5 — only needed if you want implicit skill routing without slash commands)
+# cp /path/to/22Teikk-Agent-Skills-Hub/AGENTS.md .
 ```
 
 **Open this repo in Cursor** — the bundled `.cursor/` config loads automatically.
@@ -103,13 +103,15 @@ cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> .cursorrule
 
 ## Recommended Configuration
 
-### Essential Rules (Always Apply)
+### Scoped Rules (Activated on File Pattern)
 
-These three rules ship in `.cursor/rules/` with `alwaysApply: true`:
+Three core rules ship in `.cursor/rules/` with `alwaysApply: false` + `globs` matching source/test file patterns (scoped down from `alwaysApply: true` to cut ~943 lines of always-on context per chat turn):
 
-1. `test-driven-development.mdc` — TDD workflow and Prove-It pattern
-2. `code-review-and-quality.mdc` — Five-axis review
-3. `incremental-implementation.mdc` — Build in small verifiable slices
+1. `test-driven-development.mdc` — `globs: **/*Test*.{kt,java,swift,dart}, **/test/**` — TDD workflow and Prove-It pattern
+2. `code-review-and-quality.mdc` — `globs: **/*.{kt,java,swift,dart}` — Five-axis review
+3. `incremental-implementation.mdc` — `globs: **/*.{kt,java,swift,dart}` — Build in small verifiable slices
+
+The `android-stack.mdc` / `ios-stack.mdc` / `flutter-stack.mdc` rules use the same scoped pattern. Add `alwaysApply: true` selectively only if a rule is small and your project genuinely needs it on every turn.
 
 ### Phase-Specific Rules (On Demand)
 
@@ -134,7 +136,7 @@ Remove phase-specific rules when done to manage context limits.
 
 ## Usage Tips
 
-1. **Don't load all skills at once** — Keep 2–3 essential rules with `alwaysApply: true`; add phase-specific rules as needed.
+1. **Don't load all skills at once** — The three core rules ship with `alwaysApply: false` + `globs`; add phase-specific rules as needed. Setting `alwaysApply: true` on a large rule loads it into every chat turn regardless of relevance.
 2. **Use slash commands for lifecycle** — Type `/teikk-spec` to start a spec, `/teikk-planning` to break work down, `/teikk-build` to implement incrementally.
 3. **Reference rules explicitly** — Tell Cursor "Follow the test-driven-development rules for this change."
 4. **Use agents for review** — `/teikk-ship` references `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md`.

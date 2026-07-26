@@ -102,7 +102,7 @@ This is useful when you want to ensure a specific workflow is followed without w
 
 ## Slash Commands
 
-The repo ships 23 slash commands under `.gemini/commands/` that map to the development lifecycle. Gemini CLI auto-discovers them when you run from the project root. A curated subset is shown below; see [workflow.md](workflow.md) for the full list.
+The repo ships 22 slash commands under `.gemini/commands/` (TOML format) that map to the development lifecycle. Gemini CLI auto-discovers them when you run from the project root. Lifecycle essentials:
 
 | Command | What it does |
 |---------|--------------|
@@ -114,6 +114,8 @@ The repo ships 23 slash commands under `.gemini/commands/` that map to the devel
 | `/teikk-review` | Five-axis code review |
 | `/teikk-code-simplify` | Reduce complexity without changing behavior |
 | `/teikk-ship` | Pre-launch checklist via parallel persona fan-out |
+
+Setup + QA + diagnostics: `/teikk-android-setup`, `/teikk-ios-setup`, `/teikk-flutter-setup`, `/teikk-observability`, `/teikk-ci`, `/teikk-docs`, `/teikk-doctor`, `/teikk-machine-audit`, `/teikk-androidperf`, `/teikk-quick-implement`, `/teikk-interview`, `/teikk-idea`, `/teikk-qa`, `/teikk-e2e`, `/teikk-ux-test`.
 
 Each command invokes the corresponding skill automatically — no manual skill loading required.
 

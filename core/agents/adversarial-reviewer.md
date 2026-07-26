@@ -32,7 +32,7 @@ Pull the AC list from the SPEC (`.teikk/SPEC.md` — Success Criteria / Testing 
 
 ### 2. Load the domain failure modes
 
-Read the SPEC `Domain:` field and load `references/domain-guardrails.md`. Derive the domain's non-negotiable invariants and attack those first — they are where the expensive, silent bugs live:
+Read the SPEC `Domain:` field and load `@references/domain-guardrails.md`. Derive the domain's non-negotiable invariants and attack those first — they are where the expensive, silent bugs live:
 
 - **finance/payments:** money in `Double`/`Float` (0.1 + 0.2 ≠ 0.3), rounding direction, currency minor-units, `SUM()` returning a float type, month/day boundary in the wrong timezone.
 - **any domain:** the one data type that must never be wrong (money, dose, coordinate, timestamp), the boundary that must be tested (rounding, off-by-one, DST), the regulatory/safety constraint. If unsure of a domain's rules, say so and demand a `source-driven-development` fetch rather than guessing.

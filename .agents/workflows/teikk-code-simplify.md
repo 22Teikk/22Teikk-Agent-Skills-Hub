@@ -4,7 +4,7 @@ Read and follow `skills/code-simplification/SKILL.md`.
 
 Simplify recently changed code (or the specified scope) while preserving exact behavior:
 
-1. Study the project's existing conventions (style, naming, structure) before changing anything
+1. Read `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`) for project conventions (logging library, model tiers); if neither exists, infer from existing code
 2. Identify the target code — recent changes unless a broader scope is specified
 3. Understand the code's purpose, callers, edge cases, and test coverage before touching it
 4. Scan for simplification opportunities:

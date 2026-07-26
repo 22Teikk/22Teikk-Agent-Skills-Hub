@@ -27,7 +27,7 @@ git clone git@github.com:22Teikk/22Teikk-Agent-Skills-Hub.git
 
 ### 2. Choose a skill
 
-Browse the `skills/` directory. Each subdirectory contains a `SKILL.md` with:
+Browse the `core/skills/` directory (and `packs/<platform>/skills/` for platform-scoped skills). Each subdirectory contains a `SKILL.md` with:
 - **When to use** — triggers that indicate this skill applies
 - **Process** — step-by-step workflow
 - **Verification** — how to confirm the work is done

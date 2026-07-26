@@ -2,39 +2,27 @@
 description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
 ---
 
+**Open Questions gate (hard gate, automated):** Run `bash scripts/check-open-questions.sh` from the repo root before planning. Non-zero exit = STOP and resolve/defer each `- [ ]` in `.teikk/spec/SPEC.md` `## Open Questions` (mark `- [x]` to resolve, `- [~]` to defer). If script is missing (older installs), fall back to the manual check in `planning-and-task-breakdown` Step 1.
+
 Invoke the teikk-agents-skills:planning-and-task-breakdown skill.
 
-Read the existing spec — check `.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.md` (older, pre-folder-layout projects) if that path doesn't exist — and relevant codebase sections. Then:
+Read the existing spec (`.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.md`) and relevant codebase sections, then:
 
-1. **Open Questions gate (hard gate).** Read the spec's `## Open Questions` section. If any line is unresolved (`- [ ]`), stop and ask it directly in this session, one question at a time with your best guess attached — do not proceed to task generation on a silently-skipped question. Once answered, update the spec line to `- [x] ... → [resolution]` (or `- [~] ... → deferred: [reason]`).
-2. Enter plan mode — read only, no code changes
-3. Extract **Platform**, **Architecture Decisions**, and **Observability** from the spec — if missing, stop and ask the user to update the spec first
-4. Identify the dependency graph between components
-5. Add **Phase 0 Foundation** based on the platform:
-   - **Android** → Hilt + Timber/Crashlytics before feature slices
-   - **iOS** → SPM setup + SwiftLint + os_log/Crashlytics before feature slices
-   - **Flutter** → Flavor config + state management (Riverpod/BLoC) + logging before feature slices
-6. Slice work vertically (one complete path per task, not horizontal layers)
-7. Write tasks with acceptance criteria, verification steps, and **linked behavioral tests**:
-   - Each AC must map to a **behavioral test** (class/method or flow name, not a mock or label)
-   - Format: `- [ ] [AC description] → \`TestClass.testMethod\` (unit | integration | e2e)`
-   - Examples:
-     - ✓ `Users can save → \`SaveViewModelTest.save_updatesDatabase\` (unit)`
-     - ✓ `Total is calculated → \`TransactionDaoTest.insertAndSum\` (integration, Room in-memory)`
-     - ✗ `UI shows data → \`ExampleInstrumentedTest\`` (boilerplate, not behavioral)
-     - ✗ `User sees button → mock repository returns true` (mock-only, not behavioral)
-   - Link skills/personas:
-     - Android → `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
-     - iOS → `swift-expert`
-     - Flutter → `flutter-expert`
-     - Cross-platform → `mobile-app-developer`
-8. Add checkpoints between phases
-9. **TRACEABILITY CHECKLIST** — Verify every AC has a real test before writing code:
-   - [ ] Every AC maps to a test class/method (not a mock)
-   - [ ] No "label-only" tests (must assert a value, not visibility)
-   - [ ] Data layer has at least one Room in-memory DAO test (integration, not mocked)
-10. Present the plan for human review
+1. Enter plan mode — read only, no code changes
+2. Extract **Platform**, **Architecture Decisions**, **Observability** from the spec — if missing, stop and ask user to update spec first
+3. Identify the dependency graph between components
+4. Add **Phase 0 Foundation** per platform (per skill: Android → Hilt+Timber/Crashlytics; iOS → SPM+SwiftLint+os_log/Crashlytics; Flutter → flavor+state mgmt+logging — must complete before feature slices)
+5. Slice work vertically (one complete path per task, not horizontal layers)
+6. Write tasks with acceptance criteria linking to **behavioral tests** (not mocks, not labels):
+   - Format: `- [ ] [AC] → `TestClass.testMethod` (unit | integration | e2e)`
+   - ✓ `Total is calculated → TransactionDaoTest.insertAndSum (integration, Room in-memory)`
+   - ✗ `UI shows data → ExampleInstrumentedTest` (boilerplate)
+   - ✗ `User sees button → mock repository returns true` (mock-only)
+   - Tag skills/personas per platform: Android → `android-ui-kotlin`, `android-data-and-concurrency-kotlin`, `android-di-and-build` + `kotlin-specialist`; iOS → `swift-expert`; Flutter → `flutter-expert`; Cross-platform → `mobile-app-developer`
+7. Add checkpoints between phases
+8. **Traceability checklist** — verify every AC has a real test before writing code: AC maps to test method (not mock), no label-only tests, data layer has at least one Room in-memory DAO test
+9. Present plan for human review
 
-Save the plan to `.teikk/tasks/plan.md`. The test mappings in each task will be read by `/teikk-ship` Phase B to validate traceability.
+Save plan to `.teikk/tasks/plan.md`. Test mappings feed `/teikk-ship` Phase B traceability gate.
 
-Immediately after, write `.teikk/tasks/todo.md` following the exact format in `skills/planning-and-task-breakdown/SKILL.md` Step 6 — one checkbox line per task (title matching the `## Task N:` heading in `plan.md`), a `**Current task:**` pointer at the top, all unchecked. This is the small index `/teikk-build`, `/teikk-test`, `/teikk-review`, and `/teikk-ship` read on every resume instead of re-scanning the full plan.
+Immediately after, write `.teikk/tasks/todo.md` per `planning-and-task-breakdown` Step 6 — one checkbox line per task (title matching `## Task N:` heading in `plan.md`), a `**Current task:**` pointer at top, all unchecked. This is the small index `/teikk-build`/test/review/ship read on every resume instead of re-scanning the full plan.

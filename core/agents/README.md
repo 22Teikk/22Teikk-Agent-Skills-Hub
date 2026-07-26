@@ -18,7 +18,7 @@ Specialist personas that play a single role with a single perspective. Each pers
 
 ## Model tiering (project-local, provider-agnostic)
 
-No persona hardcodes a model name. Instead, each persona self-classifies the complexity of the specific call it's about to make, then looks up `.teikk/spec/PROJECT.yaml`'s `model_tiers` block (written by `/teikk-spec`, optional and blank by default) for a concrete model name at that tier. If the block is missing, empty, or the harness doesn't support per-call model selection, the persona simply runs at the session default — this lookup is best-effort, never a hard requirement.
+No persona hardcodes a model name. Instead, each persona self-classifies the complexity of the specific call it's about to make, then looks up `.teikk/spec/PROJECT.yaml`'s `model_tiers` block (written by `/teikk-spec` with sensible defaults — see the generated `PROJECT.yaml` for the concrete model names per tier) for the model to use at that tier. If the block is missing, empty, or the harness doesn't support per-call model selection, the persona simply runs at the session default — this lookup is best-effort, never a hard requirement. The defaults give every tier a concrete model so the tier classification isn't silently erased by session-default fallback; users can override any value by editing `PROJECT.yaml` directly. Framework files (skills, commands, this README) intentionally do not name specific models — the only authoritative source for the model name at any tier is the user's own `PROJECT.yaml`.
 
 | Tier | When a persona should self-classify here | Typical personas at this tier |
 |------|-------------------------------------------|-------------------------------|
@@ -129,7 +129,7 @@ Why this fails:
 - Pure routing layer with no domain value
 - Adds two paraphrasing hops → information loss + 2× token cost
 - The user already knows they want a review; let them call `/teikk-review` directly
-- Replicates work that slash commands and `AGENTS.md` intent-mapping already do
+- Replicates work that slash commands and the skill frontmatter descriptions already do
 
 ## Rules for personas
 

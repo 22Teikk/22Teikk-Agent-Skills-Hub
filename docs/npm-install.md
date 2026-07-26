@@ -18,11 +18,11 @@ Replace `cursor` with your IDE / CLI:
 
 | Target | IDE / CLI | What gets copied into your project |
 |--------|-----------|-------------------------------------|
-| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/`, `scripts/{benchmark,decisions,rollback}` |
-| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `lib/telemetry.sh`, `skills/`, `agents/`, `references/`, `scripts/{benchmark,decisions,rollback}` (`.claude/settings.json` auto-wired with 7 lifecycle hooks) |
-| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/`, `scripts/{benchmark,decisions,rollback}` |
-| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/`, `skills/` (with `.gemini/skills` symlink), `scripts/{benchmark,decisions,rollback}` |
-| `opencode` | [OpenCode](opencode-setup.md) | `skills/`, `agents/`, `.opencode/skills` symlink, `scripts/{benchmark,decisions,rollback}` |
+| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/` |
+| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `references/` |
+| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/` |
+| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/`, `skills/` (with `.gemini/skills` symlink) |
+| `opencode` | [OpenCode](opencode-setup.md) | `skills/`, `agents/`, and `.opencode/skills` symlink (see OpenCode setup for opt-in `AGENTS.md` copy) |
 | `all` | Every target above | Merged copies for multi-tool teams |
 
 List targets:
@@ -86,6 +86,8 @@ scripts/rollback.sh
 skills/
 # END teikk-agents-skills
 ```
+
+> `AGENTS.md` is no longer shipped by any target (since v5 — see CHANGELOG). If you authored your own project-local `AGENTS.md`, it stays untracked on you. The managed block no longer includes it.
 
 Patterns depend on the installed target(s). The block always includes `.teikk/`, the single directory that holds **all workflow artifacts** your agent may create later (`.teikk/spec/SPEC.md`, `.teikk/tasks/`, `.teikk/DECISIONS.md`, `.teikk/maestro/flows/`, hook caches) so they stay local even before they exist.
 

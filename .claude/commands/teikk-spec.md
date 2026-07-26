@@ -4,58 +4,52 @@ description: Start spec-driven development — write a structured specification 
 
 Invoke the teikk-agents-skills:spec-driven-development skill.
 
-Ask clarifying questions about: objective, target users, core features, acceptance criteria, **platform** (Android/iOS/Flutter), tech stack, architecture, observability, E2E opt-in, boundaries.
-
-**Platform defaults:**
-- Android → Kotlin + Compose, Hilt, Room, Timber/Crashlytics
-- iOS → Swift + SwiftUI, SPM, Core Data, os_log + Crashlytics
-- Flutter → Dart + Flutter 3, Riverpod/BLoC, GoRouter, logging
-
-Generate spec covering: objective, tech stack, architecture, observability, commands, project structure, code style, testing strategy, boundaries.
-
-Surface platform assumptions explicitly. Ask user to confirm before writing.
+Surface assumptions explicitly (platform, tech stack defaults by platform per skill, observability, E2E opt-in) and ask the user to confirm or correct before writing the spec. For native vs cross-platform trade-offs, read `agents/mobile-app-developer.md` first.
 
 ## Open Questions gate (hard gate — before saving)
 
-Track every unresolved item in the spec's `## Open Questions` section as you draft it. Before saving the final spec, every line must be `- [x] [question] → [resolution]` (asked directly in this session and resolved) or `- [~] [question] → deferred: [reason]` (user explicitly declined to decide now). Do NOT save a spec with any `- [ ]` (unresolved) line — ask it directly, one question at a time with your best guess attached (same pattern as `interview-me`), before proceeding. This is a hard gate, not a suggestion.
+Before saving the spec, every `## Open Questions` line must be `- [x] [q] → [resolution]` or `- [~] [q] → deferred: [reason]`. Any `- [ ]` = ask directly, one at a time with your best guess attached (same pattern as `interview-me`), before proceeding. Script-enforced via `bash scripts/check-open-questions.sh` on subsequent phases.
 
-## Output files
+## Output location
 
-Save to `.teikk/spec/SPEC.md` (this is a path change from pre-3.1 installs, which wrote `.teikk/SPEC.md` at the root — commands reading the spec check `.teikk/spec/SPEC.md` first and fall back to `.teikk/SPEC.md` for older projects, so no manual migration is required). Then write three companion files in the same folder (skip if exist):
+Save spec to `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md` only for older pre-3.1 projects). Path conventions centralized in `docs/commands/appendices/paths.md` — read once at start if unsure, don't reinvent the fallback chain inline.
 
-**1. `.teikk/spec/PROJECT.yaml`** — Extract from spec:
+After writing SPEC.md, also write `.teikk/spec/PROJECT.yaml`. Extract values from the spec per the format below; do not invent values (use `generic` for domain, `none` for ci/e2e when unstated):
+
 ```yaml
 name: <from Objective>
-platforms: [android|ios|flutter]
-domain: finance|health|auth|generic
-ci: github-actions|gitlab-ci|bitrise|circle-ci|fastlane|none
-e2e: none|Maestro|XCUITest|integration_test
-budgets: {startup_cold_ms, memory_mb, jank_frames}  # platform defaults
-logging: {library}  # timber (Android) | oslog (iOS) | logger (Flutter) — platform default unless spec says otherwise; /teikk-build reads this to instrument logging inline
-model_tiers: {low, medium, high, ultra}  # optional, blank by default — see below
+platforms: [<from Tech Stack>]
+domain: <from Objective Domain field>
+ci: <from Commands section or none>
+e2e: <from Testing Strategy E2E field or none>
+
+budgets:                    # omit block for generic (non-mobile) projects
+  startup_cold_ms: <platform default or spec value>
+  memory_mb: <platform default or spec value>
+  jank_frames: <platform default or spec value>
+
+logging:                    # omit block for generic projects
+  library: <platform default or spec value>
+
+model_tiers:                # tier names; concrete model values are user's override
+  low: haiku
+  medium: sonnet
+  high: opus
+  ultra: fable
 ```
 
-**Model tiers (optional, blank by default).** Personas and subagent calls throughout this workflow classify their own task as `low`/`medium`/`high`/`ultra` complexity (see `agents/README.md`'s tiering table). If this project's harness supports per-call model selection (e.g. Claude Code's `model` field, an OpenCode agent config), the user can fill in a concrete model name per tier here — e.g.:
-```yaml
-model_tiers:
-  low: haiku          # or your harness's fast/cheap model
-  medium: sonnet       # or your harness's balanced model
-  high: opus           # or your harness's strongest reasoning model
-  ultra: opus           # reserve for genuinely hard, multi-hypothesis work; may equal `high`
-```
-This keeps model choice project-local and provider-agnostic — no model name is hardcoded into any skill, persona, or command. Leave the block empty/omit it entirely to use the harness's default model for every call; a persona or command with no matching tier value simply runs at the session default.
+Platform defaults (apply unless spec overrode them):
+- Android budgets: 2000/100/5; logging: `timber` | `logcat` (discouraged)
+- iOS budgets: 1500/150/5; logging: `oslog` | `cocoalumberjack`
+- Flutter budgets: 2000/120/5; logging: `logger` | `logging` | `print` (discouraged)
+- Generic: omit budgets + logging blocks
 
-**2. `.teikk/spec/QUICKSTART.md`** — First-run guide (workflow diagram, what `.teikk/` is, what to commit, MCP setup, command reference).
-
-**3. `.teikk/spec/WORKFLOW.md`** — Decision tree: "Where are you now?" → "What command next?" (one task vs all tasks vs end-to-end modes, troubleshooting, pro tips).
+`logging.library` is what `/teikk-build` reads for inline instrumentation — set it once here so build never has to ask again. `model_tiers` defaults give personas a concrete model per self-classified tier; override any value by editing `PROJECT.yaml` directly. On harnesses with different model catalogs, the lookup is best-effort and falls back to session default — `PROJECT.yaml` is the single source of truth for model names per tier (see `agents/README.md` tiering guidance; this prompt intentionally does not name models — that decision belongs to the user's project).
 
 ## Architecture decision → DECISIONS.md
 
-If the architecture gate ran (new project, or a feature with no inherited architecture), append one entry to `.teikk/DECISIONS.md` recording the chosen architecture and the rejected alternatives (create the file with its header if it doesn't exist yet — format in the teikk-agents-skills:documentation-and-adrs skill). Skip if the project inherited an existing architecture.
+If the architecture gate ran (new project, or feature with no inherited architecture), append one entry to `.teikk/DECISIONS.md` (create with header from `skills/documentation-and-adrs/SKILL.md` if absent). Skip if architecture was inherited.
 
-## Tech stack by platform
+## Generated appendices (idempotent)
 
-- **Android Phase 0:** Hilt DI + Version Catalog before features
-- **iOS Phase 0:** SPM + SwiftLint + logging before features  
-- **Flutter Phase 0:** flavors + state management + logging before features
-</content>
+For each of `.teikk/spec/QUICKSTART.md` and `.teikk/spec/WORKFLOW.md`: if absent, read the appendix template (`docs/commands/appendices/spec-quickstart-template.md` / `spec-workflow-template.md`) and write verbatim. If present, skip silently — never overwrite.
