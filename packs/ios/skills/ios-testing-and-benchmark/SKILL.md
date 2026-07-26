@@ -143,7 +143,7 @@ final class TransactionRepositoryTests: XCTestCase {
 }
 ```
 
-This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Int64` minor units it is exact. See `references/domain-guardrails.md`.
+This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Int64` minor units it is exact. See @references/domain-guardrails.md.
 
 ### 3. URLSession Testing via `URLProtocol`
 

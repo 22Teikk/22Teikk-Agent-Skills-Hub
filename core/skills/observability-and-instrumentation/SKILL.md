@@ -146,7 +146,7 @@ val okHttpClient = OkHttpClient.Builder()
 ## See Also
 
 - For security rules regarding logging sensitive data, see `skills/security-and-hardening/SKILL.md`.
-- For performance and benchmarking metrics, see `references/performance-checklist.md`.
+- For performance and benchmarking metrics, see @references/performance-checklist.md.
 
 ## Common Rationalizations
 

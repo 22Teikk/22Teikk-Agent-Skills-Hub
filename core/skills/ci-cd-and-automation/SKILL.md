@@ -55,7 +55,7 @@ Pull Request Opened
 
 ## GitHub Actions Configuration
 
-> **Templates are in `references/ci-templates.md`.** This skill owns the *decisions* (which gates, in what order, why each matters); the appendix owns the YAML copy-paste blocks (basic CI, integration tests, E2E, preview deploy, rollback, dependabot, caching+parallelism, feature-flag pattern). Read the appendix when actually wiring up a workflow — don't load ~150 lines of YAML into context just to skim them.
+> **Templates are in @references/ci-templates.md.** This skill owns the *decisions* (which gates, in what order, why each matters); the appendix owns the YAML copy-paste blocks (basic CI, integration tests, E2E, preview deploy, rollback, dependabot, caching+parallelism, feature-flag pattern). Read the appendix when actually wiring up a workflow — don't load ~150 lines of YAML into context just to skim them.
 
 ## Feeding CI Failures Back to Agents
 
@@ -88,7 +88,7 @@ Build error → Agent checks config and dependencies
 
 ### Preview Deployments
 
-Every PR gets a preview build deployed to testing tracks (e.g. Firebase App Distribution) for QA verification. See `references/ci-templates.md` → "Preview Deployments" for the workflow YAML.
+Every PR gets a preview build deployed to testing tracks (e.g. Firebase App Distribution) for QA verification. See @references/ci-templates.md → "Preview Deployments" for the workflow YAML.
 
 ### Feature Flags
 
@@ -98,7 +98,7 @@ Feature flags decouple deployment from release. Deploy incomplete or risky featu
 - **Roll back without redeploying.** Disable the flag remotely instead of releasing a new APK.
 - **Canary new features.** Enable for 1% of users, then 10%, then 100%.
 
-The Kotlin Remote Config pattern is in `references/ci-templates.md` → "Feature Flag Pattern" — load only when wiring the check into actual code.
+The Kotlin Remote Config pattern is in @references/ci-templates.md → "Feature Flag Pattern" — load only when wiring the check into actual code.
 
 **Flag lifecycle:** Create → Enable for testing → Canary → Full rollout → Remove the flag and dead code. Flags that live forever become technical debt — set a cleanup date when you create them.
 
@@ -122,7 +122,7 @@ PR merged to main
 
 ### Rollback Plan
 
-Every deployment should be reversible. See `references/ci-templates.md` → "Rollback Workflow" for the manual-rollback dispatch YAML.
+Every deployment should be reversible. See @references/ci-templates.md → "Rollback Workflow" for the manual-rollback dispatch YAML.
 
 ## Environment Management
 
@@ -140,7 +140,7 @@ CI should never have production secrets. Use separate secrets for CI testing.
 
 ### Dependabot / Renovate
 
-Schedule automated dependency PRs weekly; cap concurrent open PRs so review bandwidth stays sane. Full `.github/dependabot.yml` template is in `references/ci-templates.md` → "Dependabot / Renovate".
+Schedule automated dependency PRs weekly; cap concurrent open PRs so review bandwidth stays sane. Full `.github/dependabot.yml` template is in @references/ci-templates.md → "Dependabot / Renovate".
 
 ### Build Cop Role
 
@@ -173,7 +173,7 @@ Slow CI pipeline?
     └── GitHub-hosted larger runners or self-hosted for CPU-heavy builds
 ```
 
-**Example: caching and parallelism** — see `references/ci-templates.md` → "Caching + Parallelism" for the full workflow with `lint` and `test` jobs split across runners and `setup-java` cache enabled.
+**Example: caching and parallelism** — see @references/ci-templates.md → "Caching + Parallelism" for the full workflow with `lint` and `test` jobs split across runners and `setup-java` cache enabled.
 
 ## Common Rationalizations
 

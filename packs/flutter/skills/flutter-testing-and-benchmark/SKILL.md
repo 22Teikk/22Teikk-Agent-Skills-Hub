@@ -128,7 +128,7 @@ void main() {
 }
 ```
 
-This is the test that catches money-as-`double`: with `REAL` columns the sum drifts; with `INTEGER` minor units it is exact. See `references/domain-guardrails.md` for the finance rules.
+This is the test that catches money-as-`double`: with `REAL` columns the sum drifts; with `INTEGER` minor units it is exact. See @references/domain-guardrails.md for the finance rules.
 
 ### 4. Golden (visual regression) tests
 
@@ -214,7 +214,7 @@ void main() {
 
 Patrol adds custom native gestures (`tester.scrollUntilVisible` with platform fling, biometric prompts, permission dialogs) on top of `integration_test`. Reach for it only when a flow cannot be expressed with Flutter-level `WidgetTester` calls.
 
-- Do **not** default to Patrol for every project. If `integration_test` is enough, stop there. See `references/domain-guardrails.md` and `ci-cd-and-automation`.
+- Do **not** default to Patrol for every project. If `integration_test` is enough, stop there. See @references/domain-guardrails.md and `ci-cd-and-automation`.
 
 ### 9. Performance: Timeline + Performance overlay (replaces Macrobenchmark)
 

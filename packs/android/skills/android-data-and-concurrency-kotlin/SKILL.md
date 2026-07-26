@@ -83,7 +83,7 @@ abstract class AppDatabase : RoomDatabase() {
 #### Data-layer guardrails (block on these before ship)
 
 - **`exportSchema = false` + no `Migration`** is a data-loss trap. The moment `version` bumps in a released app, users with the old schema get a crash or a destructive fallback. Set `exportSchema = true` (commit the schema JSON) and provide a `Migration` for every version bump. A shipped app with `exportSchema = false` and no migration path is a **production blocker**, not a nit.
-- **Never store a value that must be exact as `Double`/`Float`.** For money use `Long` minor units (cents) or `BigDecimal`; a `SUM()` over a money column must return `Long`/`BigDecimal`, not `Flow<Double>`. See `references/domain-guardrails.md`.
+- **Never store a value that must be exact as `Double`/`Float`.** For money use `Long` minor units (cents) or `BigDecimal`; a `SUM()` over a money column must return `Long`/`BigDecimal`, not `Flow<Double>`. See @references/domain-guardrails.md.
 - Prove the schema with a **Room in-memory DAO test** (insert → query/`SUM` → assert exact value), not a mocked repository — see `skills/android-testing-and-benchmark-kotlin/SKILL.md`.
 
 ## Common Rationalizations
