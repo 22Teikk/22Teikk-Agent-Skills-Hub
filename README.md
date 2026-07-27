@@ -126,7 +126,7 @@ Three guardrails enforced by executable scripts, not just prose — portable acr
 2. **Destructive-command deny-list** — the agent runs `hooks/guardrail-check.sh deny-command "<cmd>"` before running a composed shell command; exit 1 means destructive (e.g. `git push --force`, `git reset --hard`, `rm -rf`, `DROP TABLE`, `kubectl delete`) — surface it to the user instead of auto-running.
 3. **Sensitive-file "Allowed" confirmation gate.**
 
-38 skills total (22 core + 8 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
 
 ```bash
 git config core.hooksPath hooks
@@ -182,13 +182,13 @@ node scripts/decisions.js list --json   # machine-readable output
 core/skills/     23 platform-neutral workflow skills (SKILL.md each) — always installed
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
-packs/android/   8 Android skills (ui/data/di/test per Kotlin+Java) + 2 personas
+packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
                  (android-performance-auditor, kotlin-specialist)
 packs/ios/       4 iOS skills (ui/data/di/test) + swift-expert persona
 packs/flutter/   4 Flutter skills (ui/data/di/test) + flutter-expert persona
                  → install copies core + only the pack matching `.teikk/spec/PROJECT.yaml`
                    `platform:`, merged into a flat skills/ + agents/ in your project
-                 Total: 38 skills (22 core + 16 pack) + 11 personas across packs + core
+                 Total: 40 skills (23 core + 17 pack) + 11 personas across packs + core
 .cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
 .claude/         slash commands (22)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)

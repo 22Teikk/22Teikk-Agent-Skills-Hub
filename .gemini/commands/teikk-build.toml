@@ -5,7 +5,7 @@ prompt = """
 
 Read and follow `skills/incremental-implementation/SKILL.md` alongside `skills/test-driven-development/SKILL.md` and `skills/observability-and-instrumentation/SKILL.md`.
 
-For platform-specific work: read `platform:` from `.teikk/spec/PROJECT.yaml`, then load the matching platform skill/persona based on task type — Android (`skills/android-ui-kotlin` / `android-data-and-concurrency-kotlin` / `android-di-and-build` + `agents/kotlin-specialist`); iOS (`agents/swift-expert`); Flutter (`agents/flutter-expert`). Phase 0 Foundation (Hilt+observability / SPM+SwiftLint / flavor+logging) must complete before feature slices. Instrument logging inline as part of GREEN per `observability-and-instrumentation` — do not defer to `/teikk-observability`.
+For platform-specific work: read `platform:` from `.teikk/spec/PROJECT.yaml`, then load the matching platform skill/persona based on task type — Android (`skills/android-ui-kotlin` / `skills/compose-animations` when Compose motion is in scope / `android-data-and-concurrency-kotlin` / `android-di-and-build` + `agents/kotlin-specialist`); iOS (`agents/swift-expert`); Flutter (`agents/flutter-expert`). Phase 0 Foundation (Hilt+observability / SPM+SwiftLint / flavor+logging) must complete before feature slices. Instrument logging inline as part of GREEN per `observability-and-instrumentation` — do not defer to `/teikk-observability`.
 
 ## Modes (user argument selects)
 
