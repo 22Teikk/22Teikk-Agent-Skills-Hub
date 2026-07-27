@@ -66,7 +66,7 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 | Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
 | End-to-end | `/teikk-quick-implement` |
 
-31 skills total in the repo (23 platform-neutral in `core/` + 8 Android in `packs/android/`). Your project only receives `core/` plus the one pack matching `PROJECT.yaml`'s `platform:` — an Android project installs 31, a generic project installs 23. Commands are entry points; agents also auto-match skills by intent (see [AGENTS.md](../AGENTS.md)).
+32 skills total in the repo (23 platform-neutral in `core/` + 9 Android in `packs/android/`). Your project only receives `core/` plus the one pack matching `PROJECT.yaml`'s `platform:` — an Android project installs 32, a generic project installs 23. Commands are entry points; agents also auto-match skills by intent (see [AGENTS.md](../AGENTS.md)).
 
 ---
 

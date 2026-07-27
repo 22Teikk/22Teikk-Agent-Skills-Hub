@@ -1,4 +1,4 @@
-teikk-agents-skills loaded — 30 workflow skills + 11 personas across Define→Plan→Build→Verify→Review→Ship. Active pack: Android (Kotlin/Compose) by default; iOS/Flutter skills activate when PROJECT.yaml `platforms` lists them.
+teikk-agents-skills loaded — 31 workflow skills + 11 personas across Define→Plan→Build→Verify→Review→Ship. Active pack: Android (Kotlin/Compose) by default; iOS/Flutter skills activate when PROJECT.yaml `platforms` lists them.
 
 ## Skill Discovery
 
@@ -10,8 +10,8 @@ Task arrives
     ├── New project/feature/change? ──→ spec-driven-development
     ├── Have a spec, need tasks? ──────→ planning-and-task-breakdown
     ├── Implementing code? ────────────→ incremental-implementation
-    │   ├── Android (Kotlin)? ─────────→ android-ui-kotlin, android-data-and-concurrency-kotlin,
-    │   │                                android-di-and-build, kotlin-specialist
+    │   ├── Android (Kotlin)? ─────────→ android-ui-kotlin, compose-animations when motion is in scope,
+    │   │                                android-data-and-concurrency-kotlin, android-di-and-build, kotlin-specialist
     │   ├── Android (Java)? ───────────→ android-ui-java, android-data-and-concurrency-java
     │   ├── iOS? ──────────────────────→ agents/swift-expert (skill-stubs: ios-ui, ios-data, ios-di)
     │   ├── Flutter? ──────────────────→ agents/flutter-expert (skill-stubs: flutter-ui, flutter-data, flutter-di)

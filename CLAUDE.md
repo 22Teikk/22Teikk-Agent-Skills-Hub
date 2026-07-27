@@ -17,7 +17,7 @@ packs/        → Platform-scoped (post-5.0.0 split) — installed per `.teikk/s
   ios/        → 4 skills (ui/data/di/test) + 1 persona (swift-expert)
   flutter/    → 4 skills (ui/data/di/test) + 1 persona (flutter-expert)
                 Skills at `packs/<platform>/skills/<name>/SKILL.md`
-                Total 38 skills (22 core + 16 pack) + 11 personas across packs + core
+                Total 40 skills (23 core + 17 pack) + 11 personas across packs + core
 hooks/        → Session lifecycle hooks
 .claude/      → Slash commands (23)                 [Claude Code]
 .agents/      → Rules (6) + workflows (23)          [Antigravity]
@@ -33,7 +33,7 @@ docs/         → Setup guides per IDE
 **Define:** interview-me, idea-refine, spec-driven-development, map-code-base (reverse: existing codebase → spec)
 **Plan:** planning-and-task-breakdown
 **Build (platform-neutral core):** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, api-and-interface-design, observability-and-instrumentation
-**Build (Android, when `platform: android`):** android-ui-kotlin / android-ui-java, android-data-and-concurrency-kotlin / android-data-and-concurrency-java, android-di-and-build
+**Build (Android, when `platform: android`):** android-ui-kotlin / android-ui-java, compose-animations (Compose motion), android-data-and-concurrency-kotlin / android-data-and-concurrency-java, android-di-and-build
 **Build (iOS, when `platform: ios`):** ios-ui, ios-data-and-concurrency, ios-di-and-build, swift-expert persona
 **Build (Flutter, when `platform: flutter`):** flutter-ui, flutter-data-and-concurrency, flutter-di-and-build, flutter-expert persona
 **Verify (fast, core loop):** debugging-and-error-recovery + the platform unit/widget test skill (android-testing-and-benchmark-{kotlin,java} | ios-testing-and-benchmark | flutter-testing-and-benchmark)
