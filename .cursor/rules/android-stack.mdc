@@ -40,7 +40,7 @@ Apply when working on Kotlin/Java Android projects unless .teikk/SPEC.md or the 
 
 | Work | Skill |
 |------|-------|
-| UI (Kotlin/Compose) | `android-ui-kotlin` |
+| UI (Kotlin/Compose) | `android-ui-kotlin` (add `compose-animations` for motion) |
 | UI (Java/XML) | `android-ui-java` |
 | Data/Coroutines | `android-data-and-concurrency-kotlin` |
 | DI/Gradle/CI | `android-di-and-build` |
