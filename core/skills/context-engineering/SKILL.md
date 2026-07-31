@@ -115,6 +115,34 @@ Long conversations accumulate stale context. Manage this:
 - **Summarize progress** when context is getting long: "So far we've completed X, Y, Z. Now working on W."
 - **Compact deliberately** — if the tool supports it, compact/summarize before critical work
 
+## Delegating heavy reads (the digest pattern)
+
+The most expensive thing a main session does is read a codebase to answer one question. Thirty files enter the context window; one paragraph of conclusion is what you actually needed. The other 29 files' worth of tokens stay there for the rest of the session, crowding out the plan you are supposed to be holding.
+
+**Rule: when a step's cost is dominated by reading rather than deciding, delegate the reading to a subagent and keep only its digest.** The subagent burns its own context window on the file dumps; you receive the summary.
+
+Delegate when any of these hold:
+- The answer requires scanning more files than you can name up front ("find every place that does X", "map this module", "which layer owns Y")
+- You need a survey, not a specific line — breadth over precision
+- The reading is throwaway: once you have the conclusion, the raw file contents have no further use in this session
+
+Do **not** delegate when you need the exact text to edit it. Reading three files you are about to change is not heavy reading; it is the work.
+
+**The digest contract.** Tell the subagent what to return, and cap it — an uncapped subagent hands you back the same wall of text you were trying to avoid:
+
+```
+Scan <scope> and answer <question>.
+Return ONLY:
+- findings: <=10 bullets, each `path:line — one-line fact`
+- pattern: 2-3 sentences on the convention in use
+- gaps: anything the question asked for that does not exist
+Do not paste file contents. Do not include code blocks longer than 5 lines.
+```
+
+Read-only surveys go to the `Explore` agent (or your platform's read-only search agent). Reserve general-purpose workers for delegation that also writes.
+
+**What you keep** is the digest, plus the specific `path:line` pointers you will actually open next. Discard the rest — if you need a file later, re-reading one file is cheaper than having carried thirty all session.
+
 ## Context Packing Strategies
 
 ### The Brain Dump
