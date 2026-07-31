@@ -35,6 +35,8 @@ Before writing any code, operate in read-only mode:
 
 **Do NOT write code during planning.** The output is a plan document, not implementation.
 
+**Delegate the codebase read itself, not just the research.** "Read relevant codebase sections" on anything larger than a handful of known files is heavy reading — exactly the case `context-engineering`'s digest pattern covers. Spawn an `Explore` subagent to map existing patterns, conventions, and dependencies, and keep only its digest (`<=10` `path:line` bullets + a pattern paragraph + gaps). You need the shape of the codebase to plan; you do not need its contents in your context while you write the plan. Read files directly only when you already know which two or three they are.
+
 #### Research — auto-triggered inline when reading unfamiliar code
 
 While Step 1 reads the codebase to map existing patterns, the planner may find libraries, build plugins, or framework patterns it cannot evaluate from memory (or whose memory is stale). Spawn a Claude Code **`Explore` subagent** (Pattern 5 — see @references/orchestration-patterns.md) to verify before committing the plan to a stack assumption that turns out to be outdated.

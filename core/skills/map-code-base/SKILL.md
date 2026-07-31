@@ -69,6 +69,18 @@ Read the project without changing anything. Keep what you find; the spec is
 derived from this evidence, not from memory. (Follow the read-only discipline of
 `planning-and-task-breakdown` Step 1 — do not write code while mapping.)
 
+**Delegate the scan; keep the digest.** Mapping a codebase you have never seen
+is the single heaviest read in the whole workflow — and every file it touches is
+throwaway once the evidence is extracted. Apply `context-engineering`'s digest
+pattern: spawn `Explore` subagents for the evidence sweeps below (one per
+concern, or grouped — architecture + structure, commands + CI, testing +
+observability), each returning only `path:line — fact` bullets plus a short
+pattern paragraph. **You** hold the evidence table and write the spec; the
+subagents hold the file contents. Read files directly only for the small,
+named ones — the build manifest, a single DI module you need verbatim.
+Steps 2-5 (infer, confirm, write, gate) stay in the main session: they are
+decisions, not reading.
+
 **Detect platform & stack** from build manifests. This extends the Android-only
 detection table in `source-driven-development` (Step 1) to all three platforms:
 

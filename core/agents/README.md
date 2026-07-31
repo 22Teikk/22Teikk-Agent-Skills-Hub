@@ -134,7 +134,7 @@ Why this fails:
 ## Rules for personas
 
 1. A persona is a single role with a single output format. If you find yourself adding a second role, create a second persona.
-2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. On Claude Code this is also a hard platform constraint — *"subagents cannot spawn other subagents"* — so the rule is enforced for you.
+2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. This is our design rule, not a platform limit — Claude Code does allow subagents to nest (depth 3 by default). We keep the tree at depth 1 (orchestrator → worker) on purpose: nested spawns make the token cost and the failure path invisible to the session that has to explain the result.
 3. A persona may invoke skills (the *how*).
 4. Every persona file ends with a "Composition" block stating where it fits.
 

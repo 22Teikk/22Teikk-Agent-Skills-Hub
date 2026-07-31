@@ -6,11 +6,46 @@ Invoke the teikk-agents-skills:incremental-implementation skill alongside `skill
 
 For platform-specific work: read `platform:` from `.teikk/spec/PROJECT.yaml`, then load the matching platform skill/persona based on task type — Android (`skills/android-ui-kotlin` / `skills/compose-animations` when Compose motion is in scope / `android-data-and-concurrency-kotlin` / `android-di-and-build` + `agents/kotlin-specialist`); iOS (`agents/swift-expert`); Flutter (`agents/flutter-expert`). Phase 0 Foundation (Hilt+observability / SPM+SwiftLint / flavor+logging) must complete before feature slices. Instrument logging inline as part of GREEN per `observability-and-instrumentation` — do not defer to `/teikk-observability`.
 
+**Test first, always.** The cycle is RED → confirm the test actually FAILS (run it, read the output) → GREEN → REFACTOR. Writing the code first and the test after produces a test shaped to the implementation's bugs. A test never observed failing does not count as RED.
+
 ## Modes (user argument selects)
 
-- **`/teikk-build`** — next pending task only, then stop. RED→GREEN→regression→build→commit per `incremental-implementation`.
-- **`/teikk-build auto`** — single plan approval, then loop every task in dependency order. Requires `.teikk/spec/SPEC.md` + clean `git status`.
-- **`/teikk-build ultra`** — like `auto`, but `### Wave N (parallel-safe)` groups run concurrently in worktrees (algorithm in `docs/commands/appendices/build-wave-execution.md`). No waves = behaves as `auto`.
+- **`/teikk-build`** — next pending task only, then stop. Run the cycle inline yourself (no worker subagent — one task does not bloat context). RED→confirm-FAIL→GREEN→REFACTOR→regression→build→commit per `incremental-implementation`.
+- **`/teikk-build auto`** — single plan approval, then loop every task in dependency order, **one worker subagent per task** (see Delegation below). Requires `.teikk/spec/SPEC.md` + clean `git status`.
+- **`/teikk-build ultra`** — like `auto`, but `### Wave N (parallel-safe)` groups run concurrently in worktrees (algorithm in `docs/commands/appendices/build-wave-execution.md`). No waves = behaves as `auto`, and you must say so explicitly before starting: "Plan declares no `### Wave N (parallel-safe)` groups — ultra degrades to auto (sequential, one worker per task)." Never silently run auto under the ultra label.
+
+## Delegation — auto/ultra spawn a worker per task
+
+In `auto` and `ultra` you are the **orchestrator, not the implementer**. Implementing 20 tasks inline fills your context with 20 tasks' worth of file reads and diffs; by task 15 the plan's early decisions have scrolled out and you start inventing them. Delegation keeps your context flat: you hold the plan and the pointer, the worker holds the code.
+
+For **every** task — no size threshold, no "this one's small enough" exception (that judgment call is exactly what erodes under context pressure):
+
+1. Flip the task's `todo.md` checkbox to `[~]` and update `**Current task:**` — **you** own `todo.md`, never the worker.
+2. Spawn one worker subagent with a prompt containing: the task's `## Task N:` section from `plan.md` verbatim (description, ACs, verification steps, files), the `platform:` value, the skills/personas it must route to, and the instruction to run the full `incremental-implementation` Increment Cycle including the commit.
+3. The worker **commits its own task** and reports back exactly four things — nothing else, no transcript, no file dumps:
+   - `task:` number
+   - `files:` list of files it touched
+   - `result:` commit SHA + test/build outcome (pass/fail)
+   - `summary:` one line on what it did
+4. Run the **Review gate** (below) on that commit.
+5. Flip `todo.md` to `[x]`, advance `**Current task:**`, move to the next task.
+
+Workers are leaf agents: they do not spawn further subagents. Depth stays at 1 (you → worker) by design — see `agents/README.md`.
+
+If a worker reports a failure it could not resolve, stop the loop and surface it — do not spawn a replacement worker on the same task hoping for a different roll.
+
+## Review gate (auto/ultra) — runs on every worker commit
+
+After each worker commit, before advancing the pointer. Catching a bad pattern at task 3 costs one revert; catching it at task 20 costs seventeen.
+
+**Skip only when all four hold** (same threshold as `/teikk-review`): <=2 files, <50 lines, no auth/payments/data/config touch, and the diff carries no logic (docs/comments/strings/config values only). Any branch, loop, condition, arithmetic, or error path = logic = review runs. Note the skip in your progress line and move on.
+
+Otherwise spawn a `agents/code-reviewer.md` subagent scoped to that commit's diff (`git show <SHA>`), with the task's ACs for context. It reports findings as Critical / Important / Suggestion.
+
+- **Critical → STOP the loop.** Do not start the next task. Report the finding to the user and either amend the commit or revert it, per their call. A Critical is a broken AC, a domain-guardrail violation, or a security hole — carrying it forward means every later task builds on it.
+- **Important / Suggestion → append to `.teikk/tasks/review-notes.md`** (create if absent; one section per task with commit SHA + findings) and continue to the next task. These get swept in `/teikk-review` or `/teikk-ship` later.
+
+In `ultra`, the gate runs at the **merge step**, not inside the worktree — review each task's commit after its merge lands and verification passes (step 5 of `docs/commands/appendices/build-wave-execution.md`). A Critical there stops the remaining merges exactly like a failed verification does.
 
 ## Task lookup (O(1) resume)
 
