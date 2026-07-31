@@ -23,7 +23,7 @@ Categorize findings as Critical, Important, or Suggestion.
 
 ## Adversarial pass threshold
 
-Run the adversarial pass unless the change meets all of these (same threshold /teikk-ship uses to skip its fan-out): <=2 files changed, <50 lines changed, and no auth/payments/data/config touch. Below this threshold, skip the adversarial pass and note in the review output: "Adversarial pass skipped — change is <=2 files/<50 lines and touches no auth/payments/data/config." This is a review-time convenience only — it does not change /teikk-ship's gate, which always runs its own mandatory adversarial pass before a GO regardless of what happened here.
+Run the adversarial pass unless the change meets all four of these: <=2 files changed, <50 lines changed, no auth/payments/data/config touch, **and the diff carries no logic** — docs, comments, string literals, or config *values* only. A diff that adds or edits a branch, loop, condition, arithmetic, error path, or any executable statement is logic-bearing and gets the adversarial pass no matter how small it is. Below all four, skip the adversarial pass and note in the review output: "Adversarial pass skipped — non-logic change, <=2 files/<50 lines, no auth/payments/data/config." This is a review-time convenience only — it does not change /teikk-ship's gate, which always runs its own mandatory adversarial pass before a GO regardless of what happened here.
 
 Above the threshold, or when in doubt, run it: adopt `agents/adversarial-reviewer.md` and for each acceptance criterion, try to prove it is NOT met (no behavioral test → unproven → Critical; attack domain failure modes, boundaries, persistence, concurrency). The adversarial pass returns REFUTED or UNREFUTED (with a non-empty attack log).
 

@@ -14,6 +14,8 @@ Detect the platform and stack from build manifests — extend `source-driven-dev
 
 Also collect: inherited architecture (from source layout — name it, do NOT offer a menu), real build/test/lint commands, project structure, testing frameworks + locations, observability libraries in use, CI provider, E2E tooling, and a domain guess.
 
+**Delegate the sweep, keep the digest.** Mapping an unfamiliar codebase is the heaviest read in the workflow and every file it touches is throwaway once the evidence is out. Spawn `Explore` subagents for the evidence sweeps (grouped, e.g. architecture + structure / commands + CI / testing + observability), each returning only `path:line — fact` bullets plus a short pattern paragraph — no file contents. You hold the evidence table and write the spec. Read directly only the small named files you need verbatim (the build manifest, one DI module). See `context-engineering`'s digest pattern.
+
 ## Detect, then confirm
 
 Present an `ASSUMPTIONS I'M MAKING` block populated from the scan (platform, stack, inherited architecture, domain, CI, E2E) and wait for the user to veto or correct before writing anything. You are inheriting what the code committed to, not choosing it.
