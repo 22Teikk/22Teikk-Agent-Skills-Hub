@@ -1,7 +1,7 @@
 description = "Retrofit logging/analytics/perf traces onto existing code, or set up telemetry beyond a single task's scope"
 
 prompt = """
-Read and follow `skills/observability-and-instrumentation/SKILL.md`.
+Read and follow `observability-and-instrumentation`.
 
 ## Scope — this is a retrofit/audit tool, not the primary logging path
 
@@ -11,7 +11,7 @@ Routine per-task logging is instrumented inline by `/teikk-build` as part of GRE
 - **Analytics events** or **performance traces** that span more scope than a single build task (funnels, cross-screen conversion tracking, startup traces).
 - **Project-wide telemetry setup** outside a fresh Phase 0 pass (e.g. adding Crashlytics to a project that skipped `/teikk-android-setup` / `/teikk-ios-setup` / `/teikk-flutter-setup`).
 
-For security rules on PII in logs, also read `skills/security-and-hardening/SKILL.md`.
+For security rules on PII in logs, also read `security-and-hardening`.
 
 Typical deliverables:
 - Timber/os_log/logger planted per the platform default (`DebugTree` debug / `ReleaseLoggingTree` release on Android)

@@ -2,7 +2,7 @@
 
 **Open Questions gate (hard gate, automated):** Run `bash scripts/check-open-questions.sh` from the repo root before planning. Non-zero exit = STOP and resolve/defer each `- [ ]` in `.teikk/spec/SPEC.md` `## Open Questions` (mark `- [x]` to resolve, `- [~]` to defer). If script is missing (older installs), fall back to the manual check in `planning-and-task-breakdown` Step 1.
 
-Read and follow `skills/planning-and-task-breakdown/SKILL.md`.
+Read and follow `planning-and-task-breakdown`.
 
 Read the existing spec (`.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.md`) and relevant codebase sections, then:
 

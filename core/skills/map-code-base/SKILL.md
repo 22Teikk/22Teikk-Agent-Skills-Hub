@@ -3,7 +3,7 @@ name: map-code-base
 description: Reverse-engineers the .teikk/spec/ artifacts from an existing codebase. Use when adopting this skills pack on a legacy or already-built project and you want to skip hand-writing a spec — it scans the code to produce SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md, and a PROJECT-MAP.md. Use instead of /teikk-spec when the project already exists and can be read rather than interviewed.
 version: 1.0.0
 platform: generic
-depends-on: [spec-driven-development, source-driven-development, context-engineering]
+depends-on: [documentation-and-adrs]
 ---
 
 # Map Code Base
@@ -218,7 +218,7 @@ You just mapped an existing codebase with `/teikk-map-code-base`. Your next comm
 All workflow outputs live here — spec (`spec/`), tasks, ideas, ADRs, decisions log, E2E flows, hook caches. It is gitignored automatically on install. Do not commit it; do not edit files in it by hand unless instructed.
 
 - `.teikk/spec/` — everything from `/teikk-spec` or `/teikk-map-code-base` (SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md, PROJECT-MAP.md), grouped in one folder
-- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see `skills/documentation-and-adrs/SKILL.md`.
+- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see `documentation-and-adrs`.
 
 ## What to commit
 

@@ -29,7 +29,7 @@ No persona hardcodes a model name. Instead, each persona self-classifies the com
 
 **This is per-call, not per-persona.** The same persona (e.g. `code-reviewer`) might self-classify `medium` for a routine PR and `high` for a security-sensitive diff — the tier reflects the task's actual difficulty, decided fresh each invocation, not a fixed label stamped on the persona file.
 
-**Why no model name lives in this repo:** this package targets five different harnesses (Claude Code, Antigravity, OpenCode, Cursor, Gemini CLI) with different model catalogs and naming schemes. A model name hardcoded into a persona file would be meaningless or wrong on at least four of the five. `model_tiers` in the user's own `PROJECT.yaml` is the only place a concrete model name should ever be written — see `skills/spec-driven-development/SKILL.md`'s Output Location section for the exact field format.
+**Why no model name lives in this repo:** this package targets five different harnesses (Claude Code, Antigravity, OpenCode, Cursor, Gemini CLI) with different model catalogs and naming schemes. A model name hardcoded into a persona file would be meaningless or wrong on at least four of the five. `model_tiers` in the user's own `PROJECT.yaml` is the only place a concrete model name should ever be written — see `spec-driven-development`'s Output Location section for the exact field format.
 
 ## How personas relate to skills and commands
 
@@ -77,7 +77,7 @@ Pick this only when **independent** investigations can run in parallel and produ
 
 `/teikk-ship`'s adversarial pass is unconditional — every ship decision runs it, no threshold skips it. `/teikk-review` applies a lightweight-change threshold (≤2 files, <50 lines, no auth/payments/data/config touch) below which it skips its own adversarial pass as a review-time convenience; this never weakens `/teikk-ship`'s gate, which re-runs the adversarial pass from scratch regardless of what `/teikk-review` decided earlier in the same change's lifecycle.
 
-This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+This is the only orchestration pattern this repo endorses. See [orchestration-patterns](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 
 ## Decision matrix
 
@@ -145,7 +145,7 @@ The personas in this repo are designed to work as Claude Code subagents and as A
 - **As subagents:** auto-discovered when this plugin is enabled (no path config needed). Use the Agent tool with `subagent_type: code-reviewer` (or `security-auditor`, `test-engineer`). `/teikk-ship` is the canonical example.
 - **As Agent Teams teammates** (experimental, requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`): reference the same persona name when spawning a teammate. The persona's body is **appended to** the teammate's system prompt as additional instructions (not a replacement), so your persona text sits on top of the team-coordination instructions the lead installs (SendMessage, task-list tools, etc.).
 
-Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full mapping.
+Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [orchestration-patterns](../references/orchestration-patterns.md) for the full mapping.
 
 Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
 
@@ -155,4 +155,4 @@ Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmat
 2. Define the role, scope, output format, and rules.
 3. Add a **Composition** block at the bottom (Invoke directly when / Invoke via / Do not invoke from another persona).
 4. Add the persona to the table at the top of this file.
-5. If the persona enables a new orchestration pattern, document it in `references/orchestration-patterns.md` rather than inventing the pattern in the persona file itself.
+5. If the persona enables a new orchestration pattern, document it in the `planning-and-task-breakdown` skill's `references/orchestration-patterns.md` rather than inventing the pattern in the persona file itself.

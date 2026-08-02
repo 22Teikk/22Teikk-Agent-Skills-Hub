@@ -1,8 +1,8 @@
 description = "Extract what the user actually wants — one question at a time until ~95% confidence"
 
 prompt = """
-Read and follow `skills/interview-me/SKILL.md`.
-<!-- @override:claude -->Invoke the teikk-agents-skills:interview-me skill.<!-- @end -->
+Read and follow `interview-me`.
+<!-- @override:claude,opencode -->Invoke the teikk-agents-skills:interview-me skill.<!-- @end -->
 
 Use when the ask is underspecified ("build me X"), before any spec, plan, or code.
 

@@ -1,8 +1,8 @@
 description = "Refine a vague idea into concrete proposals through divergent/convergent thinking"
 
 prompt = """
-Read and follow `skills/idea-refine/SKILL.md`.
-<!-- @override:claude -->Invoke the teikk-agents-skills:idea-refine skill.<!-- @end -->
+Read and follow `idea-refine`.
+<!-- @override:claude,opencode -->Invoke the teikk-agents-skills:idea-refine skill.<!-- @end -->
 
 Use when the user has a rough concept but no clear direction. If the codebase exists, scan it first to ground variations in what already exists.
 
