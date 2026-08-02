@@ -33,6 +33,12 @@
     "scripts/rollback.sh",
     "scripts/decisions.js",
     "scripts/benchmark.js",
+    "scripts/check-open-questions.sh",
+    "scripts/check-request-overlap.sh",
+    "scripts/check-traceability.sh",
+    "scripts/check-phase-build.sh",
+    "scripts/check-phase-tests.sh",
+    "scripts/phase-status.sh",
     "registry.json",
     ".cursor/",
     ".agents/",
@@ -48,7 +54,7 @@
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/validate-refs.js && node scripts/build-registry.js && node scripts/test-install.js",
+    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/validate-refs.js && node scripts/build-registry.js && bash -n scripts/check-open-questions.sh scripts/check-request-overlap.sh scripts/check-traceability.sh scripts/check-phase-build.sh scripts/check-phase-tests.sh scripts/phase-status.sh && node scripts/test-install.js",
     "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/validate-refs.js && node scripts/build-registry.js",
     "sync": "node scripts/sync-targets.js --write && node scripts/build-registry.js --write"
   },

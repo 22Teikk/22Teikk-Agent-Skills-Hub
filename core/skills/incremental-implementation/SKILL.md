@@ -36,6 +36,10 @@ Long features outlive a single context window — when context is cleared or a n
 
 This keeps `todo.md` as the single cheap artifact every session reads on resume, and `plan.md` as the expensive artifact you only ever read one section of at a time.
 
+## Phase Exit
+
+When the final task in a `### Phase N` is complete, record the phase-start HEAD in `.teikk/tasks/phase-state.json` before work begins, then run: `bash scripts/phase-status.sh "Phase N"` (soft report and visible deferrals) → `bash scripts/check-traceability.sh "Phase N"` → `bash scripts/check-phase-build.sh` → `bash scripts/check-phase-tests.sh`. The last three are hard gates; do not advance after a failure. SPEC.md must declare non-empty `Build:`, `Lint:`, and `Test:` commands. The test gate runs the entire declared Test suite, while traceability validates the AC-to-test mapping.
+
 **`/teikk-build ultra` reuses this exact cycle as its atomic unit.** When a `### Wave N (parallel-safe)` batch runs, each task in the wave still goes through the identical RED → GREEN → REFACTOR → Verify → Commit cycle below — the only difference is it runs inside its own git worktree, concurrently with its wave siblings, instead of in the main session sequentially. Rule 2 ("Keep It Compilable") still applies per-worktree during the wave; the *whole-project* compilable guarantee is restored by the sequential merge-and-verify step after the wave, not during it. See `planning-and-task-breakdown` Step 5.5 and the `/teikk-build` command file for the full algorithm.
 
 ## The Increment Cycle

@@ -36,7 +36,8 @@ Usage:
   ${PACKAGE_NAME} targets
 
 Targets:
-${targetLines}  all           Install every supported target
+${targetLines}
+  all           Install every supported target
 
 Examples:
   npx ${PACKAGE_NAME} init cursor

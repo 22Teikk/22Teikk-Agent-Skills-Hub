@@ -27,11 +27,17 @@ Check whether `.teikk/spec/SPEC.md` exists; if not, fall back to `.teikk/SPEC.md
 - Fail: file absent at both paths
 - Next action on fail: run `/teikk-spec`.
 
-**4. PROJECT.yaml — present, with logging.library set**
-Check whether `.teikk/spec/PROJECT.yaml` exists; fall back to `.teikk/PROJECT.yaml`. If found, also check for a `logging.library` field.
-- Pass: file present and `logging.library` set (note which path and which library)
-- Warn: file present but `logging.library` missing (pre-dates this field — `/teikk-build` will fall back to the platform default; re-run `/teikk-spec` or add the field manually to make the choice explicit), OR file absent entirely (was the spec created before v2.3? Re-run `/teikk-spec` or create manually)
-- No fail — this is a non-blocking warn.
+**4. PROJECT.yaml — present, flat schema, platform pack installed**
+Check whether `.teikk/spec/PROJECT.yaml` exists; fall back to `.teikk/PROJECT.yaml`. It must use the flat scalar schema: `name`, `platform`, `domain`, `ci`, `e2e`, optional `budgets`, optional `logging`, optional `model_tiers`. Reject `platforms:` arrays, nested invented schemas, or unsupported platform values. If `platform` is `flutter`, `ios`, or `android`, confirm the active tool's `skills/` directory contains its matching pack (`flutter-*`, `swift-*`, or `android-*`).
+- Pass: valid scalar schema, `logging.library` set for a mobile platform, and matching pack installed
+- Warn: generic project without mobile logging, or pack cannot be checked because no tool dir is installed
+- Fail: missing PROJECT.yaml; invalid/nested schema; legacy ambiguous `platforms:` array; or declared mobile pack absent (run `npx teikk-agents-skills update <target>`)
+
+**4a. Commands contract — Build, Lint, Test declared**
+Only run if SPEC.md exists. Confirm `## Commands` declares non-empty `Build:`, `Lint:`, and `Test:` lines.
+- Pass: all three executable commands are present
+- Fail: any missing command (list exact required `Build:`, `Lint:`, or `Test:` line); phase-exit gates hard-fail without it
+- Next action on fail: update SPEC.md before `/teikk-build`.
 
 **5. Open Questions — spec has no unresolved items**
 Only run if a SPEC.md was found in check 3. Read its `## Open Questions` section.

@@ -134,7 +134,7 @@ public class MainActivityTest {
 
 ## Maestro E2E (optional)
 
-For multi-screen journeys only. See `skills/android-e2e-maestro/SKILL.md` and `/teikk-e2e`.
+For multi-screen journeys only. See `android-e2e-maestro` and `/teikk-e2e`.
 
 ```yaml
 appId: com.example.app

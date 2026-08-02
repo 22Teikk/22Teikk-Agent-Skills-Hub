@@ -5,7 +5,9 @@ version: 1.0.0
 platform: generic
 ---
 
-# Shipping and Launch (Android)
+# Shipping and Launch
+
+See references/ship-decision-template.md for the command's canonical persisted two-tier verdict format.
 
 ## Overview
 

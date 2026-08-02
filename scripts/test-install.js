@@ -64,7 +64,17 @@ function run() {
       !fs.existsSync(path.join(tmp, 'skills')),
       'root skills/ must NOT exist',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(
         fs.existsSync(path.join(tmp, 'scripts', script)),
         `missing scripts/${script} — user-facing CLI tools should be usable in-project, no clone needed`,
@@ -603,7 +613,17 @@ function runSharedScripts() {
       fs.readFileSync(path.join(tmp, 'scripts', 'my-build.js'), 'utf8').includes('my own build script'),
       'install destroyed user scripts/my-build.js',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(fs.existsSync(path.join(tmp, 'scripts', script)), `scripts/${script} not copied`);
     }
 
@@ -618,7 +638,17 @@ function runSharedScripts() {
       fs.existsSync(path.join(tmp, 'scripts', 'my-build.js')),
       'uninstall removed user scripts/my-build.js',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(
         !fs.existsSync(path.join(tmp, 'scripts', script)),
         `uninstall left scripts/${script} behind`,
@@ -626,6 +656,47 @@ function runSharedScripts() {
     }
 
     process.stdout.write('test-install: shared scripts/ preserve user files passed\n');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+function runPlatformPackSelection() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `${PACKAGE_NAME}-platform-pack-`));
+
+  try {
+    fs.writeFileSync(path.join(tmp, 'package.json'), '{ "name": "fixture-app" }\n');
+    fs.mkdirSync(path.join(tmp, '.teikk', 'spec'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platform: flutter\n');
+
+    const init = spawnSync(
+      process.execPath,
+      [CLI, 'init', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(init.status === 0, `flutter pack install failed: ${init.stderr}`);
+    assert(
+      fs.existsSync(path.join(tmp, '.opencode', 'skills', 'flutter-ui', 'SKILL.md')),
+      'flutter platform must install the flutter skill pack',
+    );
+
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platforms: [ios, android]\n');
+    const update = spawnSync(
+      process.execPath,
+      [CLI, 'update', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(update.status === 0, `ambiguous legacy platform update failed: ${update.stderr}`);
+    assert(
+      !fs.existsSync(path.join(tmp, '.opencode', 'skills', 'flutter-ui')),
+      'ambiguous legacy platforms must install core only, not retain a platform pack',
+    );
+    assert(
+      update.stderr.includes('install core only'),
+      'ambiguous legacy platforms must emit the migration warning',
+    );
+
+    process.stdout.write('test-install: platform pack selection passed\n');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
@@ -639,3 +710,4 @@ runSymlinkToCopyUpgrade();
 runStaleCleanup();
 runClaudeHooksWiring();
 runSharedScripts();
+runPlatformPackSelection();

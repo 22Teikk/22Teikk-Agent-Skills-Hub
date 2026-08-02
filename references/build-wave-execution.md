@@ -22,7 +22,7 @@ the plan needs a fix.
    git worktree add ../<repo-name>-task-<N> -b ultra/task-<N>
    ```
 2. **Update `todo.md` for the wave** per
-   `skills/planning-and-task-breakdown/SKILL.md`'s Wave exception: flip every
+   the `planning-and-task-breakdown` skill's Wave exception: flip every
    wave task's checkbox to `[~]` and set
    `**Current wave:** Wave N — 0/K tasks in_progress` before spawning.
 3. **Spawn one subagent per task, all in the same turn** (genuine concurrency,
@@ -30,7 +30,7 @@ the plan needs a fix.
    worktree path and its own single task:
    - Read that task's acceptance criteria and route to the skill(s)/persona(s)
      from the routing table in the main prompt.
-   - Run the identical single-task cycle from `skills/incremental-implementation/SKILL.md`
+   - Run the identical single-task cycle from the `incremental-implementation` skill
      "The Increment Cycle" (RED → confirm-FAIL → GREEN with inline logging →
      REFACTOR → regression + build → commit), scoped entirely inside its
      worktree. Do **not** touch `.teikk/tasks/todo.md`
@@ -60,7 +60,7 @@ the plan needs a fix.
    - **Merge conflict, or tests/build fail after a clean merge** → **STOP
      the entire wave.** Do not attempt automatic conflict resolution and do
      not merge the remaining tasks. Follow
-     `skills/debugging-and-error-recovery/SKILL.md`: preserve the unmerged
+     the `debugging-and-error-recovery` skill: preserve the unmerged
      worktree, report exactly which task collided and on which file, and ask
      the user how to proceed (resolve manually, re-scope one of the two
      tasks, or demote both to sequential and rerun as `auto` from this

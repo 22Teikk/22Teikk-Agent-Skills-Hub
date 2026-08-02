@@ -77,7 +77,7 @@ Pick this only when **independent** investigations can run in parallel and produ
 
 `/teikk-ship`'s adversarial pass is unconditional — every ship decision runs it, no threshold skips it. `/teikk-review` applies a lightweight-change threshold (≤2 files, <50 lines, no auth/payments/data/config touch) below which it skips its own adversarial pass as a review-time convenience; this never weakens `/teikk-ship`'s gate, which re-runs the adversarial pass from scratch regardless of what `/teikk-review` decided earlier in the same change's lifecycle.
 
-This is the only orchestration pattern this repo endorses. See [orchestration-patterns](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+This is the only orchestration pattern this repo endorses. See the `planning-and-task-breakdown` skill's orchestration-patterns reference for the full pattern catalog and anti-patterns.
 
 ## Decision matrix
 
@@ -145,13 +145,13 @@ The personas in this repo are designed to work as Claude Code subagents and as A
 - **As subagents:** auto-discovered when this plugin is enabled (no path config needed). Use the Agent tool with `subagent_type: code-reviewer` (or `security-auditor`, `test-engineer`). `/teikk-ship` is the canonical example.
 - **As Agent Teams teammates** (experimental, requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`): reference the same persona name when spawning a teammate. The persona's body is **appended to** the teammate's system prompt as additional instructions (not a replacement), so your persona text sits on top of the team-coordination instructions the lead installs (SendMessage, task-list tools, etc.).
 
-Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [orchestration-patterns](../references/orchestration-patterns.md) for the full mapping.
+Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See the `planning-and-task-breakdown` skill's orchestration-patterns reference for the full mapping.
 
 Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
 
 ## Adding a new persona
 
-1. Create `agents/<role>.md` with the same frontmatter format used by existing personas.
+1. Create a persona file named `<role>.md` with the same frontmatter format used by existing personas.
 2. Define the role, scope, output format, and rules.
 3. Add a **Composition** block at the bottom (Invoke directly when / Invoke via / Do not invoke from another persona).
 4. Add the persona to the table at the top of this file.

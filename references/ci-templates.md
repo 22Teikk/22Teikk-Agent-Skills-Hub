@@ -1,6 +1,6 @@
 # CI Templates — Reference Appendix
 
-> **When to use this file.** Read on-demand from `core/skills/ci-cd-and-automation/SKILL.md` when you need a copy-paste-ready pipeline template. The skill itself stays lean (pipeline diagram + feedback-loop narrative + decision rules); this file owns the YAML.
+> **When to use this file.** Read on-demand by the `ci-cd-and-automation` skill when you need a copy-paste-ready pipeline template. The skill itself stays lean (pipeline diagram + feedback-loop narrative + decision rules); this file owns the YAML.
 >
 > The skill is loaded on every CI touch; this file is loaded only when actually writing/modifying a workflow. Estimated savings: ~5-6 KB tokens per skill load.
 

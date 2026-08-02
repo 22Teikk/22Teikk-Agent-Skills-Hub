@@ -9,6 +9,8 @@ platform: generic
 
 ## Overview
 
+For parallel execution, use references/build-wave-execution.md.
+
 Decompose work into small, verifiable tasks with explicit acceptance criteria. Good task breakdown is the difference between an agent that completes work reliably and one that produces a tangled mess. Every task should be small enough to implement, test, and verify in a single focused session.
 
 ## When to Use
@@ -127,10 +129,12 @@ Each vertical slice delivers working, testable functionality.
 
 ### Step 4: Write Tasks
 
+Every task detail block is an H2 heading exactly matching `## Task N: <title>`, regardless of phase. Phases are H3 context only; never nest a task heading below H2.
+
 Each task follows this structure:
 
 ```markdown
-## Task [N]: [Short descriptive title]
+## Task N: [Short descriptive title]
 
 **Description:** One paragraph explaining what this task accomplishes.
 
@@ -165,17 +169,24 @@ Arrange tasks so that:
 3. Verification checkpoints occur after every 2-3 tasks
 4. High-risk tasks are early (fail fast)
 
+At each `### Phase N` exit, `/teikk-build` enforces: completion report (soft) → traceability (`check-traceability.sh`) → Build/Lint (`check-phase-build.sh`) → full Test suite (`check-phase-tests.sh`). The last three are hard gates and require SPEC.md to declare `Build:`, `Lint:`, and `Test:`.
+
 Add explicit checkpoints:
 
 ```markdown
 ## Checkpoint: After Tasks 1-3
-- [ ] All tests pass
-- [ ] Application builds without errors
+- [ ] All ACs map to behavioral tests
+- [ ] Build and lint commands pass
+- [ ] Full test suite passes
 - [ ] Core user flow works end-to-end
 - [ ] Review with human before proceeding
 ```
 
-#### Step 5.5: Mark `Parallel-safe` and Group into Waves (for `/teikk-build ultra`)
+#### Context budget
+
+Estimate each phase's context pressure from files touched, likely file size, and test load. If a phase is likely to use more than roughly 65–70% of context, split it or mark it for `/teikk-build auto` so task workers keep the orchestrator context flat. This is an advisory heuristic, not model-specific token accounting.
+
+### Step 5.5: Mark `Parallel-safe` and Group into Waves (for `/teikk-build ultra`)
 
 While ordering tasks, set each task's `**Parallel-safe:**` field (Step 4 template). This is the only place independence is decided — `/teikk-build ultra` never infers it, it only reads what was written here.
 
@@ -228,7 +239,7 @@ Long features outlive a single context window. When context is cleared or a new 
 - Task numbers and titles here must match the `## Task N: [title]` headings in `plan.md` exactly — this is the join key that lets a reader jump straight to the right section without scanning the file.
 - Three checkbox states only: `[ ]` pending, `[~]` in progress (**at most one at a time in sequential mode** — see the Wave exception below), `[x]` done.
 - The **`Current task:`** line at the top is the single source of truth for "what am I doing right now" — update it every time the `[~]` marker moves. A resuming session reads this one line first, not the checkbox list.
-- Phase headings are structural context only (so a reader sees which phase they're in) — they are not parsed, just carried over from the plan.
+- Phase headings are machine-readable boundaries: `### Phase N:` starts a phase and the next `### Phase` or EOF ends it. The same phase name must appear in plan.md and todo.md; phase-exit scripts use this contract.
 
 **Wave exception (`/teikk-build ultra` only):** while a `### Wave N (parallel-safe)` batch is running, **multiple** `[~]` lines are allowed simultaneously — one per task actively running in its own worktree — and `**Current task:**` becomes `**Current wave:** Wave N — M/K tasks in_progress`. This is the only mode where more than one `[~]` is valid; every other mode (including resume) keeps the one-`[~]`-at-a-time rule. Once every task in the wave flips to `[x]` (after its worktree is merged and verified), `**Current wave:**` reverts to a normal `**Current task:**` pointer at the next sequential or wave task.
 

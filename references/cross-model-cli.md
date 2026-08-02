@@ -1,6 +1,6 @@
 # Cross-Model CLI — Reference Appendix
 
-> **When to use this file.** Read on-demand from `core/skills/doubt-driven-development/SKILL.md` Step 3 "Cross-model escalation" when you actually need to invoke a cross-model CLI. The skill itself stays lean (decision rules — when to offer, what to do on failure); this file owns the platform-version-specific invocation syntax.
+> **When to use this file.** Read on-demand by the `doubt-driven-development` skill Step 3 "Cross-model escalation" when you actually need to invoke a cross-model CLI. The skill itself stays lean (decision rules — when to offer, what to do on failure); this file owns the platform-version-specific invocation syntax.
 >
 > The skill is loaded on every non-trivial decision; this file is loaded only when a cross-model CLI is actually being invoked. Estimated savings: ~1.5-2 KB tokens per skill load.
 

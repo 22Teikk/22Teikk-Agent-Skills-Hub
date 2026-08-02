@@ -18,7 +18,7 @@ Ask these three questions of the domain. The answers *are* the guardrails.
 2. **Which boundary must have a test?** — the edge where naive code breaks: rounding direction, timezone / day boundary, off-by-one, empty/first-run state, unit conversion, concurrency. Each boundary → a required behavioral test.
 3. **Which regulatory / safety constraint applies?** — data-retention, PII handling, audit logging, consent, encryption-at-rest, session expiry. Violations are Critical regardless of "it works".
 
-**When you are not certain of a domain's real rules, do not guess.** Invoke `skills/source-driven-development/SKILL.md` to fetch the authoritative reference (standard, regulation, platform doc, or a well-known library's guidance) and derive the guardrail from it. Record the source in your finding. Guessing a domain invariant is worse than admitting you need to look it up.
+**When you are not certain of a domain's real rules, do not guess.** Invoke `source-driven-development` to fetch the authoritative reference (standard, regulation, platform doc, or a well-known library's guidance) and derive the guardrail from it. Record the source in your finding. Guessing a domain invariant is worse than admitting you need to look it up.
 
 ## Worked example — finance / payments
 
@@ -57,6 +57,6 @@ These are **not** exhaustive checklists — they are seeds. Apply the three-ques
 
 ## Wiring
 
-- `skills/code-review-and-quality/SKILL.md` (correctness & security axes) and `skills/security-and-hardening/SKILL.md` load this file after detecting the domain.
-- `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/adversarial-reviewer.md` reference it to ground findings in domain invariants rather than generic advice.
+- `code-review-and-quality` (correctness and security axes) and `security-and-hardening` load this file after detecting the domain.
+- `code-reviewer`, `security-auditor`, and `adversarial-reviewer` reference it to ground findings in domain invariants rather than generic advice.
 - Adding a new domain = append a section using the three-question method; no gate code changes.
