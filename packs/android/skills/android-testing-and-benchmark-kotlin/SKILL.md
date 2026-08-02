@@ -114,7 +114,7 @@ class TransactionDaoTest {
 }
 ```
 
-This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Long` minor units it is exact. See @references/domain-guardrails.md for the finance rules.
+This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Long` minor units it is exact. See references/domain-guardrails.md for the finance rules.
 
 ### 4. Macrobenchmark for Startup and Frame Performance
 - Run Macrobenchmarks on real devices to measure Cold/Warm/Hot startup times and frame rendering jank (Frame Overrun).
@@ -173,7 +173,7 @@ class StartupBenchmark {
 
 For multi-screen critical flows only. **Do not use this section for every project.**
 
-- Invoke `/teikk-e2e` or read `skills/android-e2e-maestro/SKILL.md`.
+- Invoke `/teikk-e2e` or read `android-e2e-maestro`.
 - Keep unit + Compose component tests in this skill; Maestro covers cross-screen journeys only.
 - Declare in SPEC: `E2E: none` or `E2E: Maestro — flows: [...]`.
 

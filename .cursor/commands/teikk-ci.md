@@ -1,8 +1,8 @@
 # Set up or modify CI/CD pipelines and quality gates
 
-Read and follow `skills/ci-cd-and-automation/SKILL.md`.
+Read and follow `ci-cd-and-automation`.
 
-Use when adding GitHub Actions, Gradle CI tasks, or deploy automation. For Android DI/build conventions, cross-check `skills/android-di-and-build/SKILL.md`.
+Use when adding GitHub Actions, Gradle CI tasks, or deploy automation. For Android DI/build conventions, cross-check `android-di-and-build`.
 
 Deliverables:
 - Pipeline runs build + test + lint on every PR

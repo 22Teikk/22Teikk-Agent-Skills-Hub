@@ -12,7 +12,9 @@
       "name": "android-data-and-concurrency-kotlin",
       "version": "1.0.0",
       "platform": "android",
-      "dependsOn": [],
+      "dependsOn": [
+        "android-testing-and-benchmark-kotlin"
+      ],
       "description": "Handles data operations and concurrency in Kotlin. Use when writing Kotlin Coroutines, flows (StateFlow, SharedFlow), Retrofit network requests, Kotlin Serialization converters, or Room database operations."
     },
     {
@@ -76,6 +78,7 @@
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [
+        "adversarial-reviewer",
         "security-and-hardening"
       ],
       "description": "Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch."
@@ -233,14 +236,19 @@
       "name": "map-code-base",
       "version": "1.0.0",
       "platform": "generic",
-      "dependsOn": [],
+      "dependsOn": [
+        "documentation-and-adrs"
+      ],
       "description": "Reverse-engineers the .teikk/spec/ artifacts from an existing codebase. Use when adopting this skills pack on a legacy or already-built project and you want to skip hand-writing a spec — it scans the code to produce SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md, and a PROJECT-MAP.md. Use instead of /teikk-spec when the project already exists and can be read rather than interviewed."
     },
     {
       "name": "observability-and-instrumentation",
       "version": "1.0.0",
       "platform": "generic",
-      "dependsOn": [],
+      "dependsOn": [
+        "security-and-hardening",
+        "shipping-and-launch"
+      ],
       "description": "Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces."
     },
     {
@@ -284,7 +292,9 @@
       "name": "test-driven-development",
       "version": "1.0.0",
       "platform": "generic",
-      "dependsOn": [],
+      "dependsOn": [
+        "android-testing-and-benchmark-kotlin"
+      ],
       "description": "Guides Red-Green-Refactor development. Use when implementing any new logic or fixing bugs. Use when you need to write tests, design test suites, or debug failing tests."
     },
     {

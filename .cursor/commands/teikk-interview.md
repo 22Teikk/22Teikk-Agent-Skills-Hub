@@ -1,6 +1,6 @@
 # Extract what the user actually wants — one question at a time until ~95% confidence
 
-Read and follow `skills/interview-me/SKILL.md`.
+Read and follow `interview-me`.
 
 Use when the ask is underspecified ("build me X"), before any spec, plan, or code.
 

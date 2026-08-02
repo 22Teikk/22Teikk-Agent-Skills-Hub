@@ -6,9 +6,9 @@ Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) to detect platform + 
 
 | Platform | E2E value | Skill / persona |
 |----------|-----------|-----------------|
-| Android | `Maestro` | `skills/android-e2e-maestro` |
-| iOS | `XCUITest` | `agents/swift-expert` |
-| Flutter | `integration_test` | `agents/flutter-expert` |
+| Android | `Maestro` | `android-e2e-maestro` |
+| iOS | `XCUITest` | `swift-expert` |
+| Flutter | `integration_test` | `flutter-expert` |
 
 Invoke the teikk-agents-skills:android-e2e-maestro skill.
 

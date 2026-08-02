@@ -1,8 +1,8 @@
 description = "Write or update documentation and Architecture Decision Records"
 
 prompt = """
-Read and follow `skills/documentation-and-adrs/SKILL.md`.
-<!-- @override:claude -->Invoke the teikk-agents-skills:documentation-and-adrs skill.<!-- @end -->
+Read and follow `documentation-and-adrs`.
+<!-- @override:claude,opencode -->Invoke the teikk-agents-skills:documentation-and-adrs skill.<!-- @end -->
 
 Use when documenting architectural decisions, API changes, or shipping a feature that needs README/ADR updates.
 

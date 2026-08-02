@@ -3,6 +3,7 @@ name: android-data-and-concurrency-kotlin
 description: Handles data operations and concurrency in Kotlin. Use when writing Kotlin Coroutines, flows (StateFlow, SharedFlow), Retrofit network requests, Kotlin Serialization converters, or Room database operations.
 version: 1.0.0
 platform: android
+depends-on: [android-testing-and-benchmark-kotlin]
 ---
 
 # Android Data and Concurrency (Kotlin Stack)
@@ -83,8 +84,8 @@ abstract class AppDatabase : RoomDatabase() {
 #### Data-layer guardrails (block on these before ship)
 
 - **`exportSchema = false` + no `Migration`** is a data-loss trap. The moment `version` bumps in a released app, users with the old schema get a crash or a destructive fallback. Set `exportSchema = true` (commit the schema JSON) and provide a `Migration` for every version bump. A shipped app with `exportSchema = false` and no migration path is a **production blocker**, not a nit.
-- **Never store a value that must be exact as `Double`/`Float`.** For money use `Long` minor units (cents) or `BigDecimal`; a `SUM()` over a money column must return `Long`/`BigDecimal`, not `Flow<Double>`. See @references/domain-guardrails.md.
-- Prove the schema with a **Room in-memory DAO test** (insert → query/`SUM` → assert exact value), not a mocked repository — see `skills/android-testing-and-benchmark-kotlin/SKILL.md`.
+- **Never store a value that must be exact as `Double`/`Float`.** For money use `Long` minor units (cents) or `BigDecimal`; a `SUM()` over a money column must return `Long`/`BigDecimal`, not `Flow<Double>`. See references/domain-guardrails.md.
+- Prove the schema with a **Room in-memory DAO test** (insert → query/`SUM` → assert exact value), not a mocked repository — see `android-testing-and-benchmark-kotlin`.
 
 ## Common Rationalizations
 

@@ -104,5 +104,5 @@ For every input field or form:
 
 - **Invoke directly when:** testing a specific flow, auditing visual spacing, or generating a defect report before a release.
 - **Invoke via:** `/teikk-e2e` (VERIFY phase — for end-to-end flow testing) or `/teikk-ship` (parallel fan-out alongside `code-reviewer` and `security-auditor`).
-- **Do not invoke from another persona.** If `code-reviewer` surfaces a UX concern, the user or a slash command decides when to invoke `ui-ux-tester`. See [agents/README.md](README.md).
-- **Model tier:** typically `low` — flow enumeration against documented steps is mechanical. Self-classify `medium` when a flow's expected behavior is ambiguous and needs judgment. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** If `code-reviewer` surfaces a UX concern, the user or a slash command decides when to invoke `ui-ux-tester`. See [the personas README](README.md).
+- **Model tier:** typically `low` — flow enumeration against documented steps is mechanical. Self-classify `medium` when a flow's expected behavior is ambiguous and needs judgment. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

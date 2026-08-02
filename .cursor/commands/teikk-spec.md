@@ -1,8 +1,8 @@
 # Start spec-driven development — write a structured specification before writing code
 
-Read and follow `skills/spec-driven-development/SKILL.md`.
+Read and follow `spec-driven-development`.
 
-Surface assumptions explicitly (platform, tech stack defaults by platform per skill, observability, E2E opt-in) and ask the user to confirm or correct before writing the spec. For native vs cross-platform trade-offs, read `agents/mobile-app-developer.md` first.
+Surface assumptions explicitly (platform, tech stack defaults by platform per skill, observability, E2E opt-in) and ask the user to confirm or correct before writing the spec. For native vs cross-platform trade-offs, read `mobile-app-developer` first.
 
 ## Open Questions gate (hard gate — before saving)
 
@@ -42,11 +42,11 @@ Platform defaults (apply unless spec overrode them):
 - Flutter budgets: 2000/120/5; logging: `logger` | `logging` | `print` (discouraged)
 - Generic: omit budgets + logging blocks
 
-`logging.library` is what `/teikk-build` reads for inline instrumentation — set it once here so build never has to ask again. `model_tiers` defaults give personas a concrete model per self-classified tier; override any value by editing `PROJECT.yaml` directly. On harnesses with different model catalogs, the lookup is best-effort and falls back to session default — `PROJECT.yaml` is the single source of truth for model names per tier (see `agents/README.md` tiering guidance; this prompt intentionally does not name models — that decision belongs to the user's project).
+`logging.library` is what `/teikk-build` reads for inline instrumentation — set it once here so build never has to ask again. `model_tiers` defaults give personas a concrete model per self-classified tier; override any value by editing `PROJECT.yaml` directly. On harnesses with different model catalogs, the lookup is best-effort and falls back to session default — `PROJECT.yaml` is the single source of truth for model names per tier (see the personas README (`agents/README.md`) tiering guidance; this prompt intentionally does not name models — that decision belongs to the user's project).
 
 ## Architecture decision → DECISIONS.md
 
-If the architecture gate ran (new project, or feature with no inherited architecture), append one entry to `.teikk/DECISIONS.md` (create with header from `skills/documentation-and-adrs/SKILL.md` if absent). Skip if architecture was inherited.
+If the architecture gate ran (new project, or feature with no inherited architecture), append one entry to `.teikk/DECISIONS.md` (create with header from `documentation-and-adrs` if absent). Skip if architecture was inherited.
 
 ## Generated appendices (idempotent)
 

@@ -68,7 +68,7 @@ A green suite is not evidence. **Test count is a vanity metric.** Your job is to
 | **Mock-verification test** — mocks the very thing under test (mock repo returns `750.0`, then asserts state is `750.0`) | Asserts the mock, not the logic. Tautological. |
 | **Assertion-less / label-only test** — no value assertion, or only checks a static label is visible | Passes even when the real value is wrong. |
 
-**A test only counts if it executes real behavior** — real logic or real infrastructure (Room in-memory DB, real ViewModel + Flow) — and asserts on a **value or observable outcome**. See `skills/test-driven-development/SKILL.md` for the behavioral-test definition and the real > fake > stub > mock preference order.
+**A test only counts if it executes real behavior** — real logic or real infrastructure (Room in-memory DB, real ViewModel + Flow) — and asserts on a **value or observable outcome**. See `test-driven-development` for the behavioral-test definition and the real > fake > stub > mock preference order.
 
 **Mandatory for the data layer:** require **≥1 integration test that hits real infrastructure** — a Room **in-memory** DAO test (insert → query/`SUM` → assert the exact value). A data layer "covered" only by mocked repositories is **not covered**; report it as a gap.
 
@@ -113,5 +113,5 @@ A green suite is not evidence. **Test count is a vanity metric.** Your job is to
 
 - **Invoke directly when:** the user asks for test design, coverage analysis, or a Prove-It test for a specific bug.
 - **Invoke via:** `/teikk-test` (TDD workflow) or `/teikk-ship` (parallel fan-out for coverage gap analysis alongside `android-code-reviewer` and `security-auditor`).
-- **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. See [agents/README.md](README.md).
-- **Model tier:** typically `low` — coverage counting and boilerplate/mock disqualification is mechanical pattern matching against a known checklist. Self-classify `medium` when designing a non-obvious Prove-It test for a subtle bug. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. See [the personas README](README.md).
+- **Model tier:** typically `low` — coverage counting and boilerplate/mock disqualification is mechanical pattern matching against a known checklist. Self-classify `medium` when designing a non-obvious Prove-It test for a subtle bug. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

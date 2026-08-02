@@ -78,5 +78,5 @@ For each proposed feature or scope item:
 
 - **Invoke directly when:** the user asks "is this worth building?", "are we over-engineering?", or wants scope stress-tested before committing.
 - **Invoke via:** `/teikk-spec` (DEFINE — challenge scope before it's locked) or `/teikk-review` (catch over-engineering in the diff, alongside `code-reviewer`).
-- **Do not invoke from another persona.** Orchestration belongs to slash commands or the user. See [agents/README.md](README.md).
-- **Model tier:** typically `medium` — value reasoning against a known set of axes. Self-classify `high` when the tradeoff spans revenue vs. maintainability vs. risk with no obvious winner. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** Orchestration belongs to slash commands or the user. See [the personas README](README.md).
+- **Model tier:** typically `medium` — value reasoning against a known set of axes. Self-classify `high` when the tradeoff spans revenue vs. maintainability vs. risk with no obvious winner. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

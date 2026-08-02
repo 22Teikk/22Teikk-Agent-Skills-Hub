@@ -131,7 +131,7 @@ maestro test .teikk/maestro/flows/
 
 ### Step 5: Optional CI (project-level)
 
-Add only when the project adopts E2E in SPEC. See `skills/ci-cd-and-automation/SKILL.md` — separate job, not on every PR by default:
+Add only when the project adopts E2E in SPEC. See `ci-cd-and-automation` — separate job, not on every PR by default:
 
 ```yaml
 - name: Maestro E2E

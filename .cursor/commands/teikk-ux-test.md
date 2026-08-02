@@ -1,6 +1,6 @@
 # Run exhaustive UI/UX testing on a documented feature or flow via the ui-ux-tester persona
 
-Read and follow `agents/ui-ux-tester.md`.
+Read and follow `ui-ux-tester`.
 
 Run exhaustive UI and UX testing on the target application or flow. The user may pass:
 - A path to the documentation, spec section (`.teikk/spec/SPEC.md`, falling back to `.teikk/SPEC.md`), or feature description to test

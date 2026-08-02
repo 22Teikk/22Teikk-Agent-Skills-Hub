@@ -1,6 +1,6 @@
 # Refine a vague idea into concrete proposals through divergent/convergent thinking
 
-Read and follow `skills/idea-refine/SKILL.md`.
+Read and follow `idea-refine`.
 
 Use when the user has a rough concept but no clear direction. If the codebase exists, scan it first to ground variations in what already exists.
 

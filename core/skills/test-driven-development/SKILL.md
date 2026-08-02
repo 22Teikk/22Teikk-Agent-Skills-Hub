@@ -3,6 +3,7 @@ name: test-driven-development
 description: Guides Red-Green-Refactor development. Use when implementing any new logic or fixing bugs. Use when you need to write tests, design test suites, or debug failing tests.
 version: 1.0.0
 platform: generic
+depends-on: [android-testing-and-benchmark-kotlin]
 ---
 
 # Test-Driven Development (TDD)
@@ -265,7 +266,7 @@ For anything that renders on device, unit tests alone aren't enough — you need
 4. **Fix**: Implement the fix in Kotlin/Java or XML.
 5. **Verify**: Rerun, check logs, and run automated tests.
 
-For detailed testing guidelines, see `skills/android-testing-and-benchmark-kotlin/SKILL.md` or `skills/android-testing-and-benchmark-java/SKILL.md`.
+For detailed testing guidelines, see `android-testing-and-benchmark-kotlin` or `android-testing-and-benchmark-java`.
 
 ---
 
@@ -287,7 +288,7 @@ This separation ensures the test is written without knowledge of the fix, making
 
 ## See Also
 
-- For detailed testing patterns and examples, see @references/testing-patterns.md.
+- For detailed testing patterns and examples, see references/testing-patterns.md.
 
 ## Common Rationalizations
 

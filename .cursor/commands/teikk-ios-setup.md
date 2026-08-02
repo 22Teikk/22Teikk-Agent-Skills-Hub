@@ -1,8 +1,8 @@
 # Set up iOS foundation — SPM dependencies, SwiftLint, logging, Crashlytics
 
-Read `agents/swift-expert.md`.
+Read `swift-expert`.
 
-Use at iOS project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work. Read `skills/observability-and-instrumentation/SKILL.md` for logging hygiene; plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `oslog` as the platform default) — this is the library every `/teikk-build` task will use inline going forward.
+Use at iOS project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work. Read `observability-and-instrumentation` for logging hygiene; plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `oslog` as the platform default) — this is the library every `/teikk-build` task will use inline going forward.
 
 ## Deliverables
 

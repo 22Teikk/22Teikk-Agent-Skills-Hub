@@ -39,7 +39,7 @@ Before writing any code, operate in read-only mode:
 
 #### Research — auto-triggered inline when reading unfamiliar code
 
-While Step 1 reads the codebase to map existing patterns, the planner may find libraries, build plugins, or framework patterns it cannot evaluate from memory (or whose memory is stale). Spawn a Claude Code **`Explore` subagent** (Pattern 5 — see @references/orchestration-patterns.md) to verify before committing the plan to a stack assumption that turns out to be outdated.
+While Step 1 reads the codebase to map existing patterns, the planner may find libraries, build plugins, or framework patterns it cannot evaluate from memory (or whose memory is stale). Spawn a Claude Code **`Explore` subagent** (Pattern 5 — see references/orchestration-patterns.md) to verify before committing the plan to a stack assumption that turns out to be outdated.
 
 **Auto-trigger:** fire when ANY of these is true while reading the codebase:
 - A library, plugin, or framework named in the existing code is unfamiliar to the planner
