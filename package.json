@@ -48,8 +48,8 @@
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/build-registry.js && node scripts/test-install.js",
-    "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/build-registry.js",
+    "test": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/validate-refs.js && node scripts/build-registry.js && node scripts/test-install.js",
+    "validate": "node scripts/validate-skills.js && node scripts/validate-parity.js && node scripts/sync-targets.js && node scripts/validate-refs.js && node scripts/build-registry.js",
     "sync": "node scripts/sync-targets.js --write && node scripts/build-registry.js --write"
   },
   "engines": {
