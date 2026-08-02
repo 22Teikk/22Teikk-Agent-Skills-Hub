@@ -6,7 +6,11 @@ Before reviewing, read `.teikk/spec/PROJECT.yaml` if it exists (fall back to `.t
 
 If `.teikk/tasks/todo.md` exists, also read its `**Current task:**` line to scope the review to that task's `## Task N:` section in `.teikk/tasks/plan.md` — avoids re-scanning the whole plan to find what's under review. Read-only lookup; `/teikk-review` does not update `todo.md`.
 
-Review the current changes (staged or recent commits) across all five axes:
+Read `.teikk/spec/REQUEST.md` when it exists and use it as the authoritative user-request artifact; do not judge scope only against a paraphrased SPEC objective.
+
+Determine review scope before reviewing: if `.teikk/tasks/phase-state.json` contains the current phase's `startSha`, review `git diff <startSha>..HEAD` plus staged and unstaged changes. Otherwise use the current task's phase start commit when recorded by the build log. If the working tree is clean because `/teikk-build` already committed the work, inspect the phase commits and their diff — never return a verdict on an empty diff. If no changed code can be found, say so and stop.
+
+Review the selected phase diff across all five axes:
 
 1. **Correctness** — Does it match the spec? Edge cases handled? Tests adequate (behavioral, not mock-returning-the-answer)? Domain guardrails honored? Every SPEC promise (e.g. a promised DAO test) actually exists?
 2. **Readability** — Clear names? Straightforward logic? Well-organized?

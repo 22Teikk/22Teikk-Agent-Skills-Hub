@@ -25,7 +25,7 @@ Same fallback chain as SPEC.md:
 
 Fields consumed by `/teikk-build`, `/teikk-ship`:
 
-- `name`, `platforms`, `domain`, `ci`, `e2e`
+- `name`, `platform`, `domain`, `ci`, `e2e`
 - `budgets.startup_cold_ms`, `budgets.memory_mb`, `budgets.jank_frames`
 - `logging.library` — `timber` (Android), `oslog` (iOS), `logger` (Flutter)
 - `model_tiers.{low,medium,high,ultra}` — optional per-tier model selection
@@ -35,13 +35,13 @@ Fields consumed by `/teikk-build`, `/teikk-ship`:
 - `.teikk/tasks/plan.md` — full plan with `## Task N:` sections
 - `.teikk/tasks/todo.md` — index read on every `/teikk-build`, `/teikk-test`,
   `/teikk-review`, `/teikk-ship` resume. Format defined in
-  `skills/planning-and-task-breakdown/SKILL.md` Step 6.
+  the `planning-and-task-breakdown` skill Step 6.
 
 ## Decisions log
 
 - `.teikk/DECISIONS.md` — append-only, written via `/teikk-docs` or the
   `/teikk-spec` architecture gate. Header format in
-  `skills/documentation-and-adrs/SKILL.md`.
+  the `documentation-and-adrs` skill.
 
 ## Hook caches
 

@@ -6,7 +6,7 @@ Writes a small, deterministic checkpoint file right before Claude Code compacts 
 
 Compaction discards or summarizes conversation history. Anything the agent "remembers" but hasn't written to disk is gone after the summary — a common source of post-compact hallucination ("I think I was on Task 3" when it was actually Task 4, or claiming a file was already edited when it wasn't).
 
-`.teikk/tasks/todo.md` (see `skills/planning-and-task-breakdown/SKILL.md` Step 6) already solves this for the active task pointer during `/teikk-build`, but it's only read at the start of that specific command. Long-running commands with no equivalent checkpoint (`/teikk-ship`'s multi-persona fan-out, `/teikk-quick-implement`'s multi-phase chain) had no disk-backed state to fall back on if compaction landed mid-run.
+`.teikk/tasks/todo.md` (see the `planning-and-task-breakdown` skill Step 6) already solves this for the active task pointer during `/teikk-build`, but it's only read at the start of that specific command. Long-running commands with no equivalent checkpoint (`/teikk-ship`'s multi-persona fan-out, `/teikk-quick-implement`'s multi-phase chain) had no disk-backed state to fall back on if compaction landed mid-run.
 
 This hook doesn't add new state — it snapshots what's already authoritative (`todo.md`'s current-task pointer, git branch, working-tree change count) into one small file, regenerated on every compact event.
 

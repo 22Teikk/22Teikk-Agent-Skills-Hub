@@ -153,7 +153,7 @@ ASSUMPTIONS I'M MAKING (from scanning the code — correct me before I write):
 ### Step 4 — Write the artifacts
 
 Write under **`.teikk/spec/`** (the tool auto-creates and gitignores `.teikk/`).
-Match `spec-driven-development`'s Output Location rules exactly.
+Match `spec-driven-development`'s Output Location rules exactly, including `platform: <one value>` in PROJECT.yaml.
 
 **`.teikk/spec/SPEC.md`** — the nine areas, using the `spec-driven-development`
 spec template. In the Architecture section, record it as *the inherited
@@ -164,7 +164,7 @@ Open Questions.
 **`.teikk/spec/PROJECT.yaml`** — identical schema to `/teikk-spec`. Extract:
 
 - `name` — from the Objective (app/module name).
-- `platforms` — the detected platform(s): one or more of `android, ios, flutter`.
+- `platform` — one detected implementation platform: `android`, `ios`, `flutter`, or `generic`. A Flutter project stays `flutter` even when it deploys to iOS and Android.
 - `domain` — the confirmed `Domain:` (`finance | health | auth | generic`).
 - `ci` — detected (`github-actions | gitlab-ci | bitrise | circle-ci | fastlane | none`).
 - `e2e` — detected (`none | Maestro | XCUITest | integration_test`).
@@ -174,7 +174,7 @@ Open Questions.
 
 ```yaml
 name: <detected>
-platforms: [<detected>]
+platform: <detected>
 domain: <confirmed>
 ci: <detected>
 e2e: <detected>

@@ -20,7 +20,9 @@ const ROOT = path.resolve(__dirname, '..');
 const SCAN_DIRS = [
   'commands',
   'core',
+  'hooks',
   'packs',
+  'references',
   '.claude/commands',
   '.opencode/commands',
   '.cursor/commands',
@@ -60,6 +62,8 @@ function main() {
 
   const STALE_RE = /\.teikk-agents\/(?!skills\.json)/g;
   const SKILL_REF_RE = /references\/([a-z0-9][a-z0-9-]*)\.md/g;
+  const STALE_SKILL_PATH_RE = /(?:^|[^a-z0-9-])skills\/[a-z0-9][a-z0-9-]*\/SKILL\.md/g;
+  const STALE_AGENT_PATH_RE = /(?:^|[^a-z0-9-])agents\/[a-z0-9][a-z0-9-]*\.md/g;
 
   for (const file of files) {
     const rel = path.relative(ROOT, file);
@@ -71,6 +75,13 @@ function main() {
         continue;
       }
       errors.push(`${rel}: stale .teikk-agents/ path — should be by-name or bundled reference`);
+    }
+
+    for (const m of content.matchAll(STALE_SKILL_PATH_RE)) {
+      errors.push(`${rel}: stale skill path literal ${m[0].trim()} — use the skill by name`);
+    }
+    for (const m of content.matchAll(STALE_AGENT_PATH_RE)) {
+      errors.push(`${rel}: stale agent path literal ${m[0].trim()} — use the agent by name`);
     }
 
     if (isSkillFile(rel)) {

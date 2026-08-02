@@ -26,4 +26,4 @@ The sub-agent: disqualifies mock-only / `ExampleUnitTest` / label-only tests (ze
 
 **When to spawn:** change touches auth/payments/data/config; OR test count > 30 and audit is cheaper than re-reading; OR pre-ship gate where consistency with `/teikk-ship` matters. **Skip for trivial changes** (< 3 test files, no auth/payments/data) — sub-agent cost is wasted on small diffs.
 
-**Optional telemetry:** after audit (or after test run if skipping), source `hooks/emit.sh` and emit `verification_passed ok` / `verification_failed err` with test count. See the `observability-and-instrumentation` skill's `references/observability-and-benchmark.md`.
+**Optional telemetry:** after audit (or after test run if skipping), if an emit helper exists in the current tool's installed hooks directory, source it and emit `verification_passed ok` / `verification_failed err` with test count. Otherwise skip telemetry; it fails open. See the `observability-and-instrumentation` skill's `references/observability-and-benchmark.md`.

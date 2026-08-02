@@ -10,6 +10,8 @@ depends-on: [documentation-and-adrs]
 
 ## Overview
 
+Supporting references: references/paths.md, references/spec-quickstart-template.md, references/spec-workflow-template.md.
+
 Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
 
 ## When to Use
@@ -35,6 +37,8 @@ SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
 ```
 
 ### Phase 1: Specify
+
+Before any interpretation, write the user's raw request verbatim to `.teikk/spec/REQUEST.md`. Do not summarize, clean up, or add assumptions. Include a `## Source Request` section in SPEC.md quoting that artifact verbatim, then run `bash scripts/check-request-overlap.sh`; it must pass before the spec is saved.
 
 Start with a high-level vision. Ask the human clarifying questions until requirements are concrete.
 
@@ -145,6 +149,9 @@ All Specify-phase artifacts (`SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, `WORKFL
 
 ```markdown
 # Spec: [Project/Feature Name]
+
+## Source Request
+[Verbatim contents of `.teikk/spec/REQUEST.md` — do not summarize.]
 
 ## Objective
 [What we're building and why. User stories or acceptance criteria.]
@@ -287,6 +294,7 @@ The spec is a living document, not a one-time artifact:
 
 Before proceeding to implementation, confirm:
 
+- [ ] `.teikk/spec/REQUEST.md` contains the verbatim user request and SPEC.md has a matching `## Source Request` section (`check-request-overlap.sh` passes)
 - [ ] The spec covers all nine core areas (including architecture and observability)
 - [ ] For a new project: the human explicitly chose the architecture at the gate (not defaulted silently), and rejected alternatives are recorded
 - [ ] The `Domain:` is declared, so domain guardrails load at review/ship
