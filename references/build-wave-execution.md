@@ -57,6 +57,15 @@ the plan needs a fix.
      update the `M/K tasks in_progress` counter, remove the worktree
      (`git worktree remove ../<repo-name>-task-<N>`), continue to the next
      task's merge.
+   - Merge succeeds + tests pass + build succeeds → run the **Review gate**
+     from the `/teikk-build` prompt on that task's commit (skip threshold, else
+     spawn `code-reviewer` on `git show <SHA>`). A **Critical stops the wave**
+     exactly like a failed verification — leave the remaining tasks unmerged
+     and report. Important/Suggestion go to `.teikk/tasks/review-notes.md` and
+     the merge proceeds. Then flip that task's `todo.md` checkbox to `[x]`,
+     update the `M/K tasks in_progress` counter, remove the worktree
+     (`git worktree remove ../<repo-name>-task-<N>`), continue to the next
+     task's merge.
    - **Merge conflict, or tests/build fail after a clean merge** → **STOP
      the entire wave.** Do not attempt automatic conflict resolution and do
      not merge the remaining tasks. Follow

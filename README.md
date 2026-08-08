@@ -127,6 +127,7 @@ Three guardrails enforced by executable scripts, not just prose — portable acr
 3. **Sensitive-file "Allowed" confirmation gate.**
 
 40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
 
 ```bash
 # In an installed project (claude target): hooks land in .claude/hooks/
@@ -183,6 +184,7 @@ node scripts/decisions.js list --json   # machine-readable output
 core/skills/     23 platform-neutral workflow skills (SKILL.md each) — always installed
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
+packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
 packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
                  (android-performance-auditor, kotlin-specialist)
 packs/ios/       4 iOS skills (ui/data/di/test) + swift-expert persona

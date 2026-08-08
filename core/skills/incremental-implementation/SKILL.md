@@ -55,10 +55,30 @@ When the final task in a `### Phase N` is complete, record the phase-start HEAD 
 │              Next slice                             │
 │                                                     │
 └─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│   RED ──→ GREEN ──→ REFACTOR ──→ Verify ──┐         │
+│    ▲                                      │         │
+│    └────────── Commit ◄───────────────────┘         │
+│                  │                                  │
+│                  ▼                                  │
+│              Next slice                             │
+│                                                     │
+└─────────────────────────────────────────────────────┘
 ```
 
 For each slice — the test comes first, always. See `test-driven-development` for the full discipline:
+For each slice — the test comes first, always. See `test-driven-development` for the full discipline:
 
+1. **RED — write the failing test first.** Write the test for the behavior this slice adds, before any production code exists for it.
+2. **Confirm it FAILS — run it and read the output.** This step is not optional and cannot be skipped, assumed, or reasoned about instead of executed. A test you never watched fail proves nothing: it may be asserting on the wrong thing, silently passing on the old behavior, or not running at all. Quote the failure line in your report. **If it passes on the first run, stop** — either the behavior already exists (the slice is done, delete the test or narrow it) or the test is wrong. Do not proceed to step 3 until you have seen a real failure for the right reason.
+3. **GREEN — write the minimum code that makes it pass.** No extra abstractions, no adjacent improvements, no speculative branches. Instrument logging inline here per `observability-and-instrumentation`.
+4. **REFACTOR — clean up with the test still green.** Optional but preferred: remove duplication, improve names, simplify. Re-run the test after every refactor; it must stay green. Behavior does not change in this step.
+5. **Verify** — full regression (run the whole test suite, not just the new test) + build succeeds + lint passes.
+6. **Commit** — save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
+7. **Move to the next slice** — carry forward, don't restart
+
+**Rationalization guard:** "I'll write the test after, it's faster" produces a test shaped to the code you already wrote — it passes because it mirrors your implementation, including its bugs. The RED step is what makes the test an independent check instead of a transcript.
 1. **RED — write the failing test first.** Write the test for the behavior this slice adds, before any production code exists for it.
 2. **Confirm it FAILS — run it and read the output.** This step is not optional and cannot be skipped, assumed, or reasoned about instead of executed. A test you never watched fail proves nothing: it may be asserting on the wrong thing, silently passing on the old behavior, or not running at all. Quote the failure line in your report. **If it passes on the first run, stop** — either the behavior already exists (the slice is done, delete the test or narrow it) or the test is wrong. Do not proceed to step 3 until you have seen a real failure for the right reason.
 3. **GREEN — write the minimum code that makes it pass.** No extra abstractions, no adjacent improvements, no speculative branches. Instrument logging inline here per `observability-and-instrumentation`.
@@ -228,6 +248,7 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The test was written first and observed failing before the code was written
+- [ ] The test was written first and observed failing before the code was written
 - [ ] The change does one thing and does it completely
 - [ ] All existing tests still pass (`./gradlew test`)
 - [ ] The build succeeds (`./gradlew assembleDebug`)
@@ -244,6 +265,8 @@ After each increment, verify:
 |---|---|
 | "I'll write the test right after the code" | The test then mirrors the implementation you already wrote, bugs included. Write it first. |
 | "The test obviously fails, no need to run it" | Tests fail for the wrong reason all the time — typo'd import, wrong assertion, not collected by the runner. Run it and read the output. |
+| "I'll write the test right after the code" | The test then mirrors the implementation you already wrote, bugs included. Write it first. |
+| "The test obviously fails, no need to run it" | Tests fail for the wrong reason all the time — typo'd import, wrong assertion, not collected by the runner. Run it and read the output. |
 | "I'll test it all at the end" | Bugs compound. A bug in Slice 1 makes Slices 2-5 wrong. Test each slice. |
 | "It's faster to do it all at once" | It *feels* faster until something breaks and you can't find which of 500 changed lines caused it. |
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
@@ -253,6 +276,8 @@ After each increment, verify:
 
 ## Red Flags
 
+- Production code written before its test exists (RED skipped)
+- A test written but never observed failing — "it would have failed" is not the RED step
 - Production code written before its test exists (RED skipped)
 - A test written but never observed failing — "it would have failed" is not the RED step
 - More than 100 lines of code written without running tests
