@@ -68,5 +68,5 @@ The audit is complete only when all of the following hold. Do not report "done" 
 
 - **Invoke directly when:** the user asks to audit startup time, frame jank, or memory profile of a specific screen/flow.
 - **Invoke via:** `/teikk-androidperf` (Audit phase) or `/teikk-review` (performance axis, Android-specific checks).
-- **Do not invoke from another persona.** See [agents/README.md](README.md).
-- **Model tier:** typically `medium` — profiling-trace analysis against known performance targets. Self-classify `high` when a regression's root cause spans multiple interacting subsystems. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** See [the personas README](README.md).
+- **Model tier:** typically `medium` — profiling-trace analysis against known performance targets. Self-classify `high` when a regression's root cause spans multiple interacting subsystems. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

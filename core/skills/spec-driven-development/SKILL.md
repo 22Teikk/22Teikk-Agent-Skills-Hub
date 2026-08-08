@@ -10,6 +10,8 @@ depends-on: [documentation-and-adrs]
 
 ## Overview
 
+Supporting references: references/paths.md, references/spec-quickstart-template.md, references/spec-workflow-template.md.
+
 Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
 
 ## When to Use
@@ -35,6 +37,8 @@ SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
 ```
 
 ### Phase 1: Specify
+
+Before any interpretation, write the user's raw request verbatim to `.teikk/spec/REQUEST.md`. Do not summarize, clean up, or add assumptions. Include a `## Source Request` section in SPEC.md quoting that artifact verbatim, then run `bash scripts/check-request-overlap.sh`; it must pass before the spec is saved.
 
 Start with a high-level vision. Ask the human clarifying questions until requirements are concrete.
 
@@ -84,7 +88,7 @@ When drafting the spec, the agent may hit moments where it doesn't have enough a
 
 **Auto-trigger conditions** — fire this when ANY of these is true:
 - A major tech choice is unfamiliar or hasn't been touched by this repo in >12 months (e.g. user named a library/version you're not 100% sure about)
-- The `Domain:` is `finance`, `health`, or `auth` (high-stakes — silent bugs are expensive; pair with @references/domain-guardrails.md)
+- The `Domain:` is `finance`, `health`, or `auth` (high-stakes — silent bugs are expensive; pair with references/domain-guardrails.md)
 - The architecture menu offers >1 viable option whose trade-offs aren't obvious from the spec context (e.g. Hilt vs Koin, MVVM + Clean vs MVI, Compose vs XML)
 - The user names a specific library/version that the agent's training data may have stale info on
 
@@ -94,7 +98,7 @@ When drafting the spec, the agent may hit moments where it doesn't have enough a
 - The spec is a small bug fix or refactor with no architectural choice to research
 - The same question has already been researched in this session (don't re-fetch what you have)
 
-**Mechanism** — same as Pattern 5 (`Research isolation`) in @references/orchestration-patterns.md:
+**Mechanism** — same as Pattern 5 (`Research isolation`) in references/orchestration-patterns.md:
 - Spawn `Explore` (Haiku, read-only, denied write/edit tools) with a focused prompt: "Fetch official docs for X. Return: (1) recommended pattern for our use case, (2) known pitfalls / edge cases, (3) one URL per claim."
 - The main agent reads the digest, folds citations into the relevant spec section (Tech Stack, Architecture, or Boundaries — not a separate "Research Notes" appendix that bloats the file), and only then asks the user the next decision question with evidence in hand.
 - Research never replaces the user-facing decision — it only arms the agent to ask better questions and anchor the spec in current best practice.
@@ -104,7 +108,7 @@ When drafting the spec, the agent may hit moments where it doesn't have enough a
 
 **Write a spec document covering these nine core areas:**
 
-1. **Objective** — What are we building and why? Who is the user? What does success look like? **Declare the `Domain:`** (e.g. finance, health, auth, generic) — this drives the domain guardrails loaded at review/ship time (@references/domain-guardrails.md). If the app handles a value that must never be silently wrong (money, dose, coordinate, token expiry), naming the domain here is what makes the review catch it.
+1. **Objective** — What are we building and why? Who is the user? What does success look like? **Declare the `Domain:`** (e.g. finance, health, auth, generic) — this drives the domain guardrails loaded at review/ship time (references/domain-guardrails.md). If the app handles a value that must never be silently wrong (money, dose, coordinate, token expiry), naming the domain here is what makes the review catch it.
 
 2. **Tech Stack** — Language, framework, key libraries with versions. For Android: Kotlin vs Java, Compose vs XML, min/target SDK.
 
@@ -146,9 +150,12 @@ All Specify-phase artifacts (`SPEC.md`, `PROJECT.yaml`, `QUICKSTART.md`, `WORKFL
 ```markdown
 # Spec: [Project/Feature Name]
 
+## Source Request
+[Verbatim contents of `.teikk/spec/REQUEST.md` — do not summarize.]
+
 ## Objective
 [What we're building and why. User stories or acceptance criteria.]
-Domain: [finance | health | auth | generic — drives @references/domain-guardrails.md]
+Domain: [finance | health | auth | generic — drives references/domain-guardrails.md]
 
 ## Tech Stack
 [Framework, language, key dependencies with versions]
@@ -252,7 +259,7 @@ Break the plan into discrete, implementable tasks:
 
 ### Phase 4: Implement
 
-Execute tasks one at a time following `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) and `skills/test-driven-development/SKILL.md` (`test-driven-development`). Use `skills/context-engineering/SKILL.md` (`context-engineering`) to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+Execute tasks one at a time following `incremental-implementation` and `test-driven-development`. Use `context-engineering` to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
 
 ## Keeping the Spec Alive
 
@@ -287,6 +294,7 @@ The spec is a living document, not a one-time artifact:
 
 Before proceeding to implementation, confirm:
 
+- [ ] `.teikk/spec/REQUEST.md` contains the verbatim user request and SPEC.md has a matching `## Source Request` section (`check-request-overlap.sh` passes)
 - [ ] The spec covers all nine core areas (including architecture and observability)
 - [ ] For a new project: the human explicitly chose the architecture at the gate (not defaulted silently), and rejected alternatives are recorded
 - [ ] The `Domain:` is declared, so domain guardrails load at review/ship

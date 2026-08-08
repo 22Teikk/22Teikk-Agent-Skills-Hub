@@ -1,7 +1,7 @@
 description = "Onboard an existing codebase — reverse-engineer the .teikk/spec/ files from the code instead of hand-writing a spec"
 
 prompt = """
-Read and follow `skills/map-code-base/SKILL.md`.
+Read and follow `map-code-base`.
 
 Use this on an EXISTING / legacy codebase that is adopting this skills pack, when there is no `.teikk/spec/SPEC.md` yet. Instead of interviewing you to write a spec forward (that is `/teikk-spec`), this scans the code you already have and reverse-engineers the same artifacts. For a brand-new project with no code, use `/teikk-spec` instead.
 

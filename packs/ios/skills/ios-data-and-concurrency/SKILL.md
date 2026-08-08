@@ -248,7 +248,7 @@ Logger.network.error("Decoding failed: \(error.localizedDescription, privacy: .p
 - **`@Model` with no migration plan** is a data-loss trap. The moment a schema changes in a shipped app, users with the old store get a crash or a destructive fallback. Either:
   1. Add lightweight migration attributes (`@Attribute(.spotlight)`, versioned `VersionedSchema`), OR
   2. Provide a `SchemaMigrationPlan` mapping old → new.
-- **Never store a value that must be exact as `Double`.** For money, use `Int64` minor units (cents) or `Decimal` for arbitrary-precision. A `SUM()`/aggregate on a money field must return `Int64` or `Decimal`, not `Double`. See @references/domain-guardrails.md.
+- **Never store a value that must be exact as `Double`.** For money, use `Int64` minor units (cents) or `Decimal` for arbitrary-precision. A `SUM()`/aggregate on a money field must return `Int64` or `Decimal`, not `Double`. See references/domain-guardrails.md.
 - Prove the schema with a **SwiftData in-memory test** (insert → fetch/aggregate → assert exact value), not a mocked repository. See `ios-testing-and-benchmark`.
 
 ## Common Rationalizations

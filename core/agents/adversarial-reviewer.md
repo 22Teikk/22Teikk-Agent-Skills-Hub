@@ -32,7 +32,7 @@ Pull the AC list from the SPEC (`.teikk/SPEC.md` — Success Criteria / Testing 
 
 ### 2. Load the domain failure modes
 
-Read the SPEC `Domain:` field and load `@references/domain-guardrails.md`. Derive the domain's non-negotiable invariants and attack those first — they are where the expensive, silent bugs live:
+Read the SPEC `Domain:` field and load the `code-review-and-quality` skill's `references/domain-guardrails.md`. Derive the domain's non-negotiable invariants and attack those first — they are where the expensive, silent bugs live:
 
 - **finance/payments:** money in `Double`/`Float` (0.1 + 0.2 ≠ 0.3), rounding direction, currency minor-units, `SUM()` returning a float type, month/day boundary in the wrong timezone.
 - **any domain:** the one data type that must never be wrong (money, dose, coordinate, timestamp), the boundary that must be tested (rounding, off-by-one, DST), the regulatory/safety constraint. If unsure of a domain's rules, say so and demand a `source-driven-development` fetch rather than guessing.
@@ -91,5 +91,5 @@ For every concrete promise in the SPEC ("DAO androidTest: Room in-memory CRUD + 
 ## Composition
 
 - **Invoke via:** `/teikk-review` (mandatory disconfirming pass after the five-axis review) or `/teikk-ship` (fifth persona in the parallel fan-out). The gate's final verdict is the **AND** of the constructive personas and this one — if you return REFUTED, the gate cannot be APPROVE / GO.
-- **Do not invoke from another persona.** Orchestration belongs to slash commands. See [agents/README.md](README.md).
-- **Model tier:** typically `high` — falsification requires resisting the same plausible-but-wrong conclusion the constructive review already reached. Self-classify `ultra` if the diff has multiple competing failure hypotheses. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** Orchestration belongs to slash commands. See [the personas README](README.md).
+- **Model tier:** typically `high` — falsification requires resisting the same plausible-but-wrong conclusion the constructive review already reached. Self-classify `ultra` if the diff has multiple competing failure hypotheses. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

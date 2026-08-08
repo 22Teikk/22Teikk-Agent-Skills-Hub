@@ -15,7 +15,7 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 
 ## Install
 
-All skills, agents, and references are copied directly into your project — self-contained, no shared global state. Your repository stays clean: the one physical directory that isn't gitignored-away is `.teikk/`, where every workflow writes its output. Install is additive — it copies beside your own files and never deletes your `.claude/` config.
+Skills and agents are copied directly into each tool's own directory (`.claude/skills/`, `.opencode/skills/`, …) — self-contained, no shared tree, no symlinks. Reference docs a skill uses are bundled into that skill. The only non-gitignored output dir is `.teikk/`, where every workflow writes. Install is additive — it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
 npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
@@ -127,11 +127,13 @@ Three guardrails enforced by executable scripts, not just prose — portable acr
 3. **Sensitive-file "Allowed" confirmation gate.**
 
 40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
 
 ```bash
-git config core.hooksPath hooks
+# In an installed project (claude target): hooks land in .claude/hooks/
+git config core.hooksPath .claude/hooks
 # OR
-ln -sf ../../hooks/pre-push.sh .git/hooks/pre-push
+ln -sf ../../.claude/hooks/pre-push.sh .git/hooks/pre-push
 ```
 
 ### Failure recovery & rollback
@@ -183,19 +185,30 @@ core/skills/     23 platform-neutral workflow skills (SKILL.md each) — always 
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
 packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
+packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
                  (android-performance-auditor, kotlin-specialist)
 packs/ios/       4 iOS skills (ui/data/di/test) + swift-expert persona
 packs/flutter/   4 Flutter skills (ui/data/di/test) + flutter-expert persona
                  → install copies core + only the pack matching `.teikk/spec/PROJECT.yaml`
-                   `platform:`, merged into a flat skills/ + agents/ in your project
+                   `platform:`, copied into each tool's own skills/ + agents/ dir
                  Total: 40 skills (23 core + 17 pack) + 11 personas across packs + core
-.cursor/         rules (6: android-stack, ios-stack, flutter-stack, + 3 skill rules) + slash commands (22)
-.claude/         slash commands (22)
+.cursor/         rules (6) + slash commands (23)
+.claude/         slash commands (23)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
 .agents/         Antigravity rules (6) + workflows (23)
-commands/        OpenCode TOML commands (23)
+commands/        OpenCode-dialect TOML command sources (23)
 references/      testing, security, performance, accessibility checklists
 .teikk/          (generated at runtime) all workflow output — gitignored
+```
+
+The list above is the **repo** layout. Inside an **installed project**, each tool dir is self-contained — skills/agents are physically copied in, and each skill bundles the reference docs it uses (project root stays clean — only `scripts/` and Antigravity's `commands/` sit at root):
+
+```
+.claude/    commands/ (23 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md · hooks/ · lib/telemetry.sh
+.opencode/  commands/ (23 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md
+.cursor/ .gemini/ .agents/   commands|workflows · skills/ · agents/
+scripts/    user-facing CLIs (benchmark, decisions, rollback) — kept at root
+.teikk/     (generated at runtime) all workflow output — gitignored
 ```
 
 ---

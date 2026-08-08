@@ -9,6 +9,7 @@
  *     ├─ .gemini/commands/<name>.toml      verbatim copy (same TOML dialect)
  *     ├─ .cursor/commands/<name>.md        "# <description>\n\n<prompt>"
  *     ├─ .claude/commands/<name>.md        YAML frontmatter + body
+ *     ├─ .opencode/commands/<name>.md      YAML frontmatter + body (Claude-shape)
  *     └─ .agents/workflows/<name>.md       "# <description>\n\n<prompt>"
  *
  * Per-target overrides inside the TOML prompt (so a single source can ship
@@ -22,7 +23,7 @@
  * targets listed in `@override:<targets>` (comma-separated). For all other
  * targets the preceding default line is kept and the marker block is dropped.
  * Multiple `@override` blocks per prompt are supported. Targets: claude,
- * antigravity, cursor, gemini (any subset).
+ * opencode, antigravity, cursor, gemini (any subset).
  *
  * Usage:
  *   node scripts/sync-targets.js          # check only — reports drift, exits 1 if any
@@ -39,6 +40,7 @@ const SRC_DIR    = path.join(ROOT, 'commands');
 const CURSOR_DIR = path.join(ROOT, '.cursor', 'commands');
 const GEMINI_DIR = path.join(ROOT, '.gemini', 'commands');
 const CLAUDE_DIR = path.join(ROOT, '.claude', 'commands');
+const OPENCODE_DIR = path.join(ROOT, '.opencode', 'commands');
 const AG_DIR     = path.join(ROOT, '.agents', 'workflows');
 
 // ─── TOML (this repo's narrow command dialect) ───────────────────────────────
@@ -167,6 +169,14 @@ function toAntigravityMd({ description, prompt }) {
   return `# ${description}\n\n${body}\n`;
 }
 
+// OpenCode reads `.opencode/commands/<name>.md` in the same markdown+frontmatter
+// shape as Claude (docs use the plural dir; binary also accepts `command/`);
+// mirrors toClaudeMd but extracts the `opencode` override channel.
+function toOpencodeMd({ description, prompt }) {
+  const body = extractForTarget(prompt, 'opencode');
+  return `---\ndescription: ${description}\n---\n\n${body}\n`;
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -189,6 +199,7 @@ function main() {
       { file: path.join(GEMINI_DIR, `${name}.toml`), want: stripMarkersFromToml(srcRaw), label: `.gemini/commands/${name}.toml` },
       { file: path.join(CURSOR_DIR, `${name}.md`),   want: toCursor(parsed),             label: `.cursor/commands/${name}.md`   },
       { file: path.join(CLAUDE_DIR, `${name}.md`),   want: toClaudeMd(parsed),           label: `.claude/commands/${name}.md`   },
+      { file: path.join(OPENCODE_DIR, `${name}.md`), want: toOpencodeMd(parsed),         label: `.opencode/commands/${name}.md` },
       { file: path.join(AG_DIR, `${name}.md`),       want: toAntigravityMd(parsed),      label: `.agents/workflows/${name}.md`  },
     ];
 
@@ -196,6 +207,7 @@ function main() {
       const have = fs.existsSync(t.file) ? fs.readFileSync(t.file, 'utf8') : null;
       if (have === t.want) { synced++; continue; }
       if (write) {
+        fs.mkdirSync(path.dirname(t.file), { recursive: true });
         fs.writeFileSync(t.file, t.want, 'utf8');
         console.log(`  ↻  wrote ${t.label}`);
         synced++;
@@ -206,12 +218,12 @@ function main() {
   }
 
   if (write) {
-    console.log(`\nsync-targets — ${synced} file(s) up to date across ${sources.length} commands × 4 targets`);
+    console.log(`\nsync-targets — ${synced} file(s) up to date across ${sources.length} commands × 5 targets`);
     return;
   }
 
   if (drift.length === 0) {
-    console.log(`  ✓  all 4 targets in sync with commands/ — ${sources.length} commands`);
+    console.log(`  ✓  all 5 targets in sync with commands/ — ${sources.length} commands`);
     console.log(`\nsync-targets check — 0 drift — PASSED`);
   } else {
     for (const d of drift) console.log(`  ✗  ${d}`);

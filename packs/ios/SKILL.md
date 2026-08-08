@@ -28,7 +28,7 @@ Native iOS engineering skills for Swift 5.9+/6 apps built with SwiftUI and moder
 
 ## Persona
 
-- **swift-expert** (`packs/ios/agents/swift-expert.md`) — senior Swift reviewer/implementer. Routes feature work into the four skills above. Invoke directly from `/teikk-build` when the slice is iOS-native.
+- **swift-expert** (`swift-expert`) — senior Swift reviewer/implementer. Routes feature work into the four skills above. Invoke directly from `/teikk-build` when the slice is iOS-native.
 
 ## Interaction with `/teikk-ios-setup`
 
@@ -49,4 +49,4 @@ If the user runs `/teikk-ios-setup` without first generating a spec, redirect th
 ## Cross-References
 
 - Core (platform-neutral) skills: see `core/skills/` — every iOS feature still routes through `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `code-review-and-quality`, `git-workflow-and-versioning`.
-- Domain guardrails (money-as-Double, exact arithmetic, etc.): see `references/domain-guardrails.md` — apply the Long-minor-units rule to SwiftData `Int64` columns, not just Room.
+- Domain guardrails (money-as-Double, exact arithmetic, etc.): see the `security-and-hardening` skill's `references/domain-guardrails.md` — apply the Long-minor-units rule to SwiftData `Int64` columns, not just Room.

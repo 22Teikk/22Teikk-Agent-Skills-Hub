@@ -197,7 +197,7 @@ The two variants should **never** be mixed inside the same feature subtree.
 These mirror the Android skill's hard rules — adapted to Flutter idioms:
 
 - **`schemaVersion` bumped with no migration** is a data-loss trap. When `schemaVersion` increases in a shipped app, users with the old schema crash or fall back to destructive recreation. Always ship a `MigrationStrategy.onUpgrade` for every version bump, and prove it with a drift schema test (insert under v1 → migrate → assert under v2).
-- **Never store money as `double` / `num` with fractional values.** Use `int` minor units (cents) end-to-end. A `SELECT SUM(amount)` query in drift must be declared to return `Expression<int>`, not `Expression<double>` — a `SUM()` over a `REAL` column will silently drift on the device. See @references/domain-guardrails.md for the finance rules.
+- **Never store money as `double` / `num` with fractional values.** Use `int` minor units (cents) end-to-end. A `SELECT SUM(amount)` query in drift must be declared to return `Expression<int>`, not `Expression<double>` — a `SUM()` over a `REAL` column will silently drift on the device. See references/domain-guardrails.md for the finance rules.
 - **Prove the schema with a real in-memory database test, not a mocked repository.** Mocking the repository that returns the value you assert proves nothing — the SQL, the schema, and the column type never ran. Use `NativeDatabase.memory()` (or `drift_dev`'s in-memory helper) in the test. See `flutter-testing-and-benchmark`.
 
 ## Common Rationalizations

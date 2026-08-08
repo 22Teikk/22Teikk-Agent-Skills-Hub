@@ -18,7 +18,7 @@ Evaluate every change across these five dimensions:
 - Are edge cases handled (null, empty, boundary values, error paths)?
 - Do the tests actually verify the behavior? Are they testing the right things? (A mock that returns the expected value and then asserts it proves nothing.)
 - Are there race conditions, off-by-one errors, or state inconsistencies?
-- **Load domain guardrails.** Read the SPEC `Domain:` field and apply `@references/domain-guardrails.md` for this app's domain. A violation of a domain invariant is **Critical**, not a nit — e.g. in a finance app, money stored as `Double`/`Float` (entity, DAO return type, or aggregate) is a precision-loss defect that must block merge. A fintech review is not a blog review.
+- **Load domain guardrails.** Read the SPEC `Domain:` field and apply the `code-review-and-quality` skill's `references/domain-guardrails.md` for this app's domain. A violation of a domain invariant is **Critical**, not a nit — e.g. in a finance app, money stored as `Double`/`Float` (entity, DAO return type, or aggregate) is a precision-loss defect that must block merge. A fintech review is not a blog review.
 
 ### 2. Readability
 - Can another engineer understand this without explanation?
@@ -97,5 +97,5 @@ Categorize every finding:
 
 - **Invoke directly when:** the user asks for a review of a specific change, file, or PR.
 - **Invoke via:** `/teikk-review` (single-perspective review) or `/teikk-ship` (parallel fan-out alongside `security-auditor` and `test-engineer`).
-- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. See [agents/README.md](README.md).
-- **Model tier:** typically `medium` — ordinary review reasoning against known conventions. Self-classify `high` for a diff touching security-sensitive or hard-to-reverse code. See [agents/README.md](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).
+- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. See [the personas README](README.md).
+- **Model tier:** typically `medium` — ordinary review reasoning against known conventions. Self-classify `high` for a diff touching security-sensitive or hard-to-reverse code. See [the personas README](README.md#model-tiering-project-local-provider-agnostic) for the lookup mechanism (`PROJECT.yaml`'s `model_tiers`, optional).

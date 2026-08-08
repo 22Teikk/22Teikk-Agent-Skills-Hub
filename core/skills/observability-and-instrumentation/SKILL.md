@@ -3,6 +3,7 @@ name: observability-and-instrumentation
 description: Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces.
 version: 1.0.0
 platform: generic
+depends-on: [security-and-hardening, shipping-and-launch]
 ---
 
 # Observability and Instrumentation (Android)
@@ -21,7 +22,7 @@ Guidelines for instrumenting Android applications. Since mobile apps run on thou
 
 **NOT for:**
 - CPU/Memory profiling during local development — use the `android-performance-auditor` agent with local profiling tools (Profiler, Macrobenchmark).
-- Launch-day Play Store checklist and rollout rules — see `skills/shipping-and-launch/SKILL.md`.
+- Launch-day Play Store checklist and rollout rules — see `shipping-and-launch`.
 
 ## Inline logging during `/teikk-build` (all platforms)
 
@@ -145,8 +146,9 @@ val okHttpClient = OkHttpClient.Builder()
 
 ## See Also
 
-- For security rules regarding logging sensitive data, see `skills/security-and-hardening/SKILL.md`.
-- For performance and benchmarking metrics, see @references/performance-checklist.md.
+- For security rules regarding logging sensitive data, see `security-and-hardening`.
+- For performance and benchmarking metrics, see references/performance-checklist.md.
+- For the framework's own telemetry/benchmark scoring model, see references/observability-and-benchmark.md.
 
 ## Common Rationalizations
 

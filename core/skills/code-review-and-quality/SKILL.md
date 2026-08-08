@@ -3,7 +3,7 @@ name: code-review-and-quality
 description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
 version: 1.0.0
 platform: generic
-depends-on: [security-and-hardening]
+depends-on: [adversarial-reviewer, security-and-hardening]
 ---
 
 # Code Review and Quality
@@ -37,9 +37,9 @@ Does the code do what it claims to do?
 - Does it match the spec or task requirements?
 - Are edge cases handled (null, empty, boundary values)?
 - Are error paths handled (not just the happy path)?
-- Does it pass all tests? Are the tests actually testing the right things? (A mock returning the expected value and asserting it proves nothing — see the behavioral-test definition in `skills/test-driven-development/SKILL.md`.)
+- Does it pass all tests? Are the tests actually testing the right things? (A mock returning the expected value and asserting it proves nothing — see the behavioral-test definition in `test-driven-development`.)
 - Are there off-by-one errors, race conditions, or state inconsistencies?
-- **Load domain guardrails.** Read the SPEC `Domain:` field and apply @references/domain-guardrails.md. A violated domain invariant is **Critical** — e.g. money as `Double`/`Float` in a finance app, or a `SUM()` returning `Flow<Double>`. A generic review that skips this is how a finance app ships money-as-Double.
+- **Load domain guardrails.** Read the SPEC `Domain:` field and apply references/domain-guardrails.md. A violated domain invariant is **Critical** — e.g. money as `Double`/`Float` in a finance app, or a `SUM()` returning `Flow<Double>`. A generic review that skips this is how a finance app ships money-as-Double.
 - **Reconcile SPEC promises against artifacts.** For every concrete thing the SPEC promises (e.g. "DAO androidTest: Room in-memory CRUD + Flow emission"), confirm the artifact exists and executes. A promised-but-absent test is a Critical finding, not a nit.
 
 ### 2. Readability & Simplicity
@@ -187,10 +187,10 @@ Check the author's verification story:
 
 ### Step 6: Adversarial pass (mandatory disconfirming review)
 
-The five axes look for reasons to approve. This step looks for reasons to reject — a green build and a clean diff are the *start* of scrutiny, not the end. Run the adversarial reviewer (`agents/adversarial-reviewer.md`), or adopt its posture yourself: for **each acceptance criterion**, try to prove it is *not* met.
+The five axes look for reasons to approve. This step looks for reasons to reject — a green build and a clean diff are the *start* of scrutiny, not the end. Run the adversarial reviewer (`adversarial-reviewer`), or adopt its posture yourself: for **each acceptance criterion**, try to prove it is *not* met.
 
 - Is there a **behavioral** test that executes the AC (not a mock returning the expected value, not a boilerplate template, not a label-only check)? If not, the AC is unproven → treat as a Critical/blocking finding, not "probably fine".
-- Attack the domain failure modes from @references/domain-guardrails.md (finance: rounding, float money, timezone/day boundary; etc.).
+- Attack the domain failure modes from references/domain-guardrails.md (finance: rounding, float money, timezone/day boundary; etc.).
 - Try boundary/persistence/concurrency/empty-state inputs against every entry point.
 
 **Verdict is the AND of the constructive review and the adversarial pass.** If the adversarial pass returns `REFUTED` (an AC proven false or a Critical found), the review verdict is **REQUEST CHANGES** regardless of how clean the five axes looked. Consensus that it "looks good" is not proof it is correct.
@@ -330,10 +330,10 @@ Part of code review is dependency review:
 ```
 ## See Also
 
-- For the disconfirming reviewer, see `agents/adversarial-reviewer.md`
-- For domain-specific correctness rules (finance money type, etc.), see @references/domain-guardrails.md
-- For detailed security review guidance, see @references/security-checklist.md
-- For performance review checks, see @references/performance-checklist.md
+- For the disconfirming reviewer, see `adversarial-reviewer`
+- For domain-specific correctness rules (finance money type, etc.), see references/domain-guardrails.md
+- For detailed security review guidance, see references/security-checklist.md
+- For performance review checks, see references/performance-checklist.md
 
 ## Common Rationalizations
 

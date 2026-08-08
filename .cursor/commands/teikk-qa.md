@@ -6,11 +6,11 @@ Run two stages in order; skip either when it does not apply, and state which you
 
 ## Stage 1 — E2E (if SPEC declares non-`none`)
 
-Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) for platform + `E2E:` value. If `E2E: none`, skip this stage. Otherwise follow `/teikk-e2e`'s platform routing: Android/Maestro → `skills/android-e2e-maestro`; iOS/XCUITest → `agents/swift-expert`; Flutter/integration_test → `agents/flutter-expert`. Report each flow: criterion covered, file path, command run, pass/fail.
+Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) for platform + `E2E:` value. If `E2E: none`, skip this stage. Otherwise follow `/teikk-e2e`'s platform routing: Android/Maestro → `android-e2e-maestro`; iOS/XCUITest → `swift-expert`; Flutter/integration_test → `flutter-expert`. Report each flow: criterion covered, file path, command run, pass/fail.
 
 ## Stage 2 — UI/UX testing
 
-Read and follow `agents/ui-ux-tester.md`. Run exhaustive flow validation, visual spacing audit, edge/negative-path checks. Mobile via mobile-mcp (iOS/Android on simulator/emulator/device); web via browser-automation MCP. Produce a severity-classified defect report with specific fixes and visual evidence.
+Read and follow `ui-ux-tester`. Run exhaustive flow validation, visual spacing audit, edge/negative-path checks. Mobile via mobile-mcp (iOS/Android on simulator/emulator/device); web via browser-automation MCP. Produce a severity-classified defect report with specific fixes and visual evidence.
 
 ## Arguments
 

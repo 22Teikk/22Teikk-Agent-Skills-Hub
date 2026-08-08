@@ -43,13 +43,38 @@ function run() {
 
     assert(fs.existsSync(path.join(tmp, '.cursor', 'rules')), 'missing .cursor/rules');
     assert(fs.existsSync(path.join(tmp, '.cursor', 'commands')), 'missing .cursor/commands');
-    assert(fs.existsSync(path.join(tmp, 'skills')), 'missing skills/');
+    assert(
+      fs.existsSync(path.join(tmp, '.cursor', 'skills', 'spec-driven-development', 'SKILL.md')),
+      'missing .cursor/skills — skills must be physically copied into each tool dir',
+    );
     assert(fs.existsSync(path.join(tmp, MANIFEST_FILE)), 'missing manifest');
     assert(
-      !fs.lstatSync(path.join(tmp, 'skills')).isSymbolicLink(),
-      'skills/ should be a real directory, not a symlink',
+      !fs.lstatSync(path.join(tmp, '.cursor', 'skills')).isSymbolicLink(),
+      '.cursor/skills should be a real directory, not a symlink',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    assert(
+      fs.existsSync(path.join(tmp, '.cursor', 'agents', 'code-reviewer.md')),
+      '.cursor/agents must be physically copied',
+    );
+    assert(
+      !fs.existsSync(path.join(tmp, '.teikk-agents')),
+      '.teikk-agents/ must NOT exist — each tool dir is self-contained',
+    );
+    assert(
+      !fs.existsSync(path.join(tmp, 'skills')),
+      'root skills/ must NOT exist',
+    );
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(
         fs.existsSync(path.join(tmp, 'scripts', script)),
         `missing scripts/${script} — user-facing CLI tools should be usable in-project, no clone needed`,
@@ -64,10 +89,27 @@ function run() {
       { encoding: 'utf8' },
     );
     assert(update.status === 0, `update failed: ${update.stderr}`);
-    assert(fs.existsSync(path.join(tmp, '.opencode', 'skills')), 'missing .opencode/skills symlink');
     assert(
-      fs.lstatSync(path.join(tmp, '.opencode', 'skills')).isSymbolicLink(),
-      '.opencode/skills should remain an in-project symlink',
+      fs.existsSync(path.join(tmp, '.opencode', 'skills', 'spec-driven-development', 'SKILL.md')),
+      'missing .opencode/skills — must be physically copied',
+    );
+    assert(
+      !fs.lstatSync(path.join(tmp, '.opencode', 'skills')).isSymbolicLink(),
+      '.opencode/skills should be a real directory, not a symlink',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.opencode', 'agents', 'code-reviewer.md')),
+      'missing .opencode/agents — must be physically copied',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.opencode', 'commands', 'teikk-spec.md')),
+      'missing .opencode/commands/teikk-spec.md — OpenCode must get native slash commands',
+    );
+    assert(
+      fs.existsSync(
+        path.join(tmp, '.opencode', 'skills', 'code-review-and-quality', 'references', 'domain-guardrails.md'),
+      ),
+      'missing bundled reference — references must be copied into each skill that uses them',
     );
 
     const manifest = JSON.parse(fs.readFileSync(path.join(tmp, MANIFEST_FILE), 'utf8'));
@@ -82,7 +124,14 @@ function run() {
     );
     assert(uninstall.status === 0, `uninstall failed: ${uninstall.stderr}`);
     assert(!fs.existsSync(path.join(tmp, MANIFEST_FILE)), 'manifest not removed');
-    assert(!fs.existsSync(path.join(tmp, 'skills')), 'uninstall left skills/ behind');
+    assert(
+      !fs.existsSync(path.join(tmp, '.opencode', 'skills')),
+      'uninstall left .opencode/skills behind',
+    );
+    assert(
+      !fs.existsSync(path.join(tmp, '.cursor', 'skills')),
+      'uninstall left .cursor/skills behind',
+    );
 
     const gitignore = fs.readFileSync(path.join(tmp, '.gitignore'), 'utf8');
     assert(!gitignore.includes(GITIGNORE_BEGIN), 'gitignore block not removed');
@@ -215,8 +264,9 @@ function runV2Migration() {
   try {
     fs.writeFileSync(path.join(tmp, 'package.json'), '{ "name": "fixture-app" }\n');
 
-    const v2Paths = ['.claude/commands', 'hooks', 'skills', 'agents', 'references'];
-    for (const relPath of v2Paths) {
+    // Legacy links live at the OLD root paths a pre-3.0 install created.
+    const legacyLinkPaths = ['.claude/commands', 'hooks', 'skills', 'agents', 'references'];
+    for (const relPath of legacyLinkPaths) {
       const legacyTarget = path.join(fakeLegacyDir, relPath);
       fs.mkdirSync(legacyTarget, { recursive: true });
       fs.writeFileSync(path.join(legacyTarget, 'stale-marker.txt'), 'stale\n');
@@ -235,11 +285,17 @@ function runV2Migration() {
     );
     assert(update.status === 0, `v2 migration failed: ${update.stderr}`);
 
-    for (const relPath of v2Paths) {
-      const abs = path.join(tmp, relPath);
+    // .claude/commands is repopulated as a real dir; the bare-root legacy links
+    // (skills/agents/references/hooks) are dropped and content now lives under
+    // .claude/{skills,agents,hooks}, so those root paths must be gone.
+    assert(
+      !fs.lstatSync(path.join(tmp, '.claude', 'commands')).isSymbolicLink(),
+      '.claude/commands should no longer be a symlink after v2 migration',
+    );
+    for (const relPath of ['skills', 'agents', 'references', 'hooks']) {
       assert(
-        !fs.lstatSync(abs).isSymbolicLink(),
-        `${relPath} should no longer be a symlink after v2 migration`,
+        !fs.existsSync(path.join(tmp, relPath)),
+        `legacy root ${relPath}/ should be gone after v2 migration`,
       );
     }
     assert(
@@ -247,8 +303,9 @@ function runV2Migration() {
       'commands not repopulated after v2 migration',
     );
     assert(
-      !fs.existsSync(path.join(tmp, 'skills', 'stale-marker.txt')),
-      'stale marker from legacy global cache leaked into project',
+      fs.existsSync(path.join(tmp, '.claude', 'skills', 'spec-driven-development', 'SKILL.md')) &&
+        !fs.lstatSync(path.join(tmp, '.claude', 'skills')).isSymbolicLink(),
+      '.claude/skills should be a real dir after v2 migration',
     );
 
     process.stdout.write('test-install: legacy 2.x symlink migration passed\n');
@@ -275,7 +332,7 @@ function runStaleCleanup() {
 
     // Simulate a leftover from a previous package version: a file physically
     // present and tracked as ours, but no longer produced by packageRoot.
-    const staleRel = path.join('skills', '__fake-removed-skill__', 'SKILL.md');
+    const staleRel = path.join('.cursor', 'skills', '__fake-removed-skill__', 'SKILL.md');
     fs.mkdirSync(path.dirname(path.join(tmp, staleRel)), { recursive: true });
     fs.writeFileSync(path.join(tmp, staleRel), '# stale\n');
 
@@ -291,16 +348,70 @@ function runStaleCleanup() {
     );
     assert(update.status === 0, `stale-cleanup update failed: ${update.stderr}`);
 
+    const skillsTree = path.join(tmp, '.cursor', 'skills');
     assert(
-      !fs.existsSync(path.join(tmp, 'skills', '__fake-removed-skill__')),
+      !fs.existsSync(path.join(skillsTree, '__fake-removed-skill__')),
       'stale owned file/directory was not cleaned up on update',
     );
     assert(
-      fs.existsSync(path.join(tmp, 'skills')) && fs.readdirSync(path.join(tmp, 'skills')).length > 0,
+      fs.existsSync(skillsTree) && fs.readdirSync(skillsTree).length > 0,
       'real skill files should remain after stale cleanup',
     );
 
     process.stdout.write('test-install: stale-file cleanup on update passed\n');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+// Regression for the symlink-era → copy-model upgrade: a prior release left
+// `<toolDir>/skills` and `<toolDir>/agents` as symlinks into `.teikk-agents/`.
+// The copy install MUST unlink them first, or copyOrMerge silently skips the
+// symlink and installs zero skills. This test would fail (empty skills dir)
+// before the dropLegacyLinks(dropAny) fix.
+function runSymlinkToCopyUpgrade() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `${PACKAGE_NAME}-symlink-upgrade-`));
+  try {
+    fs.writeFileSync(path.join(tmp, 'package.json'), '{ "name": "fixture-app" }\n');
+
+    // Simulate the old layout: a real .teikk-agents/skills tree owned via the
+    // manifest + a .opencode/skills symlink into it (exactly what the prior
+    // symlink-era release wrote).
+    const shared = path.join(tmp, '.teikk-agents', 'skills', 'old-skill');
+    fs.mkdirSync(shared, { recursive: true });
+    fs.writeFileSync(path.join(shared, 'SKILL.md'), '# old\n');
+    fs.mkdirSync(path.join(tmp, '.opencode'), { recursive: true });
+    fs.symlinkSync(
+      path.join('..', '.teikk-agents', 'skills'),
+      path.join(tmp, '.opencode', 'skills'),
+    );
+    fs.writeFileSync(
+      path.join(tmp, MANIFEST_FILE),
+      `${JSON.stringify({ version: '5.0.0', targets: ['opencode'], files: ['.teikk-agents/skills/old-skill/SKILL.md'], package: PACKAGE_NAME }, null, 2)}\n`,
+    );
+
+    const update = spawnSync(
+      process.execPath,
+      [CLI, 'update', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(update.status === 0, `symlink→copy upgrade failed: ${update.stderr}`);
+
+    const skillsDir = path.join(tmp, '.opencode', 'skills');
+    assert(
+      !fs.lstatSync(skillsDir).isSymbolicLink(),
+      '.opencode/skills should be a real dir after upgrade, not the old symlink',
+    );
+    assert(
+      fs.existsSync(path.join(skillsDir, 'spec-driven-development', 'SKILL.md')),
+      'skills silently not copied — the symlink→copy upgrade bug regressed',
+    );
+    assert(
+      !fs.existsSync(path.join(tmp, '.teikk-agents')),
+      'old .teikk-agents/ tree should be pruned after upgrade',
+    );
+
+    process.stdout.write('test-install: symlink→copy upgrade passed\n');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
@@ -384,14 +495,14 @@ function runClaudeHooksWiring() {
       );
     }
 
-    // The wired hook is actually runnable: lib/telemetry.sh (its dependency)
-    // must have been copied alongside hooks/, and firing the hook must
-    // produce valid, parseable JSONL.
+    // The wired hook is actually runnable from its new nested home: its
+    // dependency .claude/lib/telemetry.sh must have been copied alongside
+    // .claude/hooks/, and firing the hook must produce valid, parseable JSONL.
     assert(
-      fs.existsSync(path.join(tmp, 'lib', 'telemetry.sh')),
-      'lib/telemetry.sh not copied — lifecycle-telemetry.sh hook would silently no-op',
+      fs.existsSync(path.join(tmp, '.claude', 'lib', 'telemetry.sh')),
+      '.claude/lib/telemetry.sh not copied — lifecycle-telemetry.sh hook would silently no-op',
     );
-    const fired = spawnSync('bash', [path.join(tmp, 'hooks', 'lifecycle-telemetry.sh'), 'TaskCreated'], {
+    const fired = spawnSync('bash', [path.join(tmp, '.claude', 'hooks', 'lifecycle-telemetry.sh'), 'TaskCreated'], {
       cwd: tmp,
       encoding: 'utf8',
       env: { ...process.env, CLAUDE_PROJECT_DIR: tmp },
@@ -502,7 +613,17 @@ function runSharedScripts() {
       fs.readFileSync(path.join(tmp, 'scripts', 'my-build.js'), 'utf8').includes('my own build script'),
       'install destroyed user scripts/my-build.js',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(fs.existsSync(path.join(tmp, 'scripts', script)), `scripts/${script} not copied`);
     }
 
@@ -517,7 +638,17 @@ function runSharedScripts() {
       fs.existsSync(path.join(tmp, 'scripts', 'my-build.js')),
       'uninstall removed user scripts/my-build.js',
     );
-    for (const script of ['benchmark.js', 'decisions.js', 'rollback.sh']) {
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
       assert(
         !fs.existsSync(path.join(tmp, 'scripts', script)),
         `uninstall left scripts/${script} behind`,
@@ -530,10 +661,53 @@ function runSharedScripts() {
   }
 }
 
+function runPlatformPackSelection() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `${PACKAGE_NAME}-platform-pack-`));
+
+  try {
+    fs.writeFileSync(path.join(tmp, 'package.json'), '{ "name": "fixture-app" }\n');
+    fs.mkdirSync(path.join(tmp, '.teikk', 'spec'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platform: flutter\n');
+
+    const init = spawnSync(
+      process.execPath,
+      [CLI, 'init', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(init.status === 0, `flutter pack install failed: ${init.stderr}`);
+    assert(
+      fs.existsSync(path.join(tmp, '.opencode', 'skills', 'flutter-ui', 'SKILL.md')),
+      'flutter platform must install the flutter skill pack',
+    );
+
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platforms: [ios, android]\n');
+    const update = spawnSync(
+      process.execPath,
+      [CLI, 'update', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(update.status === 0, `ambiguous legacy platform update failed: ${update.stderr}`);
+    assert(
+      !fs.existsSync(path.join(tmp, '.opencode', 'skills', 'flutter-ui')),
+      'ambiguous legacy platforms must install core only, not retain a platform pack',
+    );
+    assert(
+      update.stderr.includes('install core only'),
+      'ambiguous legacy platforms must emit the migration warning',
+    );
+
+    process.stdout.write('test-install: platform pack selection passed\n');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 run();
 runAdditive();
 runLegacyUpgrade();
 runV2Migration();
+runSymlinkToCopyUpgrade();
 runStaleCleanup();
 runClaudeHooksWiring();
 runSharedScripts();
+runPlatformPackSelection();

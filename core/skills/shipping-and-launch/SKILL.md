@@ -5,7 +5,9 @@ version: 1.0.0
 platform: generic
 ---
 
-# Shipping and Launch (Android)
+# Shipping and Launch
+
+See references/ship-decision-template.md for the command's canonical persisted two-tier verdict format.
 
 ## Overview
 
@@ -44,7 +46,7 @@ If `.teikk/tasks/todo.md` exists, read it first — it's a fast O(1) glance, not
 - [ ] Images, videos, and static assets are compressed and optimized.
 - [ ] Room database migrations (`Migration` classes) are fully tested (no migration crash).
 - [ ] `exportSchema = true` and a `Migration` exists for the shipped version — an app with `exportSchema = false` and no migration path loses user data on the next version bump (**production blocker**).
-- [ ] The data layer has ≥1 Room in-memory DAO test (not just mocked repositories). Domain values that must be exact (money) are `Long` minor-units/`BigDecimal`, never `Double` — see @references/domain-guardrails.md.
+- [ ] The data layer has ≥1 Room in-memory DAO test (not just mocked repositories). Domain values that must be exact (money) are `Long` minor-units/`BigDecimal`, never `Double` — see references/domain-guardrails.md.
 
 ### 4. Accessibility
 - [ ] Content descriptions are set for all decorative and interactive images in Compose/XML.
@@ -68,7 +70,7 @@ A build can be good enough to demo and nowhere near safe to ship to real users. 
 - **NO-GO** — a blocker prevents even a safe demo, or a required acceptance criterion is unproven.
 
 **Production blockers** (each forces at most GO-demo, never GO-production) include, non-exhaustively:
-- A domain invariant violated — e.g. money stored as `Double`/`Float`, `SUM()` returning `Flow<Double>` (@references/domain-guardrails.md).
+- A domain invariant violated — e.g. money stored as `Double`/`Float`, `SUM()` returning `Flow<Double>` (references/domain-guardrails.md).
 - `exportSchema = false` with no `Migration` path → user data loss on update.
 - An acceptance criterion with no behavioral test (mock-only/boilerplate/label-only does not count).
 - The data layer with no Room in-memory DAO test.

@@ -16,14 +16,16 @@ npx teikk-agents-skills init cursor
 
 Replace `cursor` with your IDE / CLI:
 
+Skills and agents are copied directly into each tool's own dir (no shared tree, no symlinks); each skill bundles the reference docs it uses. Only `scripts/` (and Antigravity's `commands/`) sit at the project root.
+
 | Target | IDE / CLI | What gets copied into your project |
 |--------|-----------|-------------------------------------|
-| `cursor` | [Cursor](cursor-setup.md) | `.cursor/`, `skills/`, `agents/`, `references/` |
-| `claude` | [Claude Code](getting-started.md) | `.claude/commands/`, `hooks/`, `skills/`, `agents/`, `references/` |
-| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/`, `commands/`, `skills/`, `agents/`, `references/` |
-| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/`, `skills/` (with `.gemini/skills` symlink) |
-| `opencode` | [OpenCode](opencode-setup.md) | `skills/`, `agents/`, and `.opencode/skills` symlink (see OpenCode setup for opt-in `AGENTS.md` copy) |
-| `all` | Every target above | Merged copies for multi-tool teams |
+| `cursor` | [Cursor](cursor-setup.md) | `.cursor/` with `skills/`, `agents/` |
+| `claude` | [Claude Code](getting-started.md) | `.claude/` with `commands/`, `skills/`, `agents/`, `hooks/`, `lib/telemetry.sh` |
+| `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/` with `skills/`, `agents/`; root `commands/` |
+| `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/` with `skills/`, `agents/` |
+| `opencode` | [OpenCode](opencode-setup.md) | `.opencode/` with `commands/` (23 native `.md`), `skills/`, `agents/` |
+| `all` | Every target above | Per-tool copies for multi-tool teams |
 
 List targets:
 
@@ -78,14 +80,10 @@ npx teikk-agents-skills uninstall
 # BEGIN teikk-agents-skills (managed by npm — do not edit)
 .cursor/
 .teikk/
-agents/
-references/
-scripts/benchmark.js
-scripts/decisions.js
-scripts/rollback.sh
-skills/
 # END teikk-agents-skills
 ```
+
+(Example shown for the `cursor` target. Other targets add their own tool dir — `claude` lists `.claude/commands/`, `.claude/skills/`, `.claude/agents/`, `.claude/hooks/`, `.claude/lib/` (its `.claude/` also holds user files like CLAUDE.md, so subdirs are listed individually); `opencode` adds `.opencode/`.)
 
 > `AGENTS.md` is no longer shipped by any target (since v5 — see CHANGELOG). If you authored your own project-local `AGENTS.md`, it stays untracked on you. The managed block no longer includes it.
 
@@ -93,7 +91,7 @@ Patterns depend on the installed target(s). The block always includes `.teikk/`,
 
 Do not edit lines between the markers manually — re-run `npx teikk-agents-skills update` after changing targets.
 
-**`.claude/settings.json` is deliberately NOT in this block.** For the `claude` target, `init`/`update` auto-wire 7 lifecycle hooks (telemetry, pre-compact checkpoint, session start) into it — but unlike everything else the CLI copies, Claude Code settings are meant to be team-shared, so it's left for you to commit or gitignore as you prefer. If you commit it, every hook command is wrapped in an existence guard so a teammate who pulls it before running `init claude` themselves gets a silent no-op instead of a "file not found" error, until they run `init`/`update` and get the gitignored `hooks/`, `lib/telemetry.sh`, and `scripts/` files on disk too. See `hooks/LIFECYCLE-TELEMETRY.md`.
+**`.claude/settings.json` is deliberately NOT in this block.** For the `claude` target, `init`/`update` auto-wire 7 lifecycle hooks (telemetry, pre-compact checkpoint, session start) into it — but unlike everything else the CLI copies, Claude Code settings are meant to be team-shared, so it's left for you to commit or gitignore as you prefer. If you commit it, every hook command is wrapped in an existence guard so a teammate who pulls it before running `init claude` themselves gets a silent no-op instead of a "file not found" error, until they run `init`/`update` and get the gitignored `.claude/hooks/`, `.claude/lib/telemetry.sh`, and `scripts/` files on disk too. See `hooks/LIFECYCLE-TELEMETRY.md`.
 
 ## Install manifest
 
@@ -185,5 +183,5 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |
 | Want skills in git | Remove those lines from the managed `.gitignore` block (not recommended — use `update` to restore defaults) |
-| Wrong symlink on Windows | Re-run `npx teikk-agents-skills update opencode`/`gemini`; requires Developer Mode or admin for the `.opencode/skills`/`.gemini/skills` symlinks |
+| Missing skills after upgrade from a symlink-era install | The old `<toolDir>/skills` symlinks are detected and replaced with real copies automatically — re-run `npx teikk-agents-skills update <target>` if needed |
 | Upgrading from a pre-3.0 install | Just run `npx teikk-agents-skills update <target>` — stale symlinks from the old global-cache install are detected and replaced with real files automatically |

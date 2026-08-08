@@ -6,11 +6,11 @@ Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) to detect platform + 
 
 | Platform | E2E value | Skill / persona |
 |----------|-----------|-----------------|
-| Android | `Maestro` | `skills/android-e2e-maestro` |
-| iOS | `XCUITest` | `agents/swift-expert` |
-| Flutter | `integration_test` | `agents/flutter-expert` |
+| Android | `Maestro` | `android-e2e-maestro` |
+| iOS | `XCUITest` | `swift-expert` |
+| Flutter | `integration_test` | `flutter-expert` |
 
-Read and follow `skills/android-e2e-maestro/SKILL.md`.
+Read and follow `android-e2e-maestro`.
 
 Common flow across platforms: 1. **Gate** — confirm SPEC E2E value matches platform; 2. **Gather identifiers** — `testTag` from Composable / `.accessibilityIdentifier` from SwiftUI / `Key`/`find.byType` from widget; 3. **Write flow file** — `.teikk/maestro/flows/<snake>.yaml` (with `appId` from `build.gradle.kts`) / `<Feature>UITests.swift` in UI test target / `integration_test/<feature>_test.dart` via `IntegrationTestWidgetsFlutterBinding`; 4. **Run** — `maestro test <flow>.yaml` / `xcodebuild test -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16'` / `flutter test integration_test/<test>.dart` on device or emulator; 5. **Report** — criterion covered, file path, command run, pass/fail.
 

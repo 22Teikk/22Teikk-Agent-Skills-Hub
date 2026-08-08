@@ -1,6 +1,6 @@
 # Write or update documentation and Architecture Decision Records
 
-Read and follow `skills/documentation-and-adrs/SKILL.md`.
+Read and follow `documentation-and-adrs`.
 
 Use when documenting architectural decisions, API changes, or shipping a feature that needs README/ADR updates.
 

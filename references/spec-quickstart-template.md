@@ -19,7 +19,7 @@ You just ran `/teikk-spec`. Your next command is `/teikk-planning`.
 All workflow outputs live here — spec (`spec/`), tasks, ideas, ADRs, decisions log, E2E flows, hook caches. It is gitignored automatically on install. Do not commit it; do not edit files in it by hand unless instructed.
 
 - `.teikk/spec/` — everything from `/teikk-spec` (SPEC.md, PROJECT.yaml, QUICKSTART.md, WORKFLOW.md), grouped in one folder
-- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see `skills/documentation-and-adrs/SKILL.md`.
+- `.teikk/DECISIONS.md` — append-only log of significant implemented decisions (architecture choices, hard-to-reverse trade-offs). Written via `/teikk-docs`; see the `documentation-and-adrs` skill.
 
 ## What to commit
 

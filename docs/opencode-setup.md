@@ -1,19 +1,20 @@
 # OpenCode Setup
 
-This guide explains how to use Agent Skills with OpenCode in a way that closely mirrors the Claude Code experience (automatic skill selection, lifecycle-driven workflows, and strict process enforcement).
+This guide explains how to use Agent Skills with OpenCode. As of the current release, OpenCode reaches full parity with Claude Code: the same `/teikk-*` slash commands, the same skills, and the same agent personas — all discovered natively.
 
 ## Overview
 
-OpenCode supports custom `/commands`, but does not have a native plugin system or automatic skill routing like Claude Code.
+OpenCode natively discovers project **commands**, **skills**, and **agents** from `.opencode/`. The installer writes all three:
 
-Instead, we achieve parity through (in order of preference):
+| What | Where (installed project) | Discovery |
+|------|---------------------------|-----------|
+| Slash commands | `.opencode/commands/*.md` (23, markdown + frontmatter, same shape as Claude's `.claude/commands/*.md`) | `/teikk-spec`, `/teikk-build`, … register as real commands |
+| Skills | `.opencode/skills/<skill>/SKILL.md` (physically copied; each skill bundles its `references/`) | resolved by name via the `skill` tool |
+| Agents | `.opencode/agents/*.md` (physically copied) | `@`-mention or auto-delegated |
 
-1. **Slash commands** (`.opencode/skills` symlink + `commands/*.toml` from the hub repo) — explicit lifecycle entry points. Since v5 these are wired up by the `opencode` target's `skillsAgents: true` flag (same as Claude/Antigravity/Cursor).
-2. **`AGENTS.md` (opt-in manual copy)** — A strong system prompt that maps user intent to skills. Since v5 `AGENTS.md` is **no longer auto-shipped** (it cost ~5K tokens of always-on context in every session), but OpenCode users who want the implicit intent-routing pattern can still copy it from the hub repo manually.
-3. The built-in `skill` tool
-4. Consistent skill discovery from the `/skills` directory
+The command bodies invoke skills **by name** (`Invoke the teikk-agents-skills:<skill> skill`), exactly like Claude — so `/teikk-*` are true entry points, not skills you invoke indirectly.
 
-> **Recommendation:** prefer the slash-command wiring (option 1) — it gives you explicit, opt-in lifecycle entry points without paying the always-on AGENTS.md tax. Only copy `AGENTS.md` if you really want implicit intent-based routing that doesn't require typing `/teikk-*` commands.
+> **`AGENTS.md` (optional):** OpenCode auto-loads a root `AGENTS.md` if present. It's **not** shipped by the installer (it cost ~5K tokens of always-on context every session). Copy it from the hub repo manually only if you want implicit intent-based routing in addition to the explicit `/teikk-*` commands.
 
 ---
 
@@ -29,9 +30,8 @@ git clone https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
 
 3. Ensure the following are present in your workspace:
 
-- `skills/` and `agents/` directories (auto-shipped by the `opencode` target)
-- `.opencode/skills` symlink to `../skills` (auto-created)
-- `commands/*.toml` slash commands (auto-shipped if you also installed an Antigravity-compatible target)
+- `.opencode/commands/*.md` — 23 native slash commands (auto-shipped by the `opencode` target)
+- `.opencode/skills/` and `.opencode/agents/` — skills and agents copied directly in, each skill self-contained with its bundled `references/`
 - `AGENTS.md` (root) — **optional, manual copy** if you want implicit intent-based routing
 
 ---
@@ -48,7 +48,7 @@ skills/<skill-name>/SKILL.md
 
 OpenCode agents invoke skills either:
 
-- **Explicitly** via slash commands (if you wired `commands/*.toml`)
+- **Explicitly** via the native `/teikk-*` slash commands in `.opencode/commands/`
 - **Implicitly** when `AGENTS.md` is present and detects a matching intent
 - **Directly** via the `skill` tool when the agent decides the skill applies
 
@@ -138,11 +138,10 @@ If you opted in to `AGENTS.md`, these rules are also enforced there. If you did 
 
 ## Limitations
 
-- No native slash commands (handled via intent mapping instead)
-- No plugin system (handled via prompt + structure)
-- Skill invocation depends on model compliance
+- Lifecycle hooks (telemetry, guardrails) are Claude-only — they're Bash scripts wired via `.claude/settings.json`. OpenCode's equivalent is its TypeScript plugin API (`.opencode/plugins/`); this framework does not ship an OpenCode plugin.
+- Auto skill-invocation still depends on model compliance (the explicit `/teikk-*` commands do not).
 
-Despite these, the workflow closely matches Claude Code in practice.
+Otherwise the workflow reaches full parity with Claude Code: same commands, skills, and agents.
 
 ---
 
@@ -164,8 +163,8 @@ The agent will automatically select and execute the correct skills.
 
 OpenCode integration works by combining:
 
-- Structured skills (this repo) — auto-shipped
-- Slash commands (`.opencode/skills` symlink + `commands/*.toml`) — preferred entry points
+- Native slash commands (`.opencode/commands/*.md`) — the `/teikk-*` lifecycle entry points, same as Claude
+- Skills + agents (`.opencode/skills/`, `.opencode/agents/` — physically copied, self-contained) — discovered natively
 - `AGENTS.md` (opt-in manual copy) — for implicit intent routing if you want it
 - Automatic skill invocation via the `skill` tool when the agent decides it applies
 
