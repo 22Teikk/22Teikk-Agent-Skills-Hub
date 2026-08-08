@@ -20,7 +20,7 @@ The only real runtime code in the repo. Copies `core/` + one platform pack + per
 - **Additive**: conflict resolution skips user-owned files, refreshes only package-owned ones. Never destroy user config.
 - **Manifest-driven cleanup**: `uninstall()` removes only files listed in `.teikk-agents-skills.json`; unknown files are left.
 - **One pack per project**: core is always copied; at most one of android/ios/flutter, chosen by `platform:`. Absent/generic → core only.
-- **skills/ are real dirs, agents/ merged**; `.gemini/skills` + `.opencode/skills` are symlinks to `../skills`.
+- **skills/ and agents/ are real, per-tool copies**; each target is self-contained and no installed target relies on a shared skills symlink.
 - **AGENTS.md is never in any target's `copyPaths`** (targets.js L68-72) — deliberate, do not add it.
 
 ## Gotchas
