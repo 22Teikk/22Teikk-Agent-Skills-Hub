@@ -18,7 +18,15 @@ DEFINE ──▶ PLAN ──▶ BUILD ──▶ VERIFY ──▶ REVIEW ──�
 Skills and agents are copied directly into each tool's own directory (`.claude/skills/`, `.opencode/skills/`, …) — self-contained, no shared tree, no symlinks. Reference docs a skill uses are bundled into that skill. The only non-gitignored output dir is `.teikk/`, where every workflow writes. Install is additive — it copies beside your own files and never deletes your `.claude/` config.
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
+# Latest source from GitHub over HTTPS (no SSH key required)
+npm install 'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' --save-dev
+npx teikk-agents-skills init claude
+```
+
+If the package is published to npm, prefer the registry's moving latest tag:
+
+```bash
+npm install teikk-agents-skills@latest --save-dev
 npx teikk-agents-skills init claude
 ```
 
@@ -27,7 +35,7 @@ Auto-install on `npm install` — add to your project's `package.json`:
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0"
+    "teikk-agents-skills": "latest"
   },
   "teikk-agents-skills": { "target": "claude" }
 }

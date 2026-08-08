@@ -6,15 +6,73 @@ Maintained by [22Teikk](https://github.com/22Teikk) — [22Teikk-Agent-Skills-Hu
 
 ## Quick Start
 
-> **Not on npmjs.org yet.** Install from GitHub (works today). After [npm publish](#publish-to-npmjsorg-maintainers), `npm install teikk-agents-skills` will work too.
+Run all commands from the **root of the consuming app**, not from your home directory and not from a parent workspace:
 
 ```bash
-# In your app project (not this repo)
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
-npx teikk-agents-skills init cursor
+cd /absolute/path/to/your-mobile-project
 ```
 
-Replace `cursor` with your IDE / CLI:
+For OpenCode on Android, iOS, or Flutter, declare exactly one platform before installing:
+
+```bash
+mkdir -p .teikk/spec
+printf 'platform: android\n' > .teikk/spec/PROJECT.yaml
+```
+
+Use `ios` or `flutter` instead of `android` when appropriate. The platform value is lowercase and singular.
+
+### Latest-source installation
+
+The examples below deliberately track the latest source instead of hardcoding an old release:
+
+1. **Published npm package (recommended when available):**
+
+   ```bash
+   npm install teikk-agents-skills@latest --save-dev
+   ```
+
+2. **GitHub `main` over HTTPS (works without GitHub SSH keys):**
+
+   ```bash
+   npm install \
+     'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' \
+     --save-dev
+   ```
+
+Use a release tarball only when reproducibility is more important than automatically receiving the newest release:
+
+```bash
+npm install \
+  https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/archive/refs/tags/vX.Y.Z.tar.gz \
+  --save-dev
+```
+
+Replace `X.Y.Z` with an explicitly chosen release. Do not copy `vX.Y.Z` literally.
+
+Avoid the shorthand `github:22Teikk/...` when onboarding arbitrary machines: npm/Git configurations may rewrite it to SSH and fail with `Permission denied (publickey)`.
+
+For OpenCode, add this configuration to the consuming project's `package.json` so future `npm install` runs initialize the target automatically:
+
+```json
+{
+  "devDependencies": {
+    "teikk-agents-skills": "latest"
+  },
+  "teikk-agents-skills": {
+    "target": "opencode"
+  }
+}
+```
+
+If your team needs deterministic CI, commit `package-lock.json` and use `npm ci`; use `@latest` for developer opt-in to the newest published version, not for reproducible release builds.
+
+Then initialize or refresh the target explicitly:
+
+```bash
+npx teikk-agents-skills init opencode
+```
+
+Replace `opencode` with another target when needed:
 
 Skills and agents are copied directly into each tool's own dir (no shared tree, no symlinks); each skill bundles the reference docs it uses. Only `scripts/` (and Antigravity's `commands/`) sit at the project root.
 
@@ -40,7 +98,7 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 ```json
 {
   "devDependencies": {
-    "teikk-agents-skills": "github:22Teikk/22Teikk-Agent-Skills-Hub"
+    "teikk-agents-skills": "latest"
   },
   "teikk-agents-skills": {
     "target": "cursor"
@@ -48,10 +106,16 @@ Skip the manual `init` step by declaring a target in your project's `package.jso
 }
 ```
 
+Until the package is published to npm, use the latest GitHub source over HTTPS:
+
+```bash
+npm install 'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' --save-dev
+```
+
 Or use an environment variable:
 
 ```bash
-TEIKK_AGENTS_SKILLS_TARGET=cursor npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
+TEIKK_AGENTS_SKILLS_TARGET=cursor npm install teikk-agents-skills@latest --save-dev
 ```
 
 To disable postinstall (e.g. in CI for this package itself):
@@ -62,12 +126,31 @@ TEIKK_AGENTS_SKILLS_SKIP_POSTINSTALL=1 npm install
 
 ## Update & Uninstall
 
-```bash
-# Refresh files after upgrading the npm package
-npx teikk-agents-skills update cursor
+Refresh the latest published package and update the installed target:
 
-# Remove installed files and the managed .gitignore block
+```bash
+npm install teikk-agents-skills@latest --save-dev
+npx teikk-agents-skills update opencode
+```
+
+Until npm publishing is enabled, refresh the latest GitHub source over HTTPS:
+
+```bash
+npm install \
+  'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' \
+  --save-dev
+npx teikk-agents-skills update opencode
+```
+
+For a reproducible release build, replace `main` or `latest` with an explicit release tag/version chosen by the team.
+
+Use `npm ci` on CI after committing `package-lock.json`. Do not mix a stale global/home-directory install with the app install; verify with `npm ls teikk-agents-skills` from the app root.
+
+Remove installed files and the managed `.gitignore` block before uninstalling the package:
+
+```bash
 npx teikk-agents-skills uninstall
+npm uninstall teikk-agents-skills --save-dev
 ```
 
 `update` merges new targets into `.teikk-agents-skills.json` — running `init opencode` after `init cursor` keeps both.
@@ -111,7 +194,13 @@ Do not edit lines between the markers manually — re-run `npx teikk-agents-skil
 
 ## Publish to npmjs.org (maintainers)
 
-The package is **not** on [npmjs.org](https://www.npmjs.com/package/teikk-agents-skills) yet. Until you publish, users must install from GitHub (see Quick Start).
+The current release workflow creates GitHub tags/releases but does **not** bump `package.json` or publish to npm. Therefore `@latest` is valid only after the package has been published; before that, use the HTTPS GitHub `main` command above.
+
+Before publishing a release, make these values match:
+
+```text
+package.json version = release tag version = published npm version
+```
 
 One-time setup:
 
@@ -123,10 +212,11 @@ npm whoami                   # confirm logged in
 Publish from this repo:
 
 ```bash
-npm test
-npm publish --access public  # required for unscoped packages on first publish
-git tag -a v2.2.0 -f -m "v2.2.0"
-git push origin v2.2.0 --force
+  npm test
+# Publish only after package.json.version and the release tag are aligned.
+npm publish --access public
+# Create/push the matching tag through the release process after merge.
+# Example: vX.Y.Z (replace with the actual package.json version).
 ```
 
 After publish, users can run:
@@ -136,19 +226,30 @@ npm install teikk-agents-skills --save-dev
 npx teikk-agents-skills init cursor
 ```
 
-## Version pins (GitHub)
+## Reproducible release pins (GitHub)
 
-Install latest from `main`:
+For production and CI, pin an explicit release tag and use HTTPS so the install does not depend on local SSH configuration:
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
+npm install \
+  https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/archive/refs/tags/vX.Y.Z.tar.gz \
+  --save-dev
 ```
 
-Pin a release branch or installation (recommended):
+Replace `X.Y.Z` with the release selected by your team. If Git is available and you need a Git URL rather than a tarball:
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub --save-dev
-npx teikk-agents-skills init cursor
+npm install \
+  'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#vX.Y.Z' \
+  --save-dev
+```
+
+The release tag, `package.json.version`, and manifest version must be the same release number. Verify the installed package from the consuming project root:
+
+```bash
+npm ls teikk-agents-skills
+node -p "require('teikk-agents-skills/package.json').version"
+cat .teikk-agents-skills.json
 ```
 
 SSH clone (22Teikk maintainers with `Host teikk` in `~/.ssh/config`):
@@ -178,7 +279,7 @@ See [README](../README.md) for marketplace and other IDE-specific guides.
 
 | Issue | Fix |
 |-------|-----|
-| `E404` on `npm install teikk-agents-skills` | Package not on npmjs.org yet — use `npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev` |
+| `E404` on `npm install teikk-agents-skills@latest` | npm publishing is not enabled yet — use `npm install 'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' --save-dev` |
 | `Unknown target` | Run `npx teikk-agents-skills targets` for valid names |
 | Rules not loading in Cursor | Confirm `.cursor/rules/*.mdc` exists; restart Cursor |
 | postinstall skipped | Set `teikk-agents-skills.target` in `package.json` or `TEIKK_AGENTS_SKILLS_TARGET` |

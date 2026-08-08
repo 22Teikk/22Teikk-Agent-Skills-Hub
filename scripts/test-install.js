@@ -83,6 +83,9 @@ function run() {
 
     readGitignoreBlock(tmp);
 
+    fs.mkdirSync(path.join(tmp, '.teikk', 'spec'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platform: android\n');
+
     const update = spawnSync(
       process.execPath,
       [CLI, 'update', 'opencode', '--cwd', tmp, '--package-root', REPO_ROOT],
@@ -92,6 +95,10 @@ function run() {
     assert(
       fs.existsSync(path.join(tmp, '.opencode', 'skills', 'spec-driven-development', 'SKILL.md')),
       'missing .opencode/skills — must be physically copied',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.opencode', 'skills', 'android-ui-kotlin', 'SKILL.md')),
+      'missing Android skill — platform pack was not selected',
     );
     assert(
       !fs.lstatSync(path.join(tmp, '.opencode', 'skills')).isSymbolicLink(),
