@@ -20,11 +20,38 @@ The command bodies invoke skills **by name** (`Invoke the teikk-agents-skills:<s
 
 ## Installation
 
-1. Clone the repository (or install via the `opencode` target — see npm-install.md):
+Run these commands from the root of the consuming project. Do not run them from `/Users/<name>` or another parent workspace:
 
 ```bash
-git clone https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git
+cd /absolute/path/to/your-mobile-project
 ```
+
+Declare the platform before initialization:
+
+```bash
+mkdir -p .teikk/spec
+printf 'platform: android\n' > .teikk/spec/PROJECT.yaml
+```
+
+Use `platform: ios` or `platform: flutter` for those projects. The value must be lowercase and singular.
+
+Install the newest GitHub source over HTTPS. This works on machines without GitHub SSH keys:
+
+```bash
+npm install \
+  'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' \
+  --save-dev
+npx teikk-agents-skills init opencode
+```
+
+After the package is published to npm, prefer:
+
+```bash
+npm install teikk-agents-skills@latest --save-dev
+npx teikk-agents-skills init opencode
+```
+
+For reproducible builds, replace `main`/`latest` with a real release tag/version. Avoid `npm install github:22Teikk/...` for general onboarding because npm/Git may rewrite the shorthand to SSH.
 
 2. Open the project in OpenCode.
 
@@ -158,6 +185,33 @@ Just use natural language:
 The agent will automatically select and execute the correct skills.
 
 ---
+
+## Verification
+
+After installation, verify that the package and platform pack came from the consuming project, not a global/home-directory Node installation:
+
+```bash
+npm ls teikk-agents-skills
+node -p "require('teikk-agents-skills/package.json').version"
+grep '^platform:' .teikk/spec/PROJECT.yaml
+find .opencode/commands -maxdepth 1 -name '*.md' | wc -l
+find .opencode/skills -name SKILL.md | wc -l
+find .opencode/agents -maxdepth 1 -name '*.md' | wc -l
+```
+
+For Android, these files must exist:
+
+```text
+.opencode/skills/android-ui-kotlin/SKILL.md
+.opencode/skills/android-testing-and-benchmark-kotlin/SKILL.md
+.opencode/agents/kotlin-specialist.md
+```
+
+If commands or platform skills are missing, run from the project root:
+
+```bash
+npx teikk-agents-skills update opencode
+```
 
 ## Summary
 

@@ -44,6 +44,7 @@
     ".agents/",
     ".claude/",
     ".gemini/",
+    ".opencode/",
     "commands/",
     "core/",
     "packs/",

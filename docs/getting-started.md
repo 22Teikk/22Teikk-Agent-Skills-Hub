@@ -13,8 +13,16 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### npm install (recommended)
 
 ```bash
-npm install github:22Teikk/22Teikk-Agent-Skills-Hub#v5.0.0 --save-dev
+# Latest GitHub source over HTTPS (no SSH key required)
+npm install 'git+https://github.com/22Teikk/22Teikk-Agent-Skills-Hub.git#main' --save-dev
 npx teikk-agents-skills init cursor    # or claude, antigravity, gemini, opencode, all
+```
+
+When published to npm, use the moving latest release instead:
+
+```bash
+npm install teikk-agents-skills@latest --save-dev
+npx teikk-agents-skills init cursor
 ```
 
 See [npm-install.md](npm-install.md) for auto-install, update, uninstall, and `.gitignore` behavior.
