@@ -133,34 +133,182 @@
       "description": "Adversarial fresh-context review for non-trivial decisions before they stand. Use when correctness matters more than speed, in unfamiliar code, for high stakes (production, security, irreversible operations), or when a confident output would be cheaper to verify now than debug later."
     },
     {
+      "name": "flutter-animations",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-testing-and-benchmark",
+        "flutter-theming"
+      ],
+      "description": "Use when writing or reviewing Flutter motion in the UI: choosing between implicit widget animations (AnimatedContainer, AnimatedOpacity, AnimatedSwitcher, TweenAnimationBuilder), explicit AnimationController + Tween/AnimatedBuilder, Hero shared-element transitions, staggered Interval sequences, AnimatedList insert/remove, spring curves, and physics-based motion. Do not use for route/navigation transitions (see flutter-navigation) or for theming decisions (see flutter-theming)."
+    },
+    {
       "name": "flutter-data-and-concurrency",
       "version": "1.0.0",
       "platform": "flutter",
       "dependsOn": [
+        "flutter-data-networking",
+        "flutter-data-persistence",
+        "flutter-error-handling",
+        "flutter-state-riverpod",
+        "flutter-testing-and-benchmark",
         "flutter-ui"
       ],
-      "description": "Handles data operations and concurrency in Flutter Dart 3+ projects. Use when writing Dart isolates, Stream/Future pipelines, dio HTTP requests, JSON serialization with json_serializable/freezed, drift relational queries, Hive key-value boxes, or Riverpod AsyncValue providers."
+      "description": "Handles Dart/Flutter async and concurrency in Flutter Dart 3+ projects. Use when writing Future/async-await pipelines, Streams and StreamControllers, isolates (Isolate.run, Isolate.spawn, compute), handling errors in async contexts, or consuming FutureBuilder/StreamBuilder. This is the data-layer entry point — repositories expose Future/Stream APIs; deep networking lives in flutter-data-networking and local persistence in flutter-data-persistence."
+    },
+    {
+      "name": "flutter-data-networking",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-data-and-concurrency",
+        "flutter-di-and-build",
+        "flutter-error-handling",
+        "flutter-ui"
+      ],
+      "description": "Handles HTTP networking in Flutter Dart 3+ projects. Use when making dio HTTP requests, configuring a Dio instance (BaseOptions, interceptors for auth/logging/error, timeouts), building type-safe API clients with retrofit (@RestApi, @GET/@POST), generating immutable DTOs with freezed + json_serializable, streaming downloads/uploads, or cancelling in-flight requests. Networking-only — persistence lives in flutter-data-and-concurrency."
+    },
+    {
+      "name": "flutter-data-persistence",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-data-networking",
+        "flutter-di-and-build",
+        "flutter-error-handling",
+        "flutter-testing-and-benchmark",
+        "flutter-ui",
+        "security-and-hardening"
+      ],
+      "description": "Handles local persistence in Flutter Dart 3+ projects. Use when choosing between drift, hive, shared_preferences, and sqflite for on-device storage, defining drift tables and typed queries, wiring drift_dev/build_runner codegen, adding drift migrations (schemaVersion, MigrationStrategy, stepByStep), consuming reactive query streams (watch()/WatchStream), opening hive boxes with TypeAdapters, or reading/writing shared_preferences settings. Persistence only — networking lives in flutter-data-networking."
+    },
+    {
+      "name": "flutter-di",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-di-and-build",
+        "flutter-state-riverpod"
+      ],
+      "description": "Configures runtime dependency injection in Flutter Dart 3+ projects using the get_it + Riverpod hybrid. Use when registering services, repositories, or third-party SDKs with GetIt (registerSingleton/registerLazySingleton/registerFactory), wiring setupLocator() in main(), choosing between Riverpod providers and get_it for a dependency, or resetting the service locator in tests."
     },
     {
       "name": "flutter-di-and-build",
       "version": "1.0.0",
       "platform": "flutter",
-      "dependsOn": [],
+      "dependsOn": [
+        "flutter-di"
+      ],
       "description": "Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter."
+    },
+    {
+      "name": "flutter-e2e",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "ci-cd-and-automation"
+      ],
+      "description": "Writes and runs Flutter end-to-end user-journey tests on a real device or emulator with the official integration_test package. Use when a multi-screen Flutter app needs journey smoke tests covering navigation + DI + real app startup together, when .teikk/SPEC.md declares E2E integration_test, or when invoked via /teikk-e2e. Do NOT use for unit tests, widget component tests, or golden-only widget tests."
+    },
+    {
+      "name": "flutter-error-handling",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Handles errors in Flutter apps. Use when wiring global error handlers (FlutterError.onError, PlatformDispatcher.onError, runZonedGuarded), designing Result types with sealed classes, or deciding try/catch vs Result for repository and domain layers."
+    },
+    {
+      "name": "flutter-localization",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Localizes Flutter apps with the official gen-l10n + ARB pipeline. Use when adding or modifying localization setup, ARB message files, plurals/placeholders, locale delegates, MaterialApp locale wiring, or adding support for a new language. Third-party packages like easy_localization are for prototypes only."
+    },
+    {
+      "name": "flutter-navigation",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-state-riverpod",
+        "flutter-testing-and-benchmark"
+      ],
+      "description": "Implements type-safe navigation in Flutter apps with go_router 17.x. Use when defining GoRoute/StatefulShellRoute structures, context.go/context.push navigation, redirect/auth gating, deep links, state restoration, go_router_builder typed routes, or path/query parameter handling. Do NOT use for widget-level composition (flutter-ui) or Navigator.push-only micro apps."
+    },
+    {
+      "name": "flutter-project-structure",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-state-riverpod",
+        "flutter-testing-and-benchmark"
+      ],
+      "description": "Structures Flutter projects and features with the 2026-standard feature-first layout and the official MVVM UI/Data layer split. Use when creating a new Flutter project or organizing an existing one, deciding where a file belongs (lib/features/<feature>/{data,domain,presentation} vs lib/core vs lib/shared vs lib/app), enforcing layer boundaries and import rules, or choosing between single-package and melos/workspaces monorepos."
+    },
+    {
+      "name": "flutter-state-bloc",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-data-and-concurrency",
+        "flutter-state-provider",
+        "flutter-state-riverpod",
+        "flutter-testing-and-benchmark",
+        "flutter-ui"
+      ],
+      "description": "Implements Bloc 9.x / Cubit event-driven state management in Flutter Dart 3+ projects. Use when a project declares bloc, when writing Bloc<Event,State>/Cubit classes, BlocProvider/BlocListener/BlocBuilder wiring, bloc_test unit tests, or audit-trail/event-logging state flows. Do NOT use for Riverpod projects (flutter-state-riverpod), legacy ChangeNotifier apps (flutter-state-provider), or simple local widget state."
+    },
+    {
+      "name": "flutter-state-provider",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-state-bloc",
+        "flutter-state-riverpod",
+        "flutter-ui"
+      ],
+      "description": "Maintains and migrates legacy Flutter apps built on the Provider 6.x package (ChangeNotifier-based, maintenance-mode). Use when a project already declares provider ^6.x and you must change a screen that reads ChangeNotifierProvider, context.watch/context.read, MultiProvider, ProxyProvider, or Consumer, or when planning a Provider → Riverpod migration OUT. Do NOT use to introduce Provider into a new project — use the flutter-state-riverpod skill; do NOT use for event-driven apps — use the flutter-state-bloc skill."
+    },
+    {
+      "name": "flutter-state-riverpod",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [],
+      "description": "Implements Riverpod 3.x state management in Flutter Dart 3+ projects. Use when writing Notifier/AsyncNotifier classes, @riverpod codegen providers, family/autoDispose/select modifiers, ProviderScope configuration, or Riverpod-as-DI wiring. Do NOT use for event-driven state machines (flutter-state-bloc), legacy ChangeNotifier apps (flutter-state-provider), or raw setState local widget state."
     },
     {
       "name": "flutter-testing-and-benchmark",
       "version": "1.0.0",
       "platform": "flutter",
-      "dependsOn": [],
+      "dependsOn": [
+        "flutter-e2e",
+        "flutter-state-riverpod"
+      ],
       "description": "Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, Riverpod ProviderContainer tests, widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks."
+    },
+    {
+      "name": "flutter-theming",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "dependsOn": [
+        "flutter-localization",
+        "flutter-project-structure"
+      ],
+      "description": "Builds Flutter theming with Material 3 for any app with a custom visual identity. Use when creating or modifying ThemeData, ColorScheme.fromSeed seed strategy, dark mode (darkTheme/themeMode/MediaQuery.platformBrightnessOf), ThemeExtension brand tokens (colors, text styles, spacing), textTheme typography, component themes, WidgetStateProperty state styling, or Material You dynamic color."
     },
     {
       "name": "flutter-ui",
       "version": "1.0.0",
       "platform": "flutter",
-      "dependsOn": [],
-      "description": "Builds Flutter user interfaces using Dart 3+, Flutter 3+, and Riverpod (with BLoC variant). Use when creating or modifying widget trees, StatelessWidget/StatefulWidget, GoRouter routes, screen-level Riverpod Notifiers, or loading images via cached_network_image."
+      "dependsOn": [
+        "flutter-animations",
+        "flutter-localization",
+        "flutter-navigation",
+        "flutter-state-bloc",
+        "flutter-state-provider",
+        "flutter-state-riverpod",
+        "flutter-theming"
+      ],
+      "description": "Builds Flutter user interfaces using Dart 3+ and Flutter 3+. Use when creating or modifying widget trees, StatelessWidget/StatefulWidget composition, layouts (Row/Column/Stack/ListView), Material widgets, BuildContext lifetime rules, list and image performance, or KeepAlive tab state. State management, navigation, theming, animation, and localization are handled by dedicated sibling skills — this skill routes to them."
     },
     {
       "name": "git-workflow-and-versioning",
@@ -344,6 +492,12 @@
       "version": "1.0.0",
       "platform": "flutter",
       "description": "Flutter specialist for cross-platform mobile (iOS + Android) using Flutter 3+. Use when building or reviewing Flutter widget trees, state management (Riverpod/BLoC), platform channels, or performance optimization for mobile targets."
+    },
+    {
+      "name": "flutter-performance-auditor",
+      "version": "1.0.0",
+      "platform": "flutter",
+      "description": "Flutter performance auditor focused on App Startup, Frame Rendering (Jank), CPU/Memory profiling, and Flutter benchmarking (integration_test PerformanceMetrics + Timeline analysis)."
     },
     {
       "name": "kotlin-specialist",
