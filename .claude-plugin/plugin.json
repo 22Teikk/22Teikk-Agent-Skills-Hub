@@ -20,6 +20,7 @@
     "./packs/android/agents/kotlin-specialist.md",
     "./packs/ios/agents/swift-expert.md",
     "./packs/flutter/agents/flutter-expert.md",
+    "./packs/flutter/agents/flutter-performance-auditor.md",
     "./core/agents/mobile-app-developer.md",
     "./core/agents/ui-ux-tester.md",
     "./core/agents/value-critic.md"
