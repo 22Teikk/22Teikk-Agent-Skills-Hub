@@ -402,7 +402,7 @@
         "security-and-hardening",
         "shipping-and-launch"
       ],
-      "description": "Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces."
+      "description": "Instruments Android and Flutter application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom crash keys, or performance traces."
     },
     {
       "name": "planning-and-task-breakdown",
@@ -416,7 +416,7 @@
       "version": "1.0.0",
       "platform": "generic",
       "dependsOn": [],
-      "description": "Guidelines and patterns for security and hardening in Android applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections."
+      "description": "Guidelines and patterns for security and hardening in Android and Flutter applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections."
     },
     {
       "name": "shipping-and-launch",
