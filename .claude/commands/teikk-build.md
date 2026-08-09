@@ -6,7 +6,7 @@ description: Implement tasks incrementally — build, test, verify, commit. Add 
 
 Invoke the teikk-agents-skills:incremental-implementation skill alongside `test-driven-development` and `observability-and-instrumentation`.
 
-For platform-specific work: read `platform:` from `.teikk/spec/PROJECT.yaml`, then load the matching platform skill/persona based on task type — Android (`android-ui-kotlin` / `compose-animations` when Compose motion is in scope / `android-data-and-concurrency-kotlin` / `android-di-and-build` + `kotlin-specialist`); iOS (`swift-expert`); Flutter (`flutter-expert`). Phase 0 Foundation (Hilt+observability / SPM+SwiftLint / flavor+logging) must complete before feature slices. Instrument logging inline as part of GREEN per `observability-and-instrumentation` — do not defer to `/teikk-observability`.
+For platform-specific work: read `platform:` from `.teikk/spec/PROJECT.yaml`, then load the matching platform skill/persona based on task type — Android (`android-ui-kotlin` / `compose-animations` when Compose motion is in scope / `android-ui-java` / `xml-animations` when View motion is in scope / `android-data-and-concurrency-kotlin` / `android-di-and-build` + `kotlin-specialist`); iOS (`swift-expert`); Flutter (`flutter-expert`). Phase 0 Foundation (Hilt+observability / SPM+SwiftLint / flavor+logging) must complete before feature slices. Instrument logging inline as part of GREEN per `observability-and-instrumentation` — do not defer to `/teikk-observability`.
 
 **Test first, always.** The cycle is RED → confirm the test actually FAILS (run it, read the output) → GREEN → REFACTOR. Writing the code first and the test after produces a test shaped to the implementation's bugs. A test never observed failing does not count as RED.
 

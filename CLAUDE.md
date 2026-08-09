@@ -33,7 +33,7 @@ docs/         → Setup guides per IDE
 **Define:** interview-me, idea-refine, spec-driven-development, map-code-base (reverse: existing codebase → spec)
 **Plan:** planning-and-task-breakdown
 **Build (platform-neutral core):** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, api-and-interface-design, observability-and-instrumentation
-**Build (Android, when `platform: android`):** android-ui-kotlin / android-ui-java, compose-animations (Compose motion), android-data-and-concurrency-kotlin / android-data-and-concurrency-java, android-di-and-build
+**Build (Android, when `platform: android`):** android-ui-kotlin / android-ui-java, compose-animations (Compose motion) / xml-animations (View motion), android-data-and-concurrency-kotlin / android-data-and-concurrency-java, android-di-and-build
 **Build (iOS, when `platform: ios`):** ios-ui, ios-data-and-concurrency, ios-di-and-build, swift-expert persona
 **Build (Flutter, when `platform: flutter`):** flutter-ui, flutter-data-and-concurrency, flutter-di-and-build, flutter-expert persona
 **Verify (fast, core loop):** debugging-and-error-recovery + the platform unit/widget test skill (android-testing-and-benchmark-{kotlin,java} | ios-testing-and-benchmark | flutter-testing-and-benchmark)

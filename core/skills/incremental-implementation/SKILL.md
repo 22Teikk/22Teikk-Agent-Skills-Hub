@@ -40,6 +40,10 @@ This keeps `todo.md` as the single cheap artifact every session reads on resume,
 
 When the final task in a `### Phase N` is complete, record the phase-start HEAD in `.teikk/tasks/phase-state.json` before work begins, then run: `bash scripts/phase-status.sh "Phase N"` (soft report and visible deferrals) → `bash scripts/check-traceability.sh "Phase N"` → `bash scripts/check-phase-build.sh` → `bash scripts/check-phase-tests.sh`. The last three are hard gates; do not advance after a failure. SPEC.md must declare non-empty `Build:`, `Lint:`, and `Test:` commands. The test gate runs the entire declared Test suite, while traceability validates the AC-to-test mapping.
 
+**2-tier verification:** The task-level Verify step (see The Increment Cycle below) is **lightweight by design** — run only the test class for the current task (`./gradlew test --tests "<TestClass>"`) plus a debug build (`./gradlew assembleDebug`). This confirms the slice does not break anything without the cost of running the full suite on every commit. The **phase-exit gate** (above) is where the full traceability sweep + complete test suite runs. Do not run `check-traceability.sh` per-task — reserve it for phase boundaries.
+
+> **Sizing note:** XS and S tasks (1–2 files, single function or component) should be **grouped** into a single M task in `plan.md` when they are sequential and touch the same file set. The per-task gate overhead on three XS tasks is higher than on one consolidated M task. See `planning-and-task-breakdown`'s Task Sizing Guidelines.
+
 **`/teikk-build ultra` reuses this exact cycle as its atomic unit.** When a `### Wave N (parallel-safe)` batch runs, each task in the wave still goes through the identical RED → GREEN → REFACTOR → Verify → Commit cycle below — the only difference is it runs inside its own git worktree, concurrently with its wave siblings, instead of in the main session sequentially. Rule 2 ("Keep It Compilable") still applies per-worktree during the wave; the *whole-project* compilable guarantee is restored by the sequential merge-and-verify step after the wave, not during it. See `planning-and-task-breakdown` Step 5.5 and the `/teikk-build` command file for the full algorithm.
 
 ## The Increment Cycle
@@ -55,37 +59,17 @@ When the final task in a `### Phase N` is complete, record the phase-start HEAD 
 │              Next slice                             │
 │                                                     │
 └─────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────┐
-│                                                     │
-│   RED ──→ GREEN ──→ REFACTOR ──→ Verify ──┐         │
-│    ▲                                      │         │
-│    └────────── Commit ◄───────────────────┘         │
-│                  │                                  │
-│                  ▼                                  │
-│              Next slice                             │
-│                                                     │
-└─────────────────────────────────────────────────────┘
 ```
 
 For each slice — the test comes first, always. See `test-driven-development` for the full discipline:
-For each slice — the test comes first, always. See `test-driven-development` for the full discipline:
 
 1. **RED — write the failing test first.** Write the test for the behavior this slice adds, before any production code exists for it.
 2. **Confirm it FAILS — run it and read the output.** This step is not optional and cannot be skipped, assumed, or reasoned about instead of executed. A test you never watched fail proves nothing: it may be asserting on the wrong thing, silently passing on the old behavior, or not running at all. Quote the failure line in your report. **If it passes on the first run, stop** — either the behavior already exists (the slice is done, delete the test or narrow it) or the test is wrong. Do not proceed to step 3 until you have seen a real failure for the right reason.
 3. **GREEN — write the minimum code that makes it pass.** No extra abstractions, no adjacent improvements, no speculative branches. Instrument logging inline here per `observability-and-instrumentation`.
 4. **REFACTOR — clean up with the test still green.** Optional but preferred: remove duplication, improve names, simplify. Re-run the test after every refactor; it must stay green. Behavior does not change in this step.
-5. **Verify** — full regression (run the whole test suite, not just the new test) + build succeeds + lint passes.
-6. **Commit** — save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-7. **Move to the next slice** — carry forward, don't restart
-
-**Rationalization guard:** "I'll write the test after, it's faster" produces a test shaped to the code you already wrote — it passes because it mirrors your implementation, including its bugs. The RED step is what makes the test an independent check instead of a transcript.
-1. **RED — write the failing test first.** Write the test for the behavior this slice adds, before any production code exists for it.
-2. **Confirm it FAILS — run it and read the output.** This step is not optional and cannot be skipped, assumed, or reasoned about instead of executed. A test you never watched fail proves nothing: it may be asserting on the wrong thing, silently passing on the old behavior, or not running at all. Quote the failure line in your report. **If it passes on the first run, stop** — either the behavior already exists (the slice is done, delete the test or narrow it) or the test is wrong. Do not proceed to step 3 until you have seen a real failure for the right reason.
-3. **GREEN — write the minimum code that makes it pass.** No extra abstractions, no adjacent improvements, no speculative branches. Instrument logging inline here per `observability-and-instrumentation`.
-4. **REFACTOR — clean up with the test still green.** Optional but preferred: remove duplication, improve names, simplify. Re-run the test after every refactor; it must stay green. Behavior does not change in this step.
-5. **Verify** — full regression (run the whole test suite, not just the new test) + build succeeds + lint passes.
-6. **Commit** — save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-7. **Move to the next slice** — carry forward, don't restart
+5. **Verify** — task-level lightweight verification (run task test class + `assembleDebug`).
+6. **Commit** — save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance).
+7. **Move to the next slice** — carry forward, don't restart.
 
 **Rationalization guard:** "I'll write the test after, it's faster" produces a test shaped to the code you already wrote — it passes because it mirrors your implementation, including its bugs. The RED step is what makes the test an independent check instead of a transcript.
 
@@ -278,8 +262,6 @@ After each increment, verify:
 
 - Production code written before its test exists (RED skipped)
 - A test written but never observed failing — "it would have failed" is not the RED step
-- Production code written before its test exists (RED skipped)
-- A test written but never observed failing — "it would have failed" is not the RED step
 - More than 100 lines of code written without running tests
 - Multiple unrelated changes in a single increment
 - "Let me just quickly add this too" scope expansion
@@ -292,6 +274,8 @@ After each increment, verify:
 - Running the same build/test command twice in a row without any intervening code change
 - Re-reading the entire `plan.md` at the start of a session instead of checking `todo.md`'s `**Current task:**` pointer first
 - Starting a task without flipping its `todo.md` checkbox to `[~]`, or finishing one without flipping it to `[x]`
+- **Code comments referencing task IDs, PR numbers, person names, or temporal context** (e.g., `PL-2 parked`, `Task 4`, `for now`). Comments explain *why*, not *when* or *who*. These references rot the moment context changes.
+- **TODO comments without a problem description** (e.g., `// TODO: Task 4 — implement this`). A TODO must describe the problem, not reference a task. Correct form: `// TODO: add schema migration when db version bumps`.
 
 ## Verification
 

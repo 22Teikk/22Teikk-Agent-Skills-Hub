@@ -110,6 +110,43 @@ appId: com.example.app
 - No arbitrary `sleep` — use `extendedWaitUntil` with visible/assertion when needed.
 - Name files `snake_case.yaml` matching the criterion: `flows/create_task.yaml`.
 
+### Step 3b: Handle permission dialogs
+
+System permission dialogs (camera, notifications, location, Bluetooth) appear outside the app and break flows if not handled. Add `optional: true` taps before the action that triggers them:
+
+```yaml
+# Handle permission dialog that may or may not appear
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# More specific: target the dialog button by ID (API 30+)
+- tapOn:
+    id: "com.android.permissioncontroller:id/permission_allow_button"
+    optional: true
+```
+
+Patterns by permission type:
+
+```yaml
+# Notification permission (Android 13+) — appears before app sends first push
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# Location — may show "Precise" vs "Approximate" dialog first
+- tapOn:
+    text: "While using the app"
+    optional: true
+
+# Camera — dismiss with Allow or deny deliberately if testing the denial path
+- tapOn:
+    text: "Allow"
+    optional: true
+```
+
+If the flow is testing the **denial path**, use `tapOn: "Don't allow"` (without `optional: true`) to assert the dialog appeared.
+
 ### Step 4: Verify — run Maestro (mandatory)
 
 A flow is not done until Maestro passes on device/emulator.
@@ -143,6 +180,8 @@ Add only when the project adopts E2E in SPEC. See `ci-cd-and-automation` — sep
       ./gradlew installDebug
       maestro test .teikk/maestro/flows/
 ```
+
+> **Maestro Cloud (optional, paid):** For teams that want remote device execution without managing emulators locally, [Maestro Cloud](https://maestro.mobile.dev/cloud/getting-started) accepts the same YAML flows via `maestro cloud .teikk/maestro/flows/`. Add your `MAESTRO_API_KEY` as a CI secret. This is a paid service; evaluate against running `android-emulator-runner` for free.
 
 ## Relationship to other skills
 

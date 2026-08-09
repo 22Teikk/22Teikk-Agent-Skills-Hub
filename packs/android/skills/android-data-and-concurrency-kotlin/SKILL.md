@@ -112,3 +112,16 @@ abstract class AppDatabase : RoomDatabase() {
 - [ ] Network exceptions are handled safely (e.g. using `try-catch` blocks).
 - [ ] Flow collection in Composables uses `collectAsStateWithLifecycle()`.
 - [ ] Coroutine scopes are linked correctly to views (e.g. using `viewModelScope` or `lifecycleScope`).
+
+## Escalation — topics beyond this skill's scope
+
+This skill covers Coroutines, Flow, Retrofit, Room, and Kotlin Serialization. For adjacent data-layer concerns, escalate to the official documentation:
+
+| Need | Resource |
+|---|---|
+| Paginated lists from network or database | [Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) |
+| Deferrable background work (sync, upload, scheduled tasks) | [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) |
+| Typed key-value or proto persistent storage (replacing SharedPreferences) | [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) |
+| File downloads / multipart uploads | [OkHttp Recipes](https://square.github.io/okhttp/recipes/) |
+| Real-time database or cloud sync | [Firebase Firestore](https://firebase.google.com/docs/firestore) |
+

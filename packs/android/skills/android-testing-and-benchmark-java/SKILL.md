@@ -106,17 +106,53 @@ public class StartupBenchmark {
             CompilationMode.DEFAULT,
             5,
             setupBlock -> {
-                // Perform actions before startup (like pressing home)
+                setupBlock.pressHome();
                 return null;
             },
             measureBlock -> {
-                // Launch app under test
+                measureBlock.startActivityAndWait();
                 return null;
             }
         );
     }
 }
 ```
+
+### 4. Room In-Memory DAO Integration Tests (Java)
+
+The data layer requires **≥1 test against a real Room database**, not a mocked repository. Use an in-memory database (fast, no disk I/O, isolated per test).
+
+```java
+@RunWith(AndroidJUnit4.class)
+public class TaskDaoTest {
+    private AppDatabase db;
+    private TaskDao dao;
+
+    @Before
+    public void setUp() {
+        db = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), AppDatabase.class
+        ).allowMainThreadQueries().build();
+        dao = db.taskDao();
+    }
+
+    @After
+    public void tearDown() {
+        db.close();
+    }
+
+    @Test
+    public void insertThenSum_returnsExactTotalInMinorUnits() {
+        dao.insert(new TransactionEntity(2550)); // 25.50
+        dao.insert(new TransactionEntity(1099)); // 10.99
+
+        long total = dao.totalMinor().blockingFirst();
+        assertEquals(3649L, total); // exact — no float drift
+    }
+}
+```
+
+This is the test that catches money-as-`Double`: with `Double` columns the sum drifts; with `Long` minor units it is exact. See references/domain-guardrails.md for the finance rules.
 
 ## Common Rationalizations
 
@@ -143,3 +179,4 @@ public class StartupBenchmark {
 - [ ] Espresso tests execute without flakiness (running on an active emulator/device).
 - [ ] LiveData assertions are wrapped within an `InstantTaskExecutorRule` context.
 - [ ] Obfuscated R8 builds do not break Espresso layout mappings.
+- [ ] ≥1 Room in-memory DAO test exists and asserts exact values (not mocked repository).
