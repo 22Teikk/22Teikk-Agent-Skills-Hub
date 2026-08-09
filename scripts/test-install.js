@@ -686,6 +686,36 @@ function runPlatformPackSelection() {
       fs.existsSync(path.join(tmp, '.opencode', 'skills', 'flutter-ui', 'SKILL.md')),
       'flutter platform must install the flutter skill pack',
     );
+    for (const skill of [
+      'flutter-ui',
+      'flutter-data-and-concurrency',
+      'flutter-di-and-build',
+      'flutter-testing-and-benchmark',
+      'flutter-error-handling',
+      'flutter-state-riverpod',
+      'flutter-state-bloc',
+      'flutter-state-provider',
+      'flutter-navigation',
+      'flutter-di',
+      'flutter-data-networking',
+      'flutter-data-persistence',
+      'flutter-project-structure',
+      'flutter-theming',
+      'flutter-localization',
+      'flutter-e2e',
+      'flutter-animations',
+    ]) {
+      assert(
+        fs.existsSync(path.join(tmp, '.opencode', 'skills', skill, 'SKILL.md')),
+        `flutter platform must install the ${skill} skill`,
+      );
+    }
+    for (const agent of ['flutter-expert.md', 'flutter-performance-auditor.md']) {
+      assert(
+        fs.existsSync(path.join(tmp, '.opencode', 'agents', agent)),
+        `flutter platform must install the ${agent} agent`,
+      );
+    }
 
     fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platforms: [ios, android]\n');
     const update = spawnSync(

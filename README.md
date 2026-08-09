@@ -55,7 +55,7 @@ Start here, then follow the topic you need. The README is a hub — the detail l
 |-------|------|
 | **Getting started** — how skills work, loading them into any agent | [docs/getting-started.md](docs/getting-started.md) |
 | **Prompting guide** — best prompts per phase (context, templates, anti-patterns) | [docs/prompting-guide.md](docs/prompting-guide.md) |
-| **Workflow & commands** — which command when, all 23 commands, AC→test traceability, QA | [docs/workflow.md](docs/workflow.md) |
+| **Workflow & commands** — which command when, all 24 commands, AC→test traceability, QA | [docs/workflow.md](docs/workflow.md) |
 | **Generated files** — the `.teikk/` layout, `todo.md` resume, `ultra` worktrees | [docs/generated-files.md](docs/generated-files.md) |
 | **Diagnostics** — `/teikk-doctor` (project) + `/teikk-machine-audit` (environment) | [docs/diagnostics.md](docs/diagnostics.md) |
 | **Framework internals** — telemetry/benchmark, guardrails, failure recovery, CLIs | [docs/framework-internals.md](docs/framework-internals.md) |
@@ -66,7 +66,7 @@ Start here, then follow the topic you need. The README is a hub — the detail l
 
 ---
 
-## Commands at a glance (23)
+## Commands at a glance (24)
 
 Entry points into the lifecycle. Full descriptions and prompt templates in [docs/workflow.md](docs/workflow.md) and [docs/prompting-guide.md](docs/prompting-guide.md).
 
@@ -79,7 +79,7 @@ Entry points into the lifecycle. Full descriptions and prompt templates in [docs
 | Review | `/teikk-review`, `/teikk-code-simplify` |
 | Ship | `/teikk-ship`, `/teikk-ci`, `/teikk-docs` |
 | QA _(optional, slow)_ | `/teikk-qa`, `/teikk-e2e`, `/teikk-ux-test` |
-| Audit | `/teikk-androidperf` |
+| Audit | `/teikk-androidperf`, `/teikk-flutterperf` |
 | Diagnostics | `/teikk-doctor`, `/teikk-machine-audit` |
 | End-to-end | `/teikk-quick-implement` |
 
@@ -134,8 +134,8 @@ Three guardrails enforced by executable scripts, not just prose — portable acr
 2. **Destructive-command deny-list** — the agent runs `hooks/guardrail-check.sh deny-command "<cmd>"` before running a composed shell command; exit 1 means destructive (e.g. `git push --force`, `git reset --hard`, `rm -rf`, `DROP TABLE`, `kubectl delete`) — surface it to the user instead of auto-running.
 3. **Sensitive-file "Allowed" confirmation gate.**
 
-40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
-40 skills total (23 core + 9 Android + 4 iOS + 4 Flutter) + 11 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+54 skills total (23 core + 10 Android + 4 iOS + 17 Flutter) + 12 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
+54 skills total (23 core + 10 Android + 4 iOS + 17 Flutter) + 12 personas across packs + core — commands are entry points; agents also auto-match skills by intent (see `AGENTS.md` for the hub-repo contributor guide).
 
 ```bash
 # In an installed project (claude target): hooks land in .claude/hooks/
@@ -192,19 +192,20 @@ node scripts/decisions.js list --json   # machine-readable output
 core/skills/     23 platform-neutral workflow skills (SKILL.md each) — always installed
 core/agents/     7 platform-neutral personas (code-reviewer, adversarial-reviewer, test-engineer,
                  security-auditor, mobile-app-developer, ui-ux-tester, value-critic)
-packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
-packs/android/   9 Android skills (ui/data/di/test per Kotlin+Java + Compose animations) + 2 personas
+packs/android/   10 Android skills (ui/data/di/test per Kotlin+Java + e2e-maestro + compose/xml animations) + 2 personas
+packs/android/   10 Android skills (ui/data/di/test per Kotlin+Java + e2e-maestro + compose/xml animations) + 2 personas
                  (android-performance-auditor, kotlin-specialist)
 packs/ios/       4 iOS skills (ui/data/di/test) + swift-expert persona
-packs/flutter/   4 Flutter skills (ui/data/di/test) + flutter-expert persona
+packs/flutter/   17 Flutter skills (ui/data/concurrency/di-and-build/testing/error-handling + state-riverpod/bloc/provider + navigation + networking + persistence + project-structure + theming + localization + e2e + animations) + 2 personas
+                 (flutter-expert, flutter-performance-auditor)
                  → install copies core + only the pack matching `.teikk/spec/PROJECT.yaml`
                    `platform:`, copied into each tool's own skills/ + agents/ dir
-                 Total: 40 skills (23 core + 17 pack) + 11 personas across packs + core
-.cursor/         rules (6) + slash commands (23)
-.claude/         slash commands (23)
+                 Total: 54 skills (23 core + 31 pack) + 12 personas across packs + core
+.cursor/         rules (6) + slash commands (24)
+.claude/         slash commands (24)
 hooks/           session lifecycle hooks (sdd-cache, simplify-ignore)
-.agents/         Antigravity rules (6) + workflows (23)
-commands/        OpenCode-dialect TOML command sources (23)
+.agents/         Antigravity rules (6) + workflows (24)
+commands/        OpenCode-dialect TOML command sources (24)
 references/      testing, security, performance, accessibility checklists
 .teikk/          (generated at runtime) all workflow output — gitignored
 ```
@@ -212,8 +213,8 @@ references/      testing, security, performance, accessibility checklists
 The list above is the **repo** layout. Inside an **installed project**, each tool dir is self-contained — skills/agents are physically copied in, and each skill bundles the reference docs it uses (project root stays clean — only `scripts/` and Antigravity's `commands/` sit at root):
 
 ```
-.claude/    commands/ (23 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md · hooks/ · lib/telemetry.sh
-.opencode/  commands/ (23 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md
+.claude/    commands/ (24 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md · hooks/ · lib/telemetry.sh
+.opencode/  commands/ (24 *.md) · skills/<skill>/{SKILL.md,references/} · agents/*.md
 .cursor/ .gemini/ .agents/   commands|workflows · skills/ · agents/
 scripts/    user-facing CLIs (benchmark, decisions, rollback) — kept at root
 .teikk/     (generated at runtime) all workflow output — gitignored
