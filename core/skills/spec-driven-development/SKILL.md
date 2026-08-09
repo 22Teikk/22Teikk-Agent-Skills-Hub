@@ -176,6 +176,23 @@ Domain: [finance | health | auth | generic — drives references/domain-guardrai
 ## Code Style
 [Example snippet + key conventions]
 
+### Comment Convention (non-negotiable)
+Code comments explain **why**, never **what** or **task context**:
+
+```
+// ✅ DO:   // exportSchema=false — no migration path planned for this release
+// ❌ DON'T: // exportSchema=false (PL-2 parked, no migrations in scope)
+// ❌ DON'T: // Repository mapping added in Task 4 — revisit later
+```
+
+TODO comments describe the problem to solve, not a task reference:
+```
+// ✅ DO:   // TODO: add schema migration when db version bumps
+// ❌ DON'T: // TODO: Task 4 — implement this
+```
+
+Comments containing task IDs, PR numbers, person names, or temporal references (`for now`, `currently`, `PL-2 parked`) must be removed before merging. They rot the moment context changes.
+
 ## Testing Strategy
 [Framework, test locations, coverage requirements, test levels]
 [E2E: none | Maestro — list critical flows and acceptance criteria each flow proves]

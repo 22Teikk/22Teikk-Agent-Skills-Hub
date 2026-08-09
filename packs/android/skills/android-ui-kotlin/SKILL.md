@@ -17,6 +17,7 @@ Build high-quality, responsive, accessible, and performant Android user interfac
 - Use when creating new Compose screens or individual Composable components.
 - Use when setting up MVVM ViewModels that expose screen UI state.
 - Use when implementing application navigation using Navigation Compose.
+- For motion and animation within Compose screens, use `compose-animations`.
 - Do NOT use when working on traditional Android projects built with Java or XML-only Layouts (use `android-ui-java` instead).
 
 ## Core Process
@@ -94,7 +95,12 @@ fun TaskListContent(
     } else {
         LazyColumn {
             items(items = state.tasks, key = { it.id }) { task ->
-                TaskItem(task = task, onClick = { onTaskClick(task.id) })
+                TaskItem(
+                    task = task,
+                    onClick = { onTaskClick(task.id) },
+                    // testTag enables Maestro id: selectors — prevents brittle text: matching
+                    modifier = Modifier.testTag("task_item_${task.id}")
+                )
             }
         }
     }
@@ -167,3 +173,4 @@ AsyncImage(
 - [ ] All lists in Lazy layouts have unique `key` parameters.
 - [ ] Accessible semantics and content descriptions are provided for screen readers (TalkBack).
 - [ ] UI layouts scale correctly when device font size is increased.
+- [ ] Composables that are Maestro targets use `Modifier.testTag("<stable_id>")` for reliable selector access.

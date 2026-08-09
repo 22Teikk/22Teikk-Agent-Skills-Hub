@@ -17,6 +17,7 @@ Build high-quality, responsive, accessible, and performant Android user interfac
 - Use when creating or editing XML layout resources (ConstraintLayout, ScrollView, etc.).
 - Use when defining custom Android `View` components in Java.
 - Use when working with ViewBinding or DataBinding in Java activities/fragments.
+- For motion and animations within View/XML layouts, use `xml-animations`.
 - Do NOT use for Kotlin/Compose-based UI implementations (use `android-ui-kotlin` instead).
 
 ## Core Process
@@ -30,6 +31,7 @@ Build high-quality, responsive, accessible, and performant Android user interfac
 public class TaskViewModel extends ViewModel {
     private final GetTasksUseCase getTasksUseCase;
     private final MutableLiveData<TaskUiState> uiState = new MutableLiveData<>(new TaskUiState(true));
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
     public TaskViewModel(GetTasksUseCase getTasksUseCase) {
@@ -43,20 +45,19 @@ public class TaskViewModel extends ViewModel {
 
     public void loadTasks() {
         uiState.setValue(new TaskUiState(true));
-        getTasksUseCase.execute(new DisposableSubscriber<List<Task>>() {
-            @Override
-            public void onNext(List<Task> tasks) {
-                uiState.setValue(new TaskUiState(tasks));
-            }
+        disposables.add(
+            getTasksUseCase.execute()
+                .subscribe(
+                    tasks -> uiState.setValue(new TaskUiState(tasks)),
+                    t    -> uiState.setValue(new TaskUiState(t.getMessage()))
+                )
+        );
+    }
 
-            @Override
-            public void onError(Throwable t) {
-                uiState.setValue(new TaskUiState(t.getMessage()));
-            }
-
-            @Override
-            public void onComplete() {}
-        });
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposables.clear(); // prevent memory leaks on rotation / backstack pop
     }
 }
 ```

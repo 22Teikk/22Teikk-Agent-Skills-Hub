@@ -149,6 +149,7 @@ class StartupBenchmark {
 | "Testing UI flows inside standard JVM unit tests is enough" | JVM unit tests run on mock views or Robolectric, which cannot capture real device rendering behavior, jank, or Android OS integration quirks. Run UI tests on Compose rules or Emulators. |
 | "Writing benchmarks is too slow and requires specific setups" | Benchmarking prevents shipping regressions (like cold startup slowness or heavy scrolling frame drops) that ruin user experience and lower Play Store rankings. |
 | "I don't need Dispatchers.setMain because my ViewModel uses viewModelScope" | In standard unit tests, the main thread loop does not run. Not overriding it with a test dispatcher causes crashes with "Looper not mocked" or concurrent execution failures. |
+| "A Room in-memory test is overkill — I already mock the repository" | A mock that returns `750.0` and asserts `750.0` proves nothing. The Room in-memory test is the only check that touches real SQL, real column types, and real aggregation — it catches a `Double` money column, a broken `SUM`, or a missing index before they ship. |
 
 ## Red Flags
 
@@ -169,7 +170,7 @@ class StartupBenchmark {
 - [ ] UI tests assert element visibility using Compose semantics nodes.
 - [ ] Macrobenchmarks are configured inside a separate module and execute correctly.
 
-### 4. E2E journeys (optional — Maestro)
+### E2E journeys (optional — Maestro)
 
 For multi-screen critical flows only. **Do not use this section for every project.**
 

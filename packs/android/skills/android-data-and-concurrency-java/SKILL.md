@@ -101,6 +101,43 @@ CompletableFuture.supplyAsync(() -> taskDao.getTasksOnce(), Executors.newSingleT
     });
 ```
 
+### 4. Room In-Memory DAO Integration Tests (mandatory for the data layer)
+
+Mirrors the Kotlin requirement in `android-testing-and-benchmark-java`: the data layer must have **≥1 test against a real Room database**, not a mocked repository. A mock that returns the expected value and then asserts it proves nothing — it never touches SQL.
+
+```java
+@RunWith(AndroidJUnit4.class)
+public class TaskDaoTest {
+    private AppDatabase db;
+    private TaskDao dao;
+
+    @Before
+    public void setUp() {
+        db = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), AppDatabase.class
+        ).allowMainThreadQueries().build();
+        dao = db.taskDao();
+    }
+
+    @After
+    public void tearDown() {
+        db.close();
+    }
+
+    @Test
+    public void insertThenQuery_returnsInsertedTask() {
+        TaskEntity entity = new TaskEntity("task-1", "Buy Milk", false);
+        dao.insertTask(entity);
+
+        List<TaskEntity> tasks = dao.getTasksFlowable().blockingFirst();
+        assertEquals(1, tasks.size());
+        assertEquals("Buy Milk", tasks.get(0).getTitle());
+    }
+}
+```
+
+This ensures the DAO SQL queries, column mappings, and `@Insert`/`@Query` annotations work correctly against a real SQLite engine.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
