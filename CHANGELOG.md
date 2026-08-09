@@ -18,7 +18,7 @@ Each run computes the next tag, then publishes a git tag + GitHub Release (`--ge
 
 If the pushed range can't be determined (first push, force-push), the guard fails safe and releases anyway — a real release is never silently swallowed.
 
-## [Unreleased] — Flutter pack expansion
+## [11.0.0] — 2026-08-09
 
 Flutter pack grows from 4 to 8 skills, rounding out the core-concern bar to match Android/iOS coverage.
 
@@ -68,7 +68,7 @@ Flutter pack grows from 4 to 8 skills, rounding out the core-concern bar to matc
 - **`doubt-driven-development` cross-model CLI section lifted to `references/cross-model-cli.md`** (~54 → ~29 lines in skill, –24 net) — the platform-version-specific CLI invocation syntax (Codex `--sandbox read-only`, Gemini `--approval-mode plan`, stdin-vs-shell-quoting pattern, pre-flight checks) moved out of the always-loaded skill into an appendix read on-demand when actually invoking a cross-model CLI. The skill now owns only the *decision rules* (always offer in interactive, always announce skip in non-interactive, never silently fall back); the appendix owns the *invocation mechanics*.
 - **Five longest skill descriptions trimmed to ≤290 chars** (`machine-audit` 507 → 238, `interview-me` 485 → 286, `doubt-driven-development` 339 → 284, `idea-refine` 335 → 247, `flutter-di-and-build` 301 → 216) — descriptions are loaded once per session for skill discovery; trimming the worst offenders cuts ~175 tokens per discovery pass across all 38 skills. Trigger contexts preserved; only verbose prose removed.
 
-## [Unreleased] — context-window optimization
+**Follow-on — context-window optimization**
 
 Two follow-on commits to the workflow-hub review pass above. Both reduce per-invocation context cost in target projects (where the savings compound across every session) with no behavior change. Additive — users on prior versions keep working unchanged.
 
@@ -228,6 +228,7 @@ Major release: multi-target parity, a single `.teikk/` output directory, and a n
 ## [1.3.0]
 - Wired the Android stack into the spec → plan → build → ship workflow.
 
+[11.0.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v11.0.0
 [5.0.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v5.0.0
 [2.3.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.3.0
 [2.2.0]: https://github.com/22Teikk/22Teikk-Agent-Skills-Hub/releases/tag/v2.2.0
