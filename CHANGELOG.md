@@ -18,9 +18,20 @@ Each run computes the next tag, then publishes a git tag + GitHub Release (`--ge
 
 If the pushed range can't be determined (first push, force-push), the guard fails safe and releases anyway — a real release is never silently swallowed.
 
-## [Unreleased]
+## [Unreleased] — Flutter pack expansion
 
-Workflow-hub review pass: fixes a broken command reference, closes model-tiering and token-cost gaps, and adds compaction resilience. No breaking changes — all additions are opt-in or non-blocking.
+Flutter pack grows from 4 to 8 skills, rounding out the core-concern bar to match Android/iOS coverage.
+
+### Added
+- **Four new Flutter skills** in `packs/flutter/skills/` (all `platform: flutter`, with `depends-on` wiring into the existing pack):
+  - **`flutter-project-structure`** — feature-first layout + the official Flutter-recommended MVVM split; UI/Data layer boundaries, Riverpod provider placement, single-package vs melos/workspaces monorepos. Depends on `flutter-ui`, `flutter-data-and-concurrency`.
+  - **`flutter-theming`** — Material 3 theming: `ColorScheme.fromSeed`, dark mode, `ThemeExtension` custom tokens, `textTheme` typography, `WidgetStateProperty` state styling. Depends on `flutter-ui`.
+  - **`flutter-localization`** — official `gen-l10n` + ARB pipeline: ARB message files, plurals/placeholders, locale delegates, gen-l10n vs easy_localization/slang decision. Depends on `flutter-ui`.
+  - **`flutter-error-handling`** — global error handlers (`FlutterError.onError`, `PlatformDispatcher.onError`, `runZonedGuarded`), sealed-class `Result` types, try/catch vs Result for repository/domain layers. Depends on `flutter-data-and-concurrency`, `flutter-ui`.
+- **`flutter-testing-and-benchmark` golden-tests guidance**: added the 2026 CI-safe standard — `alchemist` (`goldenTest` / `GoldenTestGroup` / `GoldenTestScenario`) with local-vs-CI golden split (Ahem font + colored squares on CI) to fix macOS/Linux font-rendering flakes; raw `matchesGoldenFile` goldens stay for legacy spots.
+- **Pack doc, registry, and counts updated**: `packs/flutter/SKILL.md` now lists 8 skills with a routing table; `registry.json` regenerated (45 skills, 11 personas); README.md/CLAUDE.md counts moved from 40 → 44 skills (23 core + 21 pack) and `packs/flutter/` layout line from 4 → 8 skills.
+
+: fixes a broken command reference, closes model-tiering and token-cost gaps, and adds compaction resilience. No breaking changes — all additions are opt-in or non-blocking.
 
 ### Changed
 - **`model_tiers` defaults shipped in `PROJECT.yaml`** — the YAML template in `commands/teikk-spec.toml` now writes a populated `model_tiers` block (previously blank — every call silently fell back to session default and erased the tiering signal). Persona + subagent self-classification into `low`/`medium`/`high`/`ultra` now maps to a concrete model per tier. Users can override any value by editing `.teikk/spec/PROJECT.yaml` directly. The `ultra` tier maps to the highest-capability Claude model in the current catalog (`fable`) — used by `adversarial-reviewer` when self-classifying `ultra` for diffs with multiple competing failure hypotheses, and by `security-auditor` for auth/payment/data-boundary code.

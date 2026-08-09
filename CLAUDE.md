@@ -17,7 +17,7 @@ packs/        → Platform-scoped (post-5.0.0 split) — installed per `.teikk/s
   ios/        → 4 skills (ui/data/di/test) + 1 persona (swift-expert)
   flutter/    → 4 skills (ui/data/di/test) + 1 persona (flutter-expert)
                 Skills at `packs/<platform>/skills/<name>/SKILL.md`
-                Total 40 skills (23 core + 17 pack) + 11 personas across packs + core
+                Total 44 skills (23 core + 21 pack) + 11 personas across packs + core
 hooks/        → Session lifecycle hooks
 .claude/      → Slash commands (23)                 [Claude Code]
 .agents/      → Rules (6) + workflows (23)          [Antigravity]
