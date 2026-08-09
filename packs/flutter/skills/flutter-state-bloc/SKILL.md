@@ -99,7 +99,11 @@ Handlers register in the constructor, and `emit` is only ever called with the `E
 class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   TaskListBloc(this._repo) : super(const TaskListLoading()) {
     on<TaskListRequested>(_onRequested, transformer: restartable());
-    on<TaskFilterChanged>(_onFilterChanged);
+    on<TaskFilterChanged>((event, emit) {
+      if (state case TaskListLoaded(:final tasks)) {
+        emit(TaskListLoaded(tasks: tasks, filter: event.filter));
+      }
+    });
   }
   final TaskRepository _repo;
 
@@ -110,12 +114,6 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       emit(TaskListLoaded(tasks: await _repo.fetchAll()));
     } on RepositoryException catch (e) {
       emit(TaskListFailure(e.message)); // failures are states, not exceptions
-    }
-  }
-
-  void _onFilterChanged(TaskFilterChanged event, Emitter<TaskListState> emit) {
-    if (state case TaskListLoaded(:final tasks)) {
-      emit(TaskListLoaded(tasks: tasks, filter: event.filter));
     }
   }
 }
@@ -240,7 +238,7 @@ Every branch of every handler gets one `blocTest`. Widget tests then verify only
 
 ### 7. Persistence with hydrated_bloc (optional)
 
-For state that must survive a cold start (theme, onboarding progress, cached filters), extend `HydratedCubit` / `HydratedBloc`, implement `fromJson` / `toJson`, and initialize `HydratedBloc.storage` before `runApp`. Hydrate only small, non-sensitive, schema-stable state — auth tokens go to secure storage, never to `hydrated_bloc`. Return `null` from `fromJson` on any parse failure so a corrupt payload falls back to the initial state instead of crashing at startup.
+For state that must survive a cold start (theme, onboarding progress, cached filters), extend `HydratedCubit` / `HydratedBloc`, implement `fromJson` / `toJson`, and initialize `HydratedBloc.storage` before `runApp`. Hydrate only small, non-sensitive, schema-stable state — auth tokens go to secure storage, never to `hydrated_bloc`. Return `null` from `fromJson` on any parse failure so a corrupt payload falls back to the initial state rather than crashing at startup.
 
 ## Common Rationalizations
 
