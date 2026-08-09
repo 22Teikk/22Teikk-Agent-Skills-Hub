@@ -3,7 +3,7 @@ name: flutter-project-structure
 description: Structures Flutter projects and features with the 2026-standard feature-first layout and the official MVVM UI/Data layer split. Use when creating a new Flutter project or organizing an existing one, deciding where a file belongs (lib/features/<feature>/{data,domain,presentation} vs lib/core vs lib/shared vs lib/app), enforcing layer boundaries and import rules, or choosing between single-package and melos/workspaces monorepos.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-state-riverpod, flutter-testing-and-benchmark]
+depends-on: [flutter-state-bloc, flutter-testing-and-benchmark]
 ---
 
 # Flutter Project Structure (Feature-First + MVVM Layers)
@@ -12,7 +12,7 @@ depends-on: [flutter-state-riverpod, flutter-testing-and-benchmark]
 
 The 2026 Flutter standard is **feature-first layout** with the official Flutter-recommended **MVVM split**: a **UI layer** (Views + ViewModels) and a **Data layer** (Repositories + Services). Every feature — auth, tasks, settings — is a self-contained folder holding its own UI, state, domain contracts, and data implementation, so the code you touch for one feature lives in one place. Cross-feature infrastructure (theme, network, DI, constants) lives in `lib/core/`; truly generic widgets live in `lib/shared/`.
 
-This structure is **state-agnostic**. Riverpod is the default state holder in this pack; BLoC is a supported variant. The folder layout, layer boundaries, and dependency rules are identical for both — only the files inside `presentation/` change shape (see `flutter-state-riverpod` and `flutter-state-bloc`).
+This structure is **state-agnostic**. BLoC is the default state holder in this pack; Riverpod is a supported variant. The folder layout, layer boundaries, and dependency rules are identical for both — only the files inside `presentation/` change shape (see `flutter-state-bloc` and `flutter-state-riverpod`).
 
 The dependency rule is the contract that keeps the whole thing coherent: **presentation → domain → data**. Presentation may depend on domain and data; domain depends on nothing but Dart; data implements domain contracts.
 

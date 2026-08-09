@@ -1,6 +1,6 @@
 ---
 name: flutter-di-and-build
-description: Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter.
+description: Configures Flutter DI (get_it + BLoC), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up get_it, configuring --flavor/--dart-define, or wiring CI for Flutter.
 version: 1.0.0
 platform: flutter
 depends-on: [flutter-di]
@@ -12,12 +12,12 @@ depends-on: [flutter-di]
 
 ## Overview
 
-Standardize the Dart/Flutter toolchain: dependency management in `pubspec.yaml`, dependency injection via Riverpod providers (default) or BLoC `MultiBlocProvider` (variant), flavor/environment configuration with `--dart-define` and entry-point shims, asset bundling, code generation with `build_runner`, and CI/CD with GitHub Actions. This skill covers the **build** side of DI — declaring dependencies in `pubspec.yaml` and wiring codegen. For runtime DI wiring — provider construction, the get_it hybrid, `ProviderScope` — see `flutter-di`. Avoid global singletons; everything that has lifecycle goes through a provider.
+Standardize the Dart/Flutter toolchain: dependency management in `pubspec.yaml`, dependency injection via get_it (default) with BLoC `MultiBlocProvider` for state wiring, flavor/environment configuration with `--dart-define` and entry-point shims, asset bundling, code generation with `build_runner`, and CI/CD with GitHub Actions. This skill covers the **build** side of DI — declaring dependencies in `pubspec.yaml` and wiring codegen. For runtime DI wiring — get_it registrations, constructor injection, `ProviderScope` (Riverpod variant) — see `flutter-di`. Avoid global singletons; everything that has lifecycle is registered once in get_it.
 
 ## When to Use
 
 - Use when adding, upgrading, or removing dependencies in `pubspec.yaml`.
-- Use when wiring `flutter_riverpod` providers as the DI seam (the default for this pack).
+- Use when wiring `get_it` registrations as the DI seam (the default for this pack).
 - Use when configuring flavor-specific entry points (`main_dev.dart`, `main_prod.dart`) or `--dart-define` keys.
 - Use when setting up `build_runner` for `freezed`/`json_serializable`/`riverpod_generator`/`drift`.
 - Use when defining or modifying a GitHub Actions workflow for a Flutter project.
@@ -45,14 +45,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
+  get_it: ^8.0.0
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.0
   go_router: ^14.2.0
   dio: ^5.5.0
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
   drift: ^2.18.0
-  logger: ^2.4.0
+  talker: ^5.1.20
+  talker_flutter: ^5.1.20
+  # Riverpod variant (projects that declare flutter_riverpod):
+  # flutter_riverpod: ^2.5.1
+  # riverpod_annotation: ^2.3.5
 
 dev_dependencies:
   flutter_test:
@@ -61,9 +66,9 @@ dev_dependencies:
   build_runner: 2.4.11
   freezed: 2.5.7
   json_serializable: 6.8.0
-  riverpod_generator: ^2.4.0
   drift_dev: ^2.18.0
   mocktail: ^1.0.4
+  # riverpod_generator: ^2.4.0 (Riverpod variant only)
 
 flutter:
   uses-material-design: true
@@ -78,29 +83,27 @@ flutter:
           weight: 700
 ```
 
-### 2. DI via Riverpod providers (the default)
+### 2. DI via get_it (the default)
 
-- For runtime DI wiring — provider construction, the get_it hybrid, test overrides — see `flutter-di`. This section keeps the build-side contract.
-- **Everything with a lifecycle is a `Provider`**: `Dio`, `AppDatabase`, repositories, `Logger`, `GoRouter`, `FirebaseMessaging`.
-- Wrap the root in `ProviderScope` at `main()`. For tests, swap with `ProviderScope(overrides: [...])` to inject fakes.
-- Use `riverpod_generator` (`@riverpod`) to author providers next to the class they expose — codegen keeps the wiring discoverable.
+- For runtime DI wiring — registrations, constructor injection, test resets — see `flutter-di`. This section keeps the build-side contract.
+- **Everything with a lifecycle is registered once in get_it**: `Dio`, `AppDatabase`, repositories, `Talker`, `GoRouter`, `FirebaseMessaging`.
+- Call `setupLocator()` at the top of `main()` **before** `runApp()`. For tests, `getIt.reset()` and register fakes.
+- Lazy singletons live for the app lifetime; use `registerFactory` for per-scope instances.
 
 ```dart
-// lib/data/local/app_database.dart
-@Riverpod(keepAlive: true)
-AppDatabase appDatabase(Ref ref) {
-  final db = AppDatabase(_openConnection());
-  ref.onDispose(db.close);
-  return db;
-}
+// lib/di/locator.dart
+final locator = GetIt.instance;
 
-// lib/di/providers.dart (generated; do not edit by hand)
-@ProviderFor(appDatabase)
-final appDatabaseProvider = appDatabaseProviderRef; // see riverpod_generator output
+void setupLocator() {
+  locator.registerLazySingleton<AppDatabase>(() => AppDatabase(_openConnection()));
+  locator.registerLazySingleton<Talker>(() => TalkerFlutter.init());
+  // ... other registrations
+}
 ```
 
-- **Avoid global singletons.** If you see `final repo = MyRepository()` outside a provider, it has escaped DI; move it.
-- **BLoC variant**: if the project chose `flutter_bloc`, expose each `Bloc` via `MultiBlocProvider` at the root and `RepositoryProvider` for repositories. The dependency rules below still apply.
+- **Avoid global singletons.** If you see `final repo = MyRepository()` outside a registration, it has escaped DI; move it.
+- **BLoC wiring**: the pack default uses `flutter_bloc`, exposing each `Bloc` via `MultiBlocProvider` at the root and `RepositoryProvider` for repositories. The dependency rules below still apply.
+- **Riverpod variant**: projects that declared `flutter_riverpod` author providers with `riverpod_generator` (`@riverpod`) next to the class they expose and swap with `ProviderScope(overrides: [...])` in tests; never mix the two DI seams in the same feature subtree.
 
 ### 3. Flavors and environments with `--dart-define`
 
@@ -188,7 +191,7 @@ jobs:
 
 | Rationalization | Reality |
 |---|---|
-| "I'll just `final repo = MyRepository();` at module scope, it's faster" | That is a global singleton. It survives tests, blocks fake injection, and creates order-of-initialization bugs. Use a provider. |
+| "I'll just `final repo = MyRepository();` at module scope, it's faster" | That is a global singleton. It survives tests, blocks fake injection, and creates order-of-initialization bugs. Use a registration. |
 | "I'll skip the Version Catalog equivalent — `pubspec.yaml` is fine" | `pubspec.yaml` IS the dependency catalog for Dart. Pin versions, group by purpose, and don't sprinkle `dependency_overrides` to silence conflicts. |
 | "I'll commit secrets in `--dart-define`" | `--dart-define` values are compiled into the binary; they are recoverable from a release APK/IPA. Use runtime config fetched from a backend, or platform keychain (`flutter_secure_storage`), for anything sensitive. |
 | "I'll just run `flutter build` in CI without `build_runner`" | The first clean checkout that runs without `pub get` and codegen will fail. CI must always run codegen, or commit the generated files. |
@@ -196,7 +199,7 @@ jobs:
 
 ## Red Flags
 
-- Hardcoded `Dio()`, `AppDatabase`, `Logger`, `GoRouter`, or `Repository` instances at module scope.
+- Hardcoded `Dio()`, `AppDatabase`, `Talker`, `GoRouter`, or `Repository` instances at module scope.
 - `dependency_overrides` in `pubspec.yaml` to silence a real version conflict.
 - Test-only or codegen-only packages in `dependencies:` instead of `dev_dependencies:`.
 - Secrets (API keys, signing material, Sentry DSN) baked in via `--dart-define` to a release build.
@@ -212,7 +215,7 @@ jobs:
 - [ ] `flutter analyze` reports zero warnings.
 - [ ] `flutter test` passes.
 - [ ] `flutter build apk --release --flavor prod -t lib/main_prod.dart` and `flutter build ios --release --flavor prod -t lib/main_prod.dart` both succeed.
-- [ ] No `Dio()` / `AppDatabase()` / `Logger()` instantiated at module scope.
-- [ ] `ProviderScope` wraps `runApp(...)`; `ProviderScope(overrides: [...])` wraps the test root.
+- [ ] No `Dio()` / `AppDatabase()` / `Talker()` instantiated at module scope.
+- [ ] `setupLocator()` runs before `runApp(...)`; `Bloc.observer` is registered. (Riverpod variant: `ProviderScope` wraps the root and `ProviderScope(overrides: [...])` the test root.)
 - [ ] No `dependency_overrides` in `pubspec.yaml` (unless documented in `## Open Questions` and tracked).
 - [ ] CI workflow runs codegen + analyze + test + build, with a cached `~/.pub-cache`.

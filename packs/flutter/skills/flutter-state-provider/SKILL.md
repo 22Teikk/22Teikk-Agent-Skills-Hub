@@ -3,7 +3,7 @@ name: flutter-state-provider
 description: Maintains and migrates legacy Flutter apps built on the Provider 6.x package (ChangeNotifier-based, maintenance-mode). Use when a project already declares provider ^6.x and you must change a screen that reads ChangeNotifierProvider, context.watch/context.read, MultiProvider, ProxyProvider, or Consumer, or when planning a Provider → Riverpod migration OUT. Do NOT use to introduce Provider into a new project — use the flutter-state-riverpod skill; do NOT use for event-driven apps — use the flutter-state-bloc skill.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-state-bloc, flutter-state-riverpod, flutter-ui]
+depends-on: [flutter-state-bloc, flutter-ui]
   - flutter-data-and-concurrency
   - flutter-di-and-build
 ---
@@ -14,7 +14,7 @@ depends-on: [flutter-state-bloc, flutter-state-riverpod, flutter-ui]
 
 `provider` 6.x is the `InheritedWidget` wrapper that dominated Flutter state management from 2019 to roughly 2023. It is now in **maintenance mode**: the 6.1.x line is the final feature line, receiving compatibility and bugfix releases only, and its author steers new work to Riverpod. It is still stable and still ships in a large number of production apps, so there is no urgency to rip it out.
 
-The honest framing for this skill: **do not write new features on Provider.** New code belongs on Riverpod (`flutter-state-riverpod`) or, for event-sourced flows, BLoC (`flutter-state-bloc`). This skill exists to (a) keep an existing Provider codebase correct and idiomatic while it is maintained, and (b) migrate it feature-by-feature to Riverpod without a big-bang rewrite. The migration section is not an appendix — it is half the value of this skill.
+The honest framing for this skill: **do not write new features on Provider.** New code belongs on BLoC (`flutter-state-bloc`, the pack default) or Riverpod (`flutter-state-riverpod`). This skill exists to (a) keep an existing Provider codebase correct and idiomatic while it is maintained, and (b) migrate it feature-by-feature to Riverpod without a big-bang rewrite. The migration section is not an appendix — it is half the value of this skill.
 
 ## When to Use
 
@@ -22,7 +22,7 @@ The honest framing for this skill: **do not write new features on Provider.** Ne
 - Use when debugging `ProviderNotFoundException`, rebuild storms, or missing-`notifyListeners` bugs in an existing tree.
 - Use when writing or fixing tests around an existing `ChangeNotifier`.
 - Use when planning or executing an incremental Provider → Riverpod migration (see the dedicated migration section below).
-- Do NOT use to introduce Provider into a project that does not already have it — use the `flutter-state-riverpod` skill.
+- Do NOT use to introduce Provider into a project that does not already have it — use the `flutter-state-bloc` skill (default) or `flutter-state-riverpod`.
 - Do NOT use for event-driven / event-sourced state — that is the `flutter-state-bloc` skill's territory.
 - Do NOT use for widget-tree composition rules — those live in the `flutter-ui` skill.
 

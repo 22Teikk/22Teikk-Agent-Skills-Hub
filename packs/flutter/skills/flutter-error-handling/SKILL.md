@@ -29,6 +29,8 @@ Handle Flutter errors across **three surfaces**: framework errors (`FlutterError
 - **`PlatformDispatcher.instance.onError`**: errors NOT caught by Flutter (async `onPressed`, plugin calls, `MethodChannel.invokeMethod`). **Must `return true`** to suppress the default crash behavior.
 - **`runZonedGuarded`**: zone-level catch-all for async errors that escape both channels — the standard wiring for crash-reporting services (Sentry, Crashlytics).
 
+Logging flows through the pack default Talker: call `talker.error(e, st, 'context')` inside `FlutterError.onError`, `PlatformDispatcher.instance.onError`, and the `runZonedGuarded` handler **before** forwarding to Sentry/Crashlytics — Talker supplements crash reporting, it does not replace it.
+
 ```dart
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
