@@ -1,236 +1,229 @@
 ---
 name: flutter-data-and-concurrency
-description: Handles data operations and concurrency in Flutter Dart 3+ projects. Use when writing Dart isolates, Stream/Future pipelines, dio HTTP requests, JSON serialization with json_serializable/freezed, drift relational queries, Hive key-value boxes, or Riverpod AsyncValue providers.
+description: Handles Dart/Flutter async and concurrency in Flutter Dart 3+ projects. Use when writing Future/async-await pipelines, Streams and StreamControllers, isolates (Isolate.run, Isolate.spawn, compute), handling errors in async contexts, or consuming FutureBuilder/StreamBuilder. This is the data-layer entry point — repositories expose Future/Stream APIs; deep networking lives in flutter-data-networking and local persistence in flutter-data-persistence.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-ui]
-  - observability-and-instrumentation
-  - flutter-ui
+depends-on: [flutter-data-networking, flutter-data-persistence, flutter-error-handling, flutter-state-riverpod, flutter-testing-and-benchmark, flutter-ui]
 ---
 
-# Flutter Data and Concurrency (Dart 3+, Riverpod)
+# Flutter Data and Concurrency (Dart 3+)
 
 ## Overview
 
-Manage asynchronous data streams, networking, serialization, and local persistence in Flutter using Dart 3+. Follow clean architecture by separating `data sources` (network, database, platform) from `repositories` (domain-shaped API) from `providers` (DI wiring). Riverpod is the **default** state holder; BLoC is documented inline where the data-layer pattern diverges (see end of this skill).
+This skill owns the **async/concurrency core** of the Flutter data layer: Dart's `Future`/`Stream`/`Isolate` primitives and how they behave in a Flutter app. Data sources (network, database) sit **behind repositories**, and the repositories expose `Future`- and `Stream`-shaped APIs that state holders and widgets consume.
+
+Wave-1 split: the deep networking stack (`dio`/`retrofit`/`freezed` DTOs) moved to `flutter-data-networking`, and local persistence (`drift`/`hive`/`shared_preferences`/`sqflite`) moved to `flutter-data-persistence`. This skill keeps a one-section summary plus pointer for each and concentrates on the language-level async machinery both depend on. State holders (Riverpod default) are `flutter-state-riverpod`; global error handlers and `Result`/`Failure` types are `flutter-error-handling`.
 
 ## When to Use
 
-- Use when implementing the data layer (network sources, local databases, repositories) in a Flutter app.
-- Use when designing HTTP requests with `dio` (preferred) or `package:http`.
-- Use when serializing/deserializing JSON with `json_serializable` or `freezed` (`@freezed` classes).
-- Use when configuring a local relational database with `drift` (or `sqflite` for simpler cases) or key-value storage with `hive` / `hive_ce`.
-- Use when writing `Stream`-based or `Future`-based providers, isolates, or background work.
+- Use when writing or reviewing `Future`/`async-await` pipelines, `Stream`s, or `StreamController`s.
+- Use when moving CPU-heavy work off the main isolate with `Isolate.run`, `Isolate.spawn`, or `compute`.
+- Use when handling errors that occur in asynchronous contexts (failed Futures, stream `onError`, unhandled zone errors).
+- Use when designing a repository whose API is `Future`/`Stream` shaped.
+- Use when a widget needs `FutureBuilder`/`StreamBuilder` for a simple one-off async value.
+- Do NOT use for `dio` requests, interceptors, retrofit clients, or DTO codegen — see `flutter-data-networking`.
+- Do NOT use for drift tables, hive boxes, migrations, or `shared_preferences` — see `flutter-data-persistence`.
 - Do NOT use when only changing UI code — see `flutter-ui`.
 
 ## Core Process
 
-### 1. Concurrency: `Future`, `Stream`, and `Isolate`
+### 1. `Future` / `async-await`: one-shot async work
 
-- `Future` / `async-await` for one-shot async work (HTTP request, single DB read).
-- `Stream` for continuous updates (DB query that re-emits on change, WebSocket, push notifications).
-- **`Isolate`** only for CPU-heavy, blocking work — image processing, JSON parsing of huge payloads, crypto. Never reach for an isolate for a typical HTTP/DB call; Dart's event loop already does the right thing.
-- Use `Isolate.run` (Dart 2.19+) for a one-shot spawn — it returns a `Future` and reuses the isolate pool. Use `Isolate.spawn` only for long-lived workers that need bidirectional `SendPort`/`ReceivePort` messaging.
+- Default to `async`/`await` over `.then()` chains; reach for `.then` only when transforming a one-shot without nesting.
+- Use `Future.wait` when independent Futures can run in **parallel** — sequential `await`s of independent calls are strictly slower.
+- Bound runaway work with `.timeout(Duration(...))`; a hung Future otherwise stalls the `await` forever.
+- A Future that completes with an error and has no listener/rejection handler becomes an **unhandled async error** in the enclosing zone (see section 4).
 
 ```dart
-// Heavy work off the main isolate.
+// Independent one-shots run concurrently, not one after another.
+final results = await Future.wait([fetchAccount(), fetchProfile()]);
+final account = results[0] as Account;
+
+final quick = await slowCall().timeout(const Duration(seconds: 5));
+```
+
+### 2. `Stream`: continuous async values
+
+- `Stream` is the right shape for anything that re-emits: a database query that updates on change, a WebSocket, push notifications, progress reporting.
+- Single-subscription streams deliver each event to **one** listener; call `asBroadcastStream()` when several consumers must share one source.
+- Prefer `Stream.fromFuture` for a one-shot, `async*` generators for sequences you compute, and `StreamController` only when an external push API requires it — and always `close()` it.
+- Every `StreamSubscription` must eventually be cancelled. In a Riverpod provider that is `ref.onDispose(sub.cancel)` (see `flutter-state-riverpod`).
+
+```dart
+Stream<int> countdown(int from) async* {
+  for (var i = from; i >= 0; i--) {
+    yield i;
+    await Future.delayed(const Duration(seconds: 1));
+  }
+}
+
+// A push API needs a controller — close it on dispose or it leaks forever.
+final controller = StreamController<List<Transaction>>();
+final sub = repository.watchAll().listen(controller.add);
+ref.onDispose(() async {
+  await sub.cancel();
+  await controller.close();
+});
+return controller.stream;
+```
+
+### 3. Isolates: CPU-heavy work off the main isolate
+
+- Dart's event loop is non-blocking for **I/O** (HTTP, DB, files) — you do not need an isolate for those.
+- Reach for an isolate only for **CPU-bound** work: parsing a multi-MB JSON payload, image processing, hashing/crypto, large list transforms.
+- `Isolate.run` (Dart 2.19+): one-shot spawn that returns a `Future` and reuses the isolate pool — the default choice.
+- `compute()` (from `package:flutter/foundation.dart`): Flutter's wrapper for the same one-shot pattern; runs the callback in a new isolate and returns a `Future`. On web (no isolates) it runs on the main isolate.
+- `Isolate.spawn`: only for long-lived workers that need bidirectional `SendPort`/`ReceivePort` messaging.
+- The closure and its argument must be sendable across isolates (JSON-able / transferable) — no captured mutable state.
+
+```dart
+import 'dart:isolate';
+
 Future<List<Transaction>> parseHugePayload(String rawJson) {
   return Isolate.run(() {
     final list = jsonDecode(rawJson) as List<dynamic>;
     return list.map((e) => Transaction.fromJson(e as Map<String, dynamic>)).toList();
   });
 }
-```
 
-### 2. Streams with proper resource management
+// Flutter flavour — same contract, via package:flutter/foundation.dart.
+final parsed = await compute(_parseJson, rawJson);
 
-- Streams created in a provider **must** be disposed. With Riverpod, return `Stream.autoDispose` providers and use `ref.onDispose(streamSubscription.cancel)` for manually-managed subscriptions.
-- Prefer **`Stream.fromFuture`** for one-shot async work, **`async*` generators** for continuous sequences, and **`StreamController`** only when an external push API (e.g. push notifications) requires it. Always `close()` `StreamController` instances.
-
-```dart
-final transactionFeedProvider = StreamProvider.autoDispose<List<Transaction>>((ref) {
-  final controller = StreamController<List<Transaction>>();
-  final sub = ref.watch(transactionRepositoryProvider).watchAll().listen(controller.add);
-
-  ref.onDispose(() {
-    sub.cancel();
-    await controller.close();
-  });
-
-  return controller.stream;
-});
-```
-
-### 3. HTTP with `dio` (preferred) or `http`
-
-- `dio` is preferred: built-in interceptors, request/response transformers, cancellation, and typed error handling via `DioException`.
-- Configure a **single** `Dio` instance behind a Riverpod provider; never instantiate `Dio()` per call.
-- Interceptors handle auth (`Authorization` header), logging (only in debug), and retry-on-401 (refresh token).
-
-```dart
-final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(
-    baseUrl: const String.fromEnvironment('API_BASE', defaultValue: 'https://api.example.com'),
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 15),
-    headers: {'Accept': 'application/json'},
-  ));
-  dio.interceptors.add(LogInterceptor(
-    requestBody: kDebugMode,
-    responseBody: kDebugMode,
-    logPrint: (line) => ref.read(loggerProvider).d(line),
-  ));
-  return dio;
-});
-```
-
-### 4. JSON serialization with `freezed` + `json_serializable`
-
-- Model all DTOs and entities as `@freezed` classes; `freezed` gives you value-equality, `copyWith`, sealed unions for free. Combine with `json_serializable` for `fromJson` / `toJson`.
-- Run `dart run build_runner build --delete-conflicting-outputs` after every model change. Commit the `*.g.dart` and `*.freezed.dart` files unless the project policy forbids it (rare; most projects commit).
-
-```dart
-@freezed
-class TransactionDto with _$TransactionDto {
-  const factory TransactionDto({
-    required String id,
-    required int amountMinor,         // cents — see guardrail below
-    required String currency,
-    required DateTime createdAt,
-  }) = _TransactionDto;
-
-  factory TransactionDto.fromJson(Map<String, dynamic> json) =>
-      _$TransactionDtoFromJson(json);
+List<Transaction> _parseJson(String rawJson) {
+  final list = jsonDecode(rawJson) as List<dynamic>;
+  return list.map((e) => Transaction.fromJson(e as Map<String, dynamic>)).toList();
 }
 ```
 
-### 5. Local persistence — relational: `drift` (preferred) / key-value: `hive`
+### 4. Error handling in async contexts
 
-- **Relational data, joins, queries, migrations** — use `drift`. Schema lives as typed Dart classes; queries are type-safe at compile time.
-- **Simple key-value blobs, settings, cached JSON** — use `hive` / `hive_ce` (community-maintained fork) or `shared_preferences`.
-- Access the database only through a repository; never expose a `Database` / `Box` directly to a widget or provider.
+- Wrap `await` in `try/catch` where the caller must react to failure; convert to typed exceptions or sealed `Failure`/`Result` at the repository boundary (see `flutter-error-handling`).
+- Stream errors are **asynchronous**: a `try/catch` around `stream.listen(...)` catches nothing. Handle them in the `onError` callback, or `await for (event in stream)` inside a `try/catch`.
+- A Future you intentionally ignore (fire-and-forget) still surfaces its error later. Mark it with `unawaited(future)` (from `dart:async`) so the intent is explicit and the `unawaited_futures` lint is satisfied.
+- Errors that escape every handler land in the enclosing **Zone**; `runZonedGuarded` is where the app installs its global catch-all (owned by `flutter-error-handling`).
+- Never swallow exceptions in an empty `catch {}`. At minimum log with the project's logging library (`logger`).
 
 ```dart
-// drift database definition (lib/data/local/app_database.dart)
-@DriftDatabase(tables: [Transactions])
-class AppDatabase extends _$AppDatabase {
-  AppDatabase(super.e);
-  @override
-  int get schemaVersion => 1;
+// Stream errors arrive on the subscription, not in the surrounding scope.
+final sub = stream.listen(
+  controller.add,
+  onError: (Object e, StackTrace st) => _ref.read(loggerProvider).e('watch failed', e, st),
+);
+ref.onDispose(sub.cancel);
 
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
-    onUpgrade: (m, from, to) async {
-      if (from < 2) await m.addColumn(transactions, transactions.merchantName);
-    },
-  );
-}
+// Fire-and-forget that can fail — be explicit about ignoring it.
+unawaited(ref.read(syncProvider.notifier).sync());
 ```
 
-### 6. Riverpod providers as the data-layer seam
+### 5. Async in widgets: `FutureBuilder` / `StreamBuilder`
 
-- A `Repository` is exposed as a `Provider`. The provider owns **wiring** (database, dio, logger) and **lifecycle**; the repository owns **business logic**.
-- `AsyncNotifier` / `FutureProvider` / `StreamProvider` give you `AsyncValue` (`loading` / `data` / `error`) for free — the UI `switch`es on it.
+- For a single widget-scoped async value (a one-shot read that lives with one widget), `FutureBuilder`/`StreamBuilder` are fine.
+- In an app the default is Riverpod's `AsyncValue` — it models `loading`/`data`/`error` as one sealed value with retry via `ref.invalidate`, which a hand-rolled `setState` + FutureBuilder does not (see `flutter-state-riverpod`).
+- If you do use `FutureBuilder`, never call `setState` inside `builder`, and give the Future a stable identity — a Future created inside `build()` refetches on every rebuild.
 
 ```dart
-// lib/data/repositories/transaction_repository.dart
+FutureBuilder<List<Transaction>>(
+  future: repository.fetchAll(), // hoisted — created once, not in build()
+  builder: (context, snap) => switch (snap.connectionState) {
+    ConnectionState.waiting => const CircularProgressIndicator(),
+    _ when snap.hasError => ErrorText(snap.error.toString()),
+    _ => ListView(children: [for (final t in snap.data ?? const []) TransactionTile(t)]),
+  },
+)
+```
+
+### 6. The repository seam
+
+- Data sources (the dio client, the drift database) are reached **only** through a repository; widgets and state holders never touch `Dio` or a `Database`/`Box` handle.
+- The repository exposes the async API: one-shot reads return `Future`, reactive reads return `Stream`. Wiring (providers, lifecycle) is `flutter-di-and-build`/`flutter-state-riverpod`; the concrete HTTP and DB mechanics are the two split skills.
+
+```dart
 class TransactionRepository {
-  TransactionRepository(this._db, this._api);
-  final AppDatabase _db;
-  final Dio _api;
+  TransactionRepository(this._api, this._db);
+  final ApiClient _api;   // constructed in flutter-data-networking
+  final AppDatabase _db;  // constructed in flutter-data-persistence
 
-  Stream<List<Transaction>> watchAll() => (_db.select(_db.transactions)
-        ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-      .watch()
-      .map((rows) => rows.map(Transaction.fromRow).toList());
-
+  Future<Transaction?> getById(String id) async =>
+      (await _api.getTransaction(id)).toDomain();
+  Stream<List<Transaction>> watchAll() => _db.watchRecent(); // drift watch()
   Future<void> sync() async {
-    final remote = await _api.get<List<dynamic>>('/transactions');
-    await _db.transaction(() async {
-      await _db.batch((b) {
-        b.insertAll(
-          _db.transactions,
-          remote.data!.cast<Map<String, dynamic>>().map(TransactionDto.fromJson).map((d) =>
-              TransactionsCompanion.insert(
-                id: d.id,
-                amountMinor: d.amountMinor,
-                currency: d.currency,
-                createdAt: d.createdAt,
-              )),
-        );
-      });
-    });
+    final remote = await _api.fetchTransactions(); // dio call
+    await _db.replaceAll(remote);                  // drift batch insert
   }
 }
-
-final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
-  return TransactionRepository(ref.watch(appDatabaseProvider), ref.watch(dioProvider));
-});
 ```
 
-### 7. BLoC variant (where data layer meets state holder)
+### 7. Networking — split to `flutter-data-networking`
 
-In a `flutter_bloc` project, repositories stay the same (no DI/architecture shift), but the state holder is a `Bloc<Event, State>`:
+`dio` 5.x HTTP (one configured `Dio` per process behind a provider, interceptors for auth/logging/error, `Duration` timeouts), `retrofit` type-safe clients (`@RestApi`/`@GET`/`@POST`), `freezed` + `json_serializable` DTOs with `fromJson`/`toJson`, streaming downloads/uploads, and `CancelToken` cancellation all live in `flutter-data-networking`. Route any networking work there. The networking layer still sits behind a repository exposing `Future` APIs per section 6.
+
+### 8. Persistence — split to `flutter-data-persistence`
+
+Local storage choice — `drift` for relational/typed queries with `watch()` reactive streams and step-by-step migrations, `hive`/`hive_ce` for key-value boxes with `TypeAdapter`s, `shared_preferences` for settings keys only, `sqflite` as the raw-SQL fallback — is decided and implemented in `flutter-data-persistence`. Route any persistence work there. Its reactive `watch()` streams are consumed through the repository per section 6 and watched by `StreamProvider.autoDispose` (see `flutter-state-riverpod`).
+
+### 9. BLoC variant (where the data layer meets the state holder)
+
+In a `flutter_bloc` project, repositories stay identical; only the state holder changes. Consume the repository's `Stream` with `emit.forEach` so data/error map to states, and never mix the Riverpod and BLoC variants in the same feature subtree.
 
 ```dart
-class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListState> {
-  TransactionListBloc(this._repo) : super(const Loading()) {
-    on<Load>(_onLoad);
-  }
-  final TransactionRepository _repo;
-  Future<void> _onLoad(Load e, Emitter<TransactionListState> emit) async {
-    await emit.forEach(_repo.watchAll(), onData: Data.new, onError: (err, _) => Error(err.toString()));
-  }
+Future<void> _onLoad(Load e, Emitter<TransactionListState> emit) async {
+  await emit.forEach(_repo.watchAll(), onData: Data.new, onError: (err, _) => Error(err.toString()));
 }
 ```
-
-The two variants should **never** be mixed inside the same feature subtree.
-
-### 8. Error handling
-
-- Network errors (`DioException`) and DB errors must surface as typed exceptions or sealed `Failure` classes — not bare `print`/`debugPrint`. Catch them at the provider boundary with `AsyncValue.guard` or a `try/catch` in the `Notifier`/`Bloc` event handler.
-- Never swallow exceptions in a `try/catch {}` with an empty body. At minimum, log them with the project's logging library (default `logger`).
 
 ## Data-layer guardrails (block on these before ship)
 
-These mirror the Android skill's hard rules — adapted to Flutter idioms:
+- **Never store money as `double` / `num` with fractional values.** Use `int` minor units (cents) end-to-end. A drift `SUM()` over money must be declared `Expression<int>`, not `Expression<double>` — a `REAL` column silently drifts on device. (Both split skills reference this rule back here.)
+- **`schemaVersion` bumps always ship a migration.** Increasing `schemaVersion` on a shipped app without a matching `MigrationStrategy.onUpgrade` wipes user data on update. Deep guidance: `flutter-data-persistence`.
+- **Prove the schema with a real in-memory database test**, not a mocked repository — a mock that returns the asserted value never runs the SQL. Use `NativeDatabase.memory()`. See `flutter-testing-and-benchmark`.
 
-- **`schemaVersion` bumped with no migration** is a data-loss trap. When `schemaVersion` increases in a shipped app, users with the old schema crash or fall back to destructive recreation. Always ship a `MigrationStrategy.onUpgrade` for every version bump, and prove it with a drift schema test (insert under v1 → migrate → assert under v2).
-- **Never store money as `double` / `num` with fractional values.** Use `int` minor units (cents) end-to-end. A `SELECT SUM(amount)` query in drift must be declared to return `Expression<int>`, not `Expression<double>` — a `SUM()` over a `REAL` column will silently drift on the device. See references/domain-guardrails.md for the finance rules.
-- **Prove the schema with a real in-memory database test, not a mocked repository.** Mocking the repository that returns the value you assert proves nothing — the SQL, the schema, and the column type never ran. Use `NativeDatabase.memory()` (or `drift_dev`'s in-memory helper) in the test. See `flutter-testing-and-benchmark`.
+## Relationship to other skills
+
+Wave-1 split moved deep content out of this skill:
+
+| Topic (was here) | Now owned by |
+|---|---|
+| `dio` HTTP, `retrofit` clients, `freezed`/`json_serializable` DTOs | `flutter-data-networking` |
+| `drift`/`hive`/`shared_preferences`/`sqflite`, migrations | `flutter-data-persistence` |
+| Riverpod `AsyncValue` providers, provider lifecycle | `flutter-state-riverpod` |
+| Global error handlers, `Result`/`Failure` types | `flutter-error-handling` |
+| `pubspec.yaml`, providers-as-DI, `build_runner` codegen | `flutter-di-and-build` |
+| In-memory DAO tests, mocktail, golden tests | `flutter-testing-and-benchmark` |
+
+This skill keeps the async/concurrency core, the repository seam, and the cross-cutting money/migration rules that the two data skills reference.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "I'll just `await` everything on the UI isolate — Dart is single-threaded, it's fine" | Dart's event loop is non-blocking only for I/O. JSON parsing of a multi-MB payload on the main isolate will jank. Use `Isolate.run` for CPU-bound work, even though there is only "one thread". |
-| "I'll instantiate `Dio()` inside each call" | You lose interceptors, timeouts, base URL, and connection pooling. One configured `Dio` per process, behind a provider. |
-| "Drift is overkill, I'll just use `sqflite` raw queries" | `sqflite` is fine for one table; the second join is the regret. Drift's type-safe DSL catches schema drift at compile time. |
-| "I don't need a migration — I'll just `bumpSchemaAndRecreate`" | That works the day you ship, on the day a user updates: their data is gone. Always write a migration. |
-| "I'll use `Hive` for everything, even relational data" | Hive is a key-value store. The moment you want a JOIN or a typed query, you're rebuilding a database. Pick drift for relational, hive for blobs. |
-| "Mocking the repository proves the data layer works" | A mock that returns the expected value and a test that asserts that value is tautological. It never runs the SQL, never sees a `REAL`/`INTEGER` mismatch, never hits a drift query bug. Test against an in-memory database. |
+| "I'll just `await` everything on the UI isolate — Dart is single-threaded, it's fine" | The event loop is non-blocking only for I/O. JSON parsing of a multi-MB payload on the main isolate janks. Use `Isolate.run`/`compute` for CPU-bound work, even though there is only "one thread". |
+| "I'll spawn an `Isolate` for this HTTP call" | The event loop already does I/O without blocking. Isolates are for CPU-bound work; spawning one for I/O adds messaging overhead for nothing. |
+| "I'll fire this Future and ignore the result" | An ignored Future still surfaces its error later as an unhandled async error — and the failure is invisible. `unawaited()` makes the intent explicit. |
+| "I'll `try/catch` around `stream.listen(...)`" | Stream errors are delivered asynchronously to the subscription's `onError` (or thrown by `await for`). The surrounding synchronous `try/catch` never sees them. |
+| "Mocking the repository proves the data layer works" | A mock returning the expected value is tautological — the SQL/schema never runs. Test against an in-memory database (see `flutter-testing-and-benchmark`). |
+| "I'll re-implement the `dio` call here — it's just one request" | That duplicates the configured client, interceptors, and error mapping. Route it through `flutter-data-networking`. |
 
 ## Red Flags
 
-- `Dio()` instantiated inside a method instead of via the shared provider.
-- A `StreamController` that is never `close()`d, or a provider that does not `ref.onDispose` its subscriptions.
-- `Isolate.spawn` used for a one-off computation when `Isolate.run` would do.
-- A `Future` chain that calls `setState` (or `state = ...`) after `await` without a `mounted`/lifecycle guard.
-- JSON parsed via `Map<String, dynamic>` round-trips inside widgets (no `freezed` model).
-- `drift` schema bumped with `onUpgrade: (m, from, to) async => m.deleteAllTables()` — silent data loss on update.
-- Hive used for data that has a natural shape (lists of related entities, indexed lookups).
-- Money or any exact-value column stored as `REAL` / `double`, or a `SUM()` returning `Expression<double>`.
-- A data layer "covered" only by mocked-repository tests; no drift in-memory DAO test.
+- `Isolate.spawn` used for a one-off computation when `Isolate.run`/`compute` would do.
+- A `StreamController` never `close()`d, or a `StreamSubscription` never cancelled (`ref.onDispose` missing).
+- `setState` (or `state = ...`) after `await` without a `mounted`/lifecycle guard.
+- A Future created **inside** `FutureBuilder.build()` — it refetches on every rebuild.
+- `try/catch` around `Stream.listen` as if it caught asynchronous delivery errors.
+- Unhandled async errors: a Future or `async*` generator error with no listener/`onError`.
+- `dio`/`drift` code re-implemented in this skill's territory instead of routed to the split skills.
+- Money stored as `double`, or a drift `SUM()` returning `Expression<double>`.
+- A data layer "covered" only by mocked-repository tests; no in-memory DAO test.
 
 ## Verification
 
-- [ ] No DB or HTTP code runs without going through a repository.
-- [ ] `Stream` providers are `autoDispose` and dispose their subscriptions via `ref.onDispose`.
-- [ ] A single `Dio` instance is configured in a provider; no per-call instantiation.
-- [ ] All DTOs are `@freezed` classes with `fromJson`/`toJson`.
-- [ ] `drift` `schemaVersion` increases always ship a matching `MigrationStrategy.onUpgrade`.
+- [ ] CPU-bound work runs via `Isolate.run`/`compute`, never on the main isolate; isolates are not used for pure I/O.
+- [ ] Every `StreamController` is `close()`d and every `StreamSubscription` is cancelled (`ref.onDispose`).
+- [ ] `Future`/`Stream` errors surface as typed exceptions or sealed `Failure`s — never `print`.
+- [ ] Fire-and-forget Futures use `unawaited()`; no silently-ignored Futures.
+- [ ] `FutureBuilder`/`StreamBuilder` only for widget-scoped one-shots; app-level async state uses Riverpod `AsyncValue` with a handled error state.
+- [ ] Networking and persistence work is routed to `flutter-data-networking` / `flutter-data-persistence`, not re-implemented here.
+- [ ] Repositories expose `Future`/`Stream` APIs and hide `Dio`/`Database`/`Box` handles from widgets and state holders.
 - [ ] Money values use `int` minor units end-to-end; `SUM()` over money columns returns `int`.
-- [ ] Network/DB errors surface as typed exceptions or sealed `Failure`s, never `print`.
+- [ ] `schemaVersion` increases ship a matching `MigrationStrategy.onUpgrade` (see `flutter-data-persistence`).
 - [ ] At least one drift in-memory DAO test exists for every relational schema.
-- [ ] `dart run build_runner build` is clean and committed `.g.dart`/`.freezed.dart` files are up to date.
