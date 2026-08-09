@@ -1,15 +1,15 @@
 ---
 name: security-and-hardening
-description: Guidelines and patterns for security and hardening in Android applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections.
+description: Guidelines and patterns for security and hardening in Android and Flutter applications. Use when implementing secure local storage, network security, inter-component communication, input validation, or reverse engineering protections.
 version: 1.0.0
 platform: generic
 ---
 
-# Security and Hardening (Android)
+# Security and Hardening (Android + Flutter)
 
 ## Overview
 
-Guidelines for building secure Android applications. Mobile apps operate in a hostile client environment where attackers can decompile the app, inspect local storage, intercept network traffic, and inject malicious inputs through local intents or deep links.
+Guidelines for building secure Android and Flutter applications. Android and Flutter mobile apps operate in a hostile client environment where attackers can decompile the app, inspect local storage, intercept network traffic, and inject malicious inputs through local intents or deep links.
 
 ## When to Use
 
@@ -155,6 +155,37 @@ webView.settings.apply {
 
 Never load user-influenced URLs dynamically without strict URL scheme and hostname validation.
 
+## Flutter-Specific Hardening
+
+### Local storage
+
+Tokens, secrets, and credentials go in `flutter_secure_storage` (Keychain/Keystore-backed) — never `SharedPreferences`-style plaintext via `shared_preferences`. For sensitive databases, encrypt with SQLCipher: `sqflite_sqlcipher` for raw SQLite, or drift's encryption option (via `sqlcipher_flutter_libs`) for drift databases.
+
+### Platform channels are trust boundaries
+
+Pure Flutter has no AndroidManifest ICC surface, but `MethodChannel`/`EventChannel`/platform channels are trust boundaries: validate and whitelist channel handlers, validate all channel arguments, and never expose sensitive native APIs through a channel without authentication/authorization on the native side.
+
+### Network
+
+dio must enforce HTTPS — never disable certificate validation (`badCertificateCallback` returning `true` is a hard anti-pattern; it disables TLS validation entirely and enables MITM). For high-security endpoints, pin certificates via a dedicated package (e.g. `secure_connector`, or pinning in dio with a managed certificate store). On Android targets, `network_security_config.xml` cleartext rules still apply (cleartext is blocked by default on API 28+); on iOS, `NSAppTransportSecurity` applies.
+
+### WebView
+
+If using `webview_flutter`/`flutter_inappwebview`, disable JavaScript unless explicitly required, deny file/content access, and validate all loaded URLs — mirror the Android WebView rules above.
+
+### Release hardening
+
+```bash
+flutter build apk --obfuscate --split-debug-info=build/symbols   # Android
+flutter build ipa --obfuscate --split-debug-info=build/symbols   # iOS
+```
+
+Secrets must NOT ship via `--dart-define` — values are compiled into the binary and recoverable from the APK/IPA. Use runtime config or secure storage instead.
+
+### Dependency hygiene
+
+Pin versions in `pubspec.yaml`, review every new package before adding it (maintenance, download counts, publisher), run `flutter pub outdated` regularly, and gate CI on `dart pub audit` (supply-chain vulnerability scan).
+
 ## Dependency Security & Supply-Chain Hygiene
 
 - **Use Version Catalog** (`libs.versions.toml`) to centralize dependency declarations and versions, preventing version drift.
@@ -198,6 +229,7 @@ if (result?.action == ActionType.DELETE) {
 - [ ] Databases containing sensitive data are encrypted with SQLCipher.
 - [ ] Internal storage is used for private files (external storage avoided/sanitized).
 - [ ] `android:allowBackup="false"` in manifest if backups expose sensitive user data.
+- [ ] Tokens/secrets use `flutter_secure_storage` (Keychain/Keystore), not `shared_preferences`.
 
 ### Inter-Component Communication (ICC)
 - [ ] All components in `AndroidManifest.xml` have `android:exported="false"` unless explicitly intended for other apps.
@@ -208,6 +240,7 @@ if (result?.action == ActionType.DELETE) {
 - [ ] Cleartext traffic is disabled in `network_security_config.xml` (`cleartextTrafficPermitted="false"`).
 - [ ] Certificate pinning is enabled for high-security endpoints.
 - [ ] HTTPS is enforced for all network connections.
+- [ ] dio certificate validation never disabled (`badCertificateCallback` not used to bypass); pinning via a managed store for high-security endpoints.
 
 ### WebView
 - [ ] `javaScriptEnabled` set to `false` (or strictly validated domain if true).
@@ -217,6 +250,8 @@ if (result?.action == ActionType.DELETE) {
 ### Build & Obfuscation
 - [ ] R8/ProGuard is enabled for release builds (`minifyEnabled true`).
 - [ ] Production API keys and Keystore secrets are kept out of source code (using `local.properties`).
+- [ ] Release builds use `--obfuscate --split-debug-info` for Flutter; no secrets in `--dart-define`.
+- [ ] `dart pub audit` passes with no known-vulnerability advisories.
 
 ## Common Rationalizations
 
@@ -226,6 +261,8 @@ if (result?.action == ActionType.DELETE) {
 | "It's stored in internal storage, so it's secure" | On rooted devices, internal storage is fully readable. Use `EncryptedSharedPreferences`/SQLCipher for sensitive data. |
 | "WebView JavaScript access is fine because we control the server" | Compromised backend servers or man-in-the-middle attacks can inject malicious JS that executes within the app's WebView context. |
 | "We'll secure the intents later" | Forgetting to mark components exported="false" allows malicious apps to launch internal activities or send fake broadcasts. |
+| "`--dart-define` is fine for secrets in Flutter" | values are compiled into the binary and recoverable from the APK/IPA; use runtime config or secure storage. |
+| "`badCertificateCallback` is a quick fix for a flaky cert" | it disables TLS validation entirely and enables MITM; pin certificates in a managed store instead. |
 
 ## Red Flags
 
@@ -235,6 +272,8 @@ if (result?.action == ActionType.DELETE) {
 - WebView with JavaScript enabled and no hostname validation loading dynamic URLs.
 - Using `PendingIntent` without `FLAG_IMMUTABLE` or `FLAG_MUTABLE`.
 - Hardcoded keystore passwords in `build.gradle.kts`.
+- `badCertificateCallback` returning `true` to bypass dio certificate validation.
+- API keys/tokens baked in via `--dart-define` for release builds.
 
 ## Verification
 
@@ -244,3 +283,5 @@ After implementing security-relevant code:
 - [ ] Verify `android:exported` attributes are explicitly defined for all manifest components.
 - [ ] Check that no sensitive strings (passwords, private keys) are committed to git.
 - [ ] Confirm release build configurations use R8 (`minifyEnabled = true`).
+- [ ] `dart pub audit` reports no vulnerabilities; release build uses `--obfuscate --split-debug-info`.
+- [ ] `flutter analyze` clean; no secrets in `--dart-define` or committed to git.

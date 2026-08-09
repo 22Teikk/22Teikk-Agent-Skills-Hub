@@ -1,16 +1,16 @@
 ---
 name: observability-and-instrumentation
-description: Instruments Android application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom Crashlytics keys, or performance traces.
+description: Instruments Android and Flutter application code so that runtime behavior, crashes, and performance issues are visible and diagnosable. Use when adding logging, analytics events, custom crash keys, or performance traces.
 version: 1.0.0
 platform: generic
 depends-on: [security-and-hardening, shipping-and-launch]
 ---
 
-# Observability and Instrumentation (Android)
+# Observability and Instrumentation (Android + Flutter)
 
 ## Overview
 
-Guidelines for instrumenting Android applications. Since mobile apps run on thousands of fragmented user devices offline or under unstable networks, having robust telemetry (logs, analytics, crash reports, and performance metrics) is the only way to diagnose bugs, performance regressions, and user friction remotely.
+Guidelines for instrumenting Android and Flutter applications. Since mobile apps run on thousands of fragmented user devices offline or under unstable networks, having robust telemetry (logs, analytics, crash reports, and performance metrics) is the only way to diagnose bugs, performance regressions, and user friction remotely.
 
 ## When to Use
 
@@ -144,6 +144,81 @@ val okHttpClient = OkHttpClient.Builder()
 
 ---
 
+## Flutter: Talker Instrumentation (the pack default)
+
+Flutter apps in this hub default to `talker` (`logging.library = talker` in `.teikk/spec/PROJECT.yaml`). Talker **supplements — never replaces — the crash reporter**: crashes still go to `firebase_crashlytics` (Sentry also acceptable). Talker adds structured debug logs, Dio/Bloc coverage, and a dev overlay.
+
+### Initialization
+
+```dart
+import 'package:talker_flutter/talker_flutter.dart';
+
+// In main(), before runApp:
+final talker = TalkerFlutter.init(safeMode: !kDebugMode);
+```
+
+`safeMode` hides the Talker overlay UI in release builds. Console logging is controlled via `TalkerConfig` (e.g. `enableConsoleLogs: kDebugMode`, `logLevel`). In release you still want error logs — keep them flowing to the crash reporter (see Crash context below), not the console.
+
+### Log calls
+
+```dart
+talker.debug('User clicked submit button'); // stripped in release
+talker.info('State updated to checkout_retry');
+talker.warning('Payment provider slow to respond');
+talker.error(e, st, 'checkout'); // error(Object error, [StackTrace? stackTrace, String? message])
+```
+
+### Dio
+
+```dart
+import 'package:talker_dio_logger/talker_dio_logger.dart';
+
+dio.interceptors.add(TalkerDioLogger(talker: talker));
+```
+
+Request/response/error logging is built in — never log Authorization headers or request/response bodies (they can contain tokens and PII).
+
+### Bloc/Cubit
+
+```dart
+import 'package:talker_bloc_logger/talker_bloc_logger.dart';
+
+Bloc.observer = TalkerBlocObserver(talker: talker);
+```
+
+Every event, transition, and error flows into Talker automatically.
+
+### Crash context
+
+Before forwarding to Crashlytics/Sentry in `FlutterError.onError` / `PlatformDispatcher.instance.onError`, log via `talker.error(...)` with a short context string (screen, operation, feature flag state). Never log tokens or PII.
+
+### Combined example
+
+```dart
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  final talker = TalkerFlutter.init(safeMode: !kDebugMode);
+
+  Bloc.observer = TalkerBlocObserver(talker: talker);
+
+  final dio = Dio()
+    ..interceptors.add(TalkerDioLogger(talker: talker));
+
+  FlutterError.onError = (details) {
+    talker.error(details.exception, details.stack, 'flutter-error');
+    // forward to FirebaseCrashlytics / Sentry
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    talker.error(error, stack, 'platform-error');
+    return true;
+  };
+
+  runApp(App(talker: talker, dio: dio));
+}
+```
+
+---
+
 ## See Also
 
 - For security rules regarding logging sensitive data, see `security-and-hardening`.
@@ -157,6 +232,8 @@ val okHttpClient = OkHttpClient.Builder()
 | "I'll add analytics events later" | If you add them later, you'll have no baseline data to verify whether a new release improved or degraded user behavior. |
 | "I'll just log the exception message" | An exception message without custom keys (such as screen state, network type, or feature flag state) is rarely enough to reproduce a bug. |
 | "Let's log the full network response body" | Logging full responses will leak PII (passwords, emails, address info) into your Crashlytics/Logging servers, violating privacy policies. |
+| "`debugPrint`/`print` in release is fine" | `print` survives into release builds; route through Talker (`safeMode`) so console output is stripped while errors still reach the crash reporter. |
+| "Talker UI is only for dev, harmless if left enabled" | in release builds `safeMode: !kDebugMode` must hide the overlay — leaving it enabled leaks internal logs to users. |
 
 ## Red Flags
 
@@ -165,6 +242,8 @@ val okHttpClient = OkHttpClient.Builder()
 - Passing dynamic keys or user IDs as analytics parameter keys.
 - Not initializing Crashlytics/Analytics in the main Application class.
 - Catching exceptions silently (`catch (e: Exception) {}`) without any log or tracking.
+- `print(...)`/`debugPrint(...)` calls left in release code paths.
+- `TalkerFlutter.init()` without `safeMode` in a release build.
 
 ## Verification
 
@@ -175,3 +254,6 @@ After instrumenting:
 - [ ] No secrets, passwords, or PII are logged to Logcat or Crashlytics.
 - [ ] Custom performance traces are stopped in a `finally` block or handled safely.
 - [ ] Firebase DebugView was verified locally to ensure analytics events fire correctly.
+- [ ] Talker is initialized with `safeMode: !kDebugMode`; console logging stripped in release, errors still reach the crash reporter.
+- [ ] `TalkerDioLogger` attached to the shared `Dio`; no Authorization headers or bodies logged.
+- [ ] `Bloc.observer` wired to `TalkerBlocObserver`; no tokens or PII in logged event payloads.
