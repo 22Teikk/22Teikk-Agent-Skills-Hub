@@ -6,7 +6,7 @@ Run two stages in order; skip either when it does not apply, and state which you
 
 ## Stage 1 — E2E (if SPEC declares non-`none`)
 
-Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) for platform + `E2E:` value. If `E2E: none`, skip this stage. Otherwise follow `/teikk-e2e`'s platform routing: Android/Maestro → `android-e2e-maestro`; iOS/XCUITest → `swift-expert`; Flutter/integration_test → `flutter-expert`. Report each flow: criterion covered, file path, command run, pass/fail.
+Read `.teikk/spec/SPEC.md` (fall back to `.teikk/SPEC.md`) for platform + `E2E:` value. If `E2E: none`, skip this stage. Otherwise follow `/teikk-e2e`'s platform routing: Android/Maestro → `android-e2e-maestro`; iOS/XCUITest → `swift-expert`; Flutter/integration_test → `flutter-e2e`. Report each flow: criterion covered, file path, command run, pass/fail.
 Read and follow the matched `android-e2e-maestro` directly — `Invoke the teikk-agents-skills:android-e2e-maestro skill`.
 
 ## Stage 2 — UI/UX testing
