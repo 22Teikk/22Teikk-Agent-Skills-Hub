@@ -3,7 +3,7 @@ name: flutter-di-and-build
 description: Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter.
 version: 1.0.0
 platform: flutter
-depends-on:
+depends-on: [flutter-di]
   - observability-and-instrumentation
   - ci-cd-and-automation
 ---
@@ -12,7 +12,7 @@ depends-on:
 
 ## Overview
 
-Standardize the Dart/Flutter toolchain: dependency management in `pubspec.yaml`, dependency injection via Riverpod providers (default) or BLoC `MultiBlocProvider` (variant), flavor/environment configuration with `--dart-define` and entry-point shims, asset bundling, code generation with `build_runner`, and CI/CD with GitHub Actions. Avoid global singletons; everything that has lifecycle goes through a provider.
+Standardize the Dart/Flutter toolchain: dependency management in `pubspec.yaml`, dependency injection via Riverpod providers (default) or BLoC `MultiBlocProvider` (variant), flavor/environment configuration with `--dart-define` and entry-point shims, asset bundling, code generation with `build_runner`, and CI/CD with GitHub Actions. This skill covers the **build** side of DI — declaring dependencies in `pubspec.yaml` and wiring codegen. For runtime DI wiring — provider construction, the get_it hybrid, `ProviderScope` — see `flutter-di`. Avoid global singletons; everything that has lifecycle goes through a provider.
 
 ## When to Use
 
@@ -80,6 +80,7 @@ flutter:
 
 ### 2. DI via Riverpod providers (the default)
 
+- For runtime DI wiring — provider construction, the get_it hybrid, test overrides — see `flutter-di`. This section keeps the build-side contract.
 - **Everything with a lifecycle is a `Provider`**: `Dio`, `AppDatabase`, repositories, `Logger`, `GoRouter`, `FirebaseMessaging`.
 - Wrap the root in `ProviderScope` at `main()`. For tests, swap with `ProviderScope(overrides: [...])` to inject fakes.
 - Use `riverpod_generator` (`@riverpod`) to author providers next to the class they expose — codegen keeps the wiring discoverable.
