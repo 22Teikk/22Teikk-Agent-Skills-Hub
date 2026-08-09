@@ -3,7 +3,7 @@ name: flutter-testing-and-benchmark
 description: Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, Riverpod ProviderContainer tests, widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks.
 version: 1.0.0
 platform: flutter
-depends-on:
+depends-on: [flutter-e2e, flutter-state-riverpod]
   - flutter-ui
   - flutter-data-and-concurrency
 ---
@@ -71,7 +71,7 @@ void main() {
 ### 2. Widget tests with `flutter_test` and Riverpod overrides
 
 - Use `pumpWidget` for synchronous content, `pumpAndSettle` when waiting for animations / async to finish. Use `pump(Duration(milliseconds: ...))` for explicit time advance — never `Future.delayed` inside a test.
-- Override providers with `ProviderScope(overrides: [...])` to inject fakes; never read network or DB inside a widget test.
+- Override providers with `ProviderScope(overrides: [...])` to inject fakes (see `flutter-state-riverpod`); never read network or DB inside a widget test.
 
 ```dart
 testWidgets('TaskListContent renders tasks from provider', (tester) async {
@@ -151,6 +151,7 @@ testWidgets('TaskTile golden', (tester) async {
 ```
 
 - Re-baseline with `flutter test --update-goldens` only when the change is intentional; commit the regenerated `.png` files.
+- **2026 standard for CI safety: use `alchemist`** (`goldenTest` / `GoldenTestGroup` / `GoldenTestScenario`) instead of raw `matchesGoldenFile` in new projects. Alchemist separates **local platform goldens** (human-readable) from **CI goldens** (text replaced with colored squares, Ahem font) so the same test passes across macOS/Linux CI regardless of font rendering. Raw goldens generated on macOS fail on Linux CI; Alchemist's local-vs-CI split is the fix. Track only `test/goldens/ci/` in git; ignore platform goldens.
 
 ### 5. Riverpod `ProviderContainer` for non-widget unit tests
 
@@ -184,6 +185,8 @@ blocTest<TransactionListBloc, TransactionListState>(
 ```
 
 ### 7. `integration_test` for cross-screen journeys (officially supported)
+
+This section is the quick-start. For deep E2E journey testing see `flutter-e2e`.
 
 - Lives under `integration_test/` as a separate "test app" — `flutter test integration_test/foo_test.dart -d <device>` runs it as a real device build.
 - Use `find.byType` / `find.text` / `find.byTooltip` like widget tests; use `tester.tap`, `tester.enterText`, `tester.pumpAndSettle`.
