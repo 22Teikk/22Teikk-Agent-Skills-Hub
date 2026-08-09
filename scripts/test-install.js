@@ -12,6 +12,10 @@ const { PACKAGE_NAME, GITIGNORE_BEGIN, GITIGNORE_END, MANIFEST_FILE } = require(
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CLI = path.join(REPO_ROOT, 'bin', 'teikk-agents-skills.js');
+// The hub's own version (package.json) — CI bumps it on merge to uat/main;
+// the legacy-manifest fixtures below simulate a previously-installed version
+// so they must stay in sync with the current package version.
+const HUB_VERSION = require(path.join(REPO_ROOT, 'package.json')).version;
 
 function assert(condition, message) {
   if (!condition) {
@@ -394,7 +398,7 @@ function runSymlinkToCopyUpgrade() {
     );
     fs.writeFileSync(
       path.join(tmp, MANIFEST_FILE),
-      `${JSON.stringify({ version: '5.0.0', targets: ['opencode'], files: ['.teikk-agents/skills/old-skill/SKILL.md'], package: PACKAGE_NAME }, null, 2)}\n`,
+      `${JSON.stringify({ version: HUB_VERSION, targets: ['opencode'], files: ['.teikk-agents/skills/old-skill/SKILL.md'], package: PACKAGE_NAME }, null, 2)}\n`,
     );
 
     const update = spawnSync(

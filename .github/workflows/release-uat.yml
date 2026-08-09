@@ -1,7 +1,9 @@
 name: Release on uat (minor bump)
 
 # Every push to uat (i.e. every PR merge) publishes a new MINOR version
-# tag + GitHub Release — e.g. 2.3.0 -> 2.4.0.
+# tag + GitHub Release — e.g. package.json 5.0.0 -> 5.1.0. The version base
+# is package.json (never bumped by humans); the workflow commits the bump
+# and tags it vX.Y.Z.
 
 on:
   push:

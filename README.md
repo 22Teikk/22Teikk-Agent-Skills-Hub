@@ -45,6 +45,19 @@ Primary targets: `claude` | `antigravity` | `opencode`. Also supported: `cursor`
 
 Full install/update/uninstall + `.gitignore` behavior: **[docs/npm-install.md](docs/npm-install.md)**.
 
+## Versioning
+
+`package.json` is the version source of truth (currently `5.0.0`) — **humans never bump it manually**. CI handles it on merge:
+
+| Merge target | Bump | Example |
+|---|---|---|
+| `uat` | minor | `5.0.0` → `5.1.0` |
+| `main` | major | `5.0.0` → `6.0.0` |
+
+On each merge the release workflow reads the current version from `package.json`, applies the bump, commits the new version back to the branch, tags it `vX.Y.Z`, and publishes a GitHub Release. Consumers pin installs via the tag tarball (e.g. `…/archive/refs/tags/v5.1.0.tar.gz`). Tags from the old tag-based scheme (e.g. `v10.x`) are not used as a version base — `package.json` always wins.
+
+`[skip release]` in a commit message, or a docs-only diff (`.md` / `docs/`), skips the bump.
+
 ---
 
 ## Documentation
