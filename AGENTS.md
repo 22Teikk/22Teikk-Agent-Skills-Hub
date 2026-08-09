@@ -54,6 +54,7 @@ The **platform-neutral core always applies regardless of platform**: `interview-
 - UI work (Kotlin/Compose) → `android-ui-kotlin` + `kotlin-specialist` persona
 - Compose motion/animation → add `compose-animations` to the UI skill set
 - UI work (Java/XML) → `android-ui-java`
+- View/XML motion/animation → add `xml-animations` to the UI skill set
 - Concurrency & DB (Kotlin) → `android-data-and-concurrency-kotlin`
 - Concurrency & DB (Java) → `android-data-and-concurrency-java`
 - DI, Gradle, Version Catalog (Android) → `android-di-and-build`
@@ -107,7 +108,7 @@ Instead, the agent must internally follow this lifecycle. **Apply the platform-r
     - Flutter: flavor config + state management + logging before features
   - Generic/non-mobile: no mandated mobile Phase 0 — establish the project's own foundation (build tooling, DI/config, logging) as the plan's first tasks.
 - **BUILD** → `incremental-implementation` + `test-driven-development` + (platform-selected domain skills/personas):
-  - Android: `android-ui-kotlin`, `compose-animations` when motion is in scope, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
+  - Android: `android-ui-kotlin`, `compose-animations` when Compose motion is in scope, `android-ui-java`, `xml-animations` when View motion is in scope, `android-data-and-concurrency-kotlin`, `android-di-and-build`, `kotlin-specialist`
   - iOS: `swift-expert`
   - Flutter: `flutter-expert`
   - Shared mobile: `mobile-app-developer`, `observability-and-instrumentation`, `api-and-interface-design`

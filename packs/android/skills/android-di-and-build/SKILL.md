@@ -55,6 +55,8 @@ object NetworkModule {
 ### 2. Dependency Management with Version Catalog
 - Define all plugins and library dependencies inside `gradle/libs.versions.toml`.
 
+> **Version numbers below are illustrative syntax only.** Always check [Maven Central](https://search.maven.org/) or the library's GitHub releases for the latest stable version before adding to your project.
+
 ```toml
 # gradle/libs.versions.toml
 [versions]
@@ -85,7 +87,9 @@ plugins {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)             // kapt — works for mixed Java/Kotlin projects
+    // ksp(libs.hilt.compiler)           // ksp  — preferred for pure-Kotlin; faster incremental builds
+    //                                   // Hilt 2.52+ supports KSP; see hilt.dev/migration/ksp
     implementation(libs.retrofit.core)
 }
 ```

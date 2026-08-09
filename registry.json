@@ -92,10 +92,10 @@
     },
     {
       "name": "compose-animations",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "platform": "android",
       "dependsOn": [],
-      "description": "Use when writing or reviewing Jetpack Compose motion: visibility enter/exit, animating one property toward a target, color or size transitions, multiple properties from one state, switching composable content, or choosing between AnimatedVisibility, animate*AsState, rememberTransition, AnimatedContent, and Crossfade."
+      "description": "Use when writing or reviewing Jetpack Compose motion: visibility enter/exit, animating one property toward a target, color or size transitions, multiple properties from one state, switching composable content, or choosing between AnimatedVisibility, animate*AsState, rememberTransition, AnimatedContent, and Crossfade. Do not use for art-based motion, Lottie timelines, or side-effect timing outside the animation API choice."
     },
     {
       "name": "context-engineering",
@@ -311,6 +311,13 @@
         "test-driven-development"
       ],
       "description": "Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how all other skills are discovered and invoked."
+    },
+    {
+      "name": "xml-animations",
+      "version": "1.0.0",
+      "platform": "android",
+      "dependsOn": [],
+      "description": "Use when writing or reviewing Android animations in XML/Java/Kotlin View-based UI: showing or hiding views with fade/slide, animating a single property, running several animators together, animating layout transitions with TransitionManager, building constraint-driven motion with MotionLayout, adding shared element transitions between screens, or choosing between ObjectAnimator, ViewPropertyAnimator, AnimatorSet, TransitionManager, and MotionLayout."
     }
   ],
   "personas": [

@@ -160,6 +160,19 @@ Each task follows this structure:
 **Parallel-safe:** [yes | no] — `yes` only if this task has no unresolved `**Dependencies:**` beyond tasks that can complete in an earlier wave, AND its `**Files likely touched:**` set is not expected to overlap any sibling task's. Default to `no` when unsure — a false `yes` causes a merge-time conflict in `/teikk-build ultra`; a false `no` only costs a little parallelism, never correctness.
 ```
 
+**AC quality checklist (mandatory before finalizing each AC):** Before marking any AC as written, run through these questions. Only surface a new AC if the question reveals a path that must be tested. Do not add ACs just because the question was asked. But you *must run through the list* — the quality of the build output depends on thinking through these paths at planning time, not discovering them mid-implementation.
+
+```
+Before finalizing each AC, ask:
+- What happens on empty / null / zero input?
+- What if the network or database call fails mid-operation?
+- What if two operations run concurrently (duplicate submit, rapid navigation, rotation)?
+- What is the retry or recovery path?
+- Is there a race condition between the happy path and an error response?
+```
+
+Answers that reveal new behaviors → new ACs with test mapping. Answers that confirm no extra behavior is needed → no AC change, but the question was still asked.
+
 ### Step 5: Order and Checkpoint
 
 Arrange tasks so that:
@@ -170,6 +183,10 @@ Arrange tasks so that:
 4. High-risk tasks are early (fail fast)
 
 At each `### Phase N` exit, `/teikk-build` enforces: completion report (soft) → traceability (`check-traceability.sh`) → Build/Lint (`check-phase-build.sh`) → full Test suite (`check-phase-tests.sh`). The last three are hard gates and require SPEC.md to declare `Build:`, `Lint:`, and `Test:`.
+
+**2-tier gate:** The verification steps inside each task are **lightweight** (run the task's test class + `assembleDebug`) — this confirms the slice compiles and its own tests pass without the overhead of running the full suite on every commit. The full traceability + build + test sweep runs **only at phase exit**. Do not put `check-traceability.sh` inside an individual task's Verification block.
+
+**Sizing note:** XS and S tasks (1–2 files, single function or component) that are sequential and touch the same file set should be **merged into one M task** here. The per-task overhead (task-level gate + context switch) on three separate XS tasks exceeds the cost of one M task. A good sign to merge: the task titles all start with the same noun.
 
 Add explicit checkpoints:
 
