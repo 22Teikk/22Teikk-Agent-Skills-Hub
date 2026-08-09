@@ -28,7 +28,7 @@ Run each check by loading the named skill — don't paraphrase the check, the sk
 | **SPEC↔Test traceability (hard gate)** | Spec's Traceability Matrix — every AC needs a behavioral test. Mock-only / `ExampleUnitTest` / label-only = ZERO. Any AC without behavioral test → blocker. No "PARTIAL = pass". |
 | Store readiness | `mobile-app-developer` — privacy manifest, targetSdkVersion, 64-bit, crash-free ≥ 99.9% |
 
-E2E (opt-in, per spec `E2E:` field): Maestro → `android-e2e-maestro`; XCUITest → `swift-expert`; `integration_test` → `flutter-expert`; `none` → skip silently.
+E2E (opt-in, per spec `E2E:` field): Maestro → `android-e2e-maestro`; XCUITest → `swift-expert`; `integration_test` → `flutter-e2e`; `none` → skip silently.
 
 ## Phase C — Decision and rollback
 

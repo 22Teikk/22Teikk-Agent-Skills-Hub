@@ -14,7 +14,7 @@ For bug fixes (Prove-It): reproduce test (must FAIL) → confirm fail → fix �
 | Android (Kotlin) | JUnit 5, MockK, Turbine, ComposeTestRule | `android-testing-and-benchmark-kotlin` |
 | Android (Java) | JUnit 4, Mockito, Espresso | `android-testing-and-benchmark-java` |
 | iOS | XCTest, XCTestExpectation, async throws | `swift-expert` |
-| Flutter | `flutter_test`, WidgetTester, Mocktail | `flutter-expert` |
+| Flutter | `flutter_test`, WidgetTester, Mocktail | `flutter-testing-and-benchmark` (`flutter-expert` persona fallback for review) |
 
 **Not for E2E user journeys** — use `/teikk-e2e` when SPEC declares E2E opt-in or for multi-screen smoke tests.
 

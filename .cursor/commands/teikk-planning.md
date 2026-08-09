@@ -16,7 +16,7 @@ Read the existing spec (`.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.m
    - ✓ `Total is calculated → TransactionDaoTest.insertAndSum (integration, Room in-memory)`
    - ✗ `UI shows data → ExampleInstrumentedTest` (boilerplate)
    - ✗ `User sees button → mock repository returns true` (mock-only)
-   - Tag skills/personas per platform: Android → `android-ui-kotlin`, add `compose-animations` when motion is in scope, `android-data-and-concurrency-kotlin`, `android-di-and-build` + `kotlin-specialist`; iOS → `swift-expert`; Flutter → `flutter-expert`; Cross-platform → `mobile-app-developer`
+   - Tag skills/personas per platform: Android → `android-ui-kotlin`, add `compose-animations` when motion is in scope, `android-data-and-concurrency-kotlin`, `android-di-and-build` + `kotlin-specialist`; iOS → `swift-expert`; Flutter → `flutter-expert`, add `flutter-animations` when Flutter motion is in scope; Cross-platform → `mobile-app-developer`
 7. Add checkpoints between phases
 8. **Traceability checklist** — verify every AC has a real test before writing code: AC maps to test method (not mock), no label-only tests, data layer has at least one Room in-memory DAO test
 9. Present plan for human review
