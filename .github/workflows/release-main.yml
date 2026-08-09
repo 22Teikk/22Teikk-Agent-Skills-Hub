@@ -1,7 +1,9 @@
 name: Release on main (major bump)
 
 # Every push to main (i.e. every PR merge) publishes a new MAJOR version
-# tag + GitHub Release — e.g. 2.3.0 -> 3.0.0.
+# tag + GitHub Release — e.g. package.json 5.0.0 -> 6.0.0. The version base
+# is package.json (never bumped by humans); the workflow commits the bump
+# and tags it vX.Y.Z.
 
 on:
   push:
