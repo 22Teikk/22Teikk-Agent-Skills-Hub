@@ -12,7 +12,7 @@ depends-on: [flutter-data-and-concurrency, flutter-di-and-build, flutter-error-h
 
 ## Overview
 
-Own every byte that crosses the network in a Flutter app. `dio` 5.x is the HTTP client: one configured `Dio` instance per process (base URL, timeouts, headers, interceptors), exposed through a provider from `flutter-di-and-build`. `retrofit` code-generates type-safe API clients (`@RestApi`) on top of that `Dio`. `freezed` + `json_serializable` produce immutable DTOs with `fromJson`/`toJson`. The networking layer stays behind a repository — widgets and state holders never touch `Dio` or DTOs directly. For small/one-off integrations, plain `dio` + `json_serializable` (no retrofit) is the sanctioned lighter path. This skill is networking only: local persistence (drift/hive) belongs to `flutter-data-and-concurrency`.
+Own every byte that crosses the network in a Flutter app. `dio` 5.x is the HTTP client: one configured `Dio` instance per process (base URL, timeouts, headers, interceptors), exposed through a get_it registration from `flutter-di-and-build`. `retrofit` code-generates type-safe API clients (`@RestApi`) on top of that `Dio`. `freezed` + `json_serializable` produce immutable DTOs with `fromJson`/`toJson`. The networking layer stays behind a repository — widgets and state holders never touch `Dio` or DTOs directly. For small/one-off integrations, plain `dio` + `json_serializable` (no retrofit) is the sanctioned lighter path. This skill is networking only: local persistence (drift/hive) belongs to `flutter-data-and-concurrency`.
 
 ## When to Use
 
@@ -27,14 +27,14 @@ Own every byte that crosses the network in a Flutter app. `dio` 5.x is the HTTP 
 
 ## Core Process
 
-### 1. Configure a single `Dio` instance behind a provider
+### 1. Configure a single `Dio` instance behind a get_it registration
 
-- `Dio` is configured **once** per process and exposed via a provider (see `flutter-di-and-build`). Never `Dio()` per call — per-call instances lose interceptors, pooling, and base config.
+- `Dio` is configured **once** per process and exposed via a get_it registration (see `flutter-di-and-build`). Never `Dio()` per call — per-call instances lose interceptors, pooling, and base config.
 - dio 5.x takes `Duration` for timeouts. Set `connectTimeout`, `receiveTimeout`, and a sensible `sendTimeout` for uploads.
 - Read the base URL from `--dart-define` (`String.fromEnvironment`) with a dev default.
 
 ```dart
-final dioProvider = Provider<Dio>((ref) {
+locator.registerLazySingleton<Dio>(() {
   final dio = Dio(BaseOptions(
     baseUrl: const String.fromEnvironment('API_BASE', defaultValue: 'https://api.dev.example.com'),
     connectTimeout: const Duration(seconds: 10),
@@ -44,28 +44,30 @@ final dioProvider = Provider<Dio>((ref) {
     contentType: Headers.jsonContentType,
   ));
   dio.interceptors.addAll([
-    AuthInterceptor(ref),
-    LogInterceptor(requestBody: kDebugMode, responseBody: kDebugMode, logPrint: (l) => ref.read(loggerProvider).d(l)),
+    AuthInterceptor(tokenSource: locator<TokenStore>().read),
+    TalkerDioLogger(talker: talker), // from package:talker_dio_logger/talker_dio_logger.dart
     ErrorInterceptor(),
   ]);
   return dio;
 });
 ```
 
+`TalkerDioLogger` is gated internally and the talker config controls release behavior (console logging off in release via `TalkerConfig`) — it replaces `LogInterceptor` entirely, request/response/error logging included.
+
 ### 2. Interceptors: auth, logging, error — in that order
 
-- **Auth**: read the token (e.g. from `flutter_secure_storage` via a provider) and attach `Authorization` in `onRequest`. For token refresh on 401, use `QueuedInterceptor` — it serializes requests while the refresh is in flight, preventing a stampede of parallel 401-refresh calls.
-- **Logging**: `LogInterceptor` gated by `kDebugMode`. Never log `Authorization` headers or bodies in release.
+- **Auth**: read the token (e.g. from `flutter_secure_storage` via a token store) and attach `Authorization` in `onRequest`. For token refresh on 401, use `QueuedInterceptor` — it serializes requests while the refresh is in flight, preventing a stampede of parallel 401-refresh calls.
+- **Logging**: `TalkerDioLogger` (from `talker_dio_logger`) — request/response/error logging built in; talker console logging is disabled in release via `TalkerConfig`. Never log `Authorization` headers or bodies in release.
 - **Error**: normalize `DioException` into the app's error shape at the boundary, not in widgets.
 
 ```dart
 class AuthInterceptor extends QueuedInterceptor {
-  AuthInterceptor(this._ref);
-  final Ref _ref;
+  AuthInterceptor({required this.tokenSource});
+  final Future<String?> Function() tokenSource;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = await _ref.read(authTokenProvider.future);
+    final token = await tokenSource();
     if (token != null) options.headers['Authorization'] = 'Bearer $token';
     handler.next(options);
   }
@@ -73,10 +75,10 @@ class AuthInterceptor extends QueuedInterceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401 && !err.requestOptions.path.endsWith('/auth/refresh')) {
-      final refreshed = await _ref.read(authRepositoryProvider).refresh();
+      final refreshed = await locator<AuthRepository>().refresh();
       if (refreshed != null) {
         final opts = err.requestOptions..headers['Authorization'] = 'Bearer $refreshed';
-        final res = await _ref.read(dioProvider).fetch(opts);
+        final res = await locator<Dio>().fetch(opts);
         return handler.resolve(res); // retried once with the new token
       }
     }
@@ -215,7 +217,7 @@ try {
 
 | Rationalization | Reality |
 |---|---|
-| "I'll instantiate `Dio()` inside each call — it's simpler" | Per-call instances lose interceptors, timeouts, base URL, and connection pooling. One configured `Dio` per process behind a provider. |
+| "I'll instantiate `Dio()` inside each call — it's simpler" | Per-call instances lose interceptors, timeouts, base URL, and connection pooling. One configured `Dio` per process behind a get_it registration. |
 | "I'll use `package:http` — it's the official package" | `http` is fine for a one-off script; in an app you hand-roll timeouts, headers, retry, and cancellation that `dio` ships built-in. Use `dio`; mention `http` only as a zero-dependency alternative. |
 | "I'll catch `Exception` and show `e.toString()`" | That leaks dio internals to users. Branch on `DioExceptionType`, map to a sealed `Failure` at the repository boundary. |
 | "Retrofit is magic — I'll just write the `fromJson` by hand" | Hand-rolled JSON mapping drifts from the API contract and the DTO. Let `retrofit` + `json_serializable` generate it; hand-write only when the response shape needs custom logic. |
@@ -224,7 +226,7 @@ try {
 
 ## Red Flags
 
-- `Dio()` instantiated inside a method or widget instead of via the shared provider.
+- `Dio()` instantiated inside a method or widget instead of via the shared get_it registration.
 - `package:http` used as the primary HTTP stack for an app with multiple endpoints.
 - `DioException` caught with a bare `catch (e)` / string matching instead of `e.type` switches.
 - Raw `dio`/`retrofit` responses (DTOs) flowing into widgets instead of domain models via a repository.
@@ -239,7 +241,7 @@ try {
 
 - [ ] Exactly one `Dio` instance is configured in a provider; no per-call instantiation anywhere.
 - [ ] `BaseOptions` sets `connectTimeout`/`receiveTimeout` (and `sendTimeout` for uploads) as `Duration`s.
-- [ ] Interceptors order is auth → logging → error; logging is `kDebugMode`-gated and never prints credentials.
+- [ ] Interceptors order is auth → logging → error; `TalkerDioLogger` is configured and never prints credentials (console logging disabled in release via `TalkerConfig`).
 - [ ] All typed endpoints are declared in an `@RestApi` interface with `@GET`/`@POST` + `@Path`/`@Query`/`@Body`; no endpoint paths hand-built in repositories.
 - [ ] Every DTO is a `@freezed` + `json_serializable` class with a working `fromJson` factory.
 - [ ] `dart run build_runner build --delete-conflicting-outputs` is clean and generated `*.g.dart`/`*.freezed.dart` are committed.

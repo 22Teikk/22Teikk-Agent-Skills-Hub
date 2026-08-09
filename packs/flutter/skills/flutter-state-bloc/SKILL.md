@@ -14,7 +14,7 @@ depends-on: [flutter-data-and-concurrency, flutter-state-provider, flutter-state
 
 Bloc is the enterprise standard for event-driven state management. Every user intent becomes an **event**, every event produces a **deterministic state transition**, and every transition flows through one observable pipeline. That pipeline buys the three properties teams adopt Bloc for: predictable transitions (`state` changes only inside an `on<Event>` handler), a complete audit trail (`BlocObserver` sees every event, change, and error), and replayable, time-travel debugging (any state reconstructs from the event log).
 
-Two state holders, one rule for choosing: `Cubit<State>` exposes plain methods that call `emit(...)` — use it when the intent is obvious from the method name. `Bloc<Event, State>` routes typed events through handlers — use it for concurrency control, an event log, or several inputs converging on one state machine.
+For this pack, **default to `Cubit`** — the simple member of the bloc family. `Cubit<State>` exposes plain methods that call `emit(...)` — use it when the intent is obvious from the method name. `Bloc<Event, State>` routes typed events through handlers — use it for concurrency control, an event log, or several inputs converging on one state machine.
 
 ## When to Use
 
@@ -37,7 +37,7 @@ Two state holders, one rule for choosing: `Cubit<State>` exposes plain methods t
 | Audit trail | manual instrumentation | built in via `BlocObserver` |
 | Best fit | small teams, fast iteration | regulated / event-sourced / complex domains |
 
-**Riverpod is the pack default** and is documented in the `flutter-state-riverpod` skill. Choose Bloc deliberately: a large team, or a domain where a replayable event log is a requirement. Pick exactly **one** per project — never mix `ConsumerWidget` with `BlocProvider` in the same subtree.
+**Bloc/Cubit is the pack default** for this pack — start with `Cubit` and promote to `Bloc<Event, State>` only when you need an event log, concurrency transformers, or several inputs converging on one state machine. Riverpod remains the documented alternative (see `flutter-state-riverpod`). Pick exactly **one** per project — never mix `ConsumerWidget` with `BlocProvider` in the same subtree.
 
 ## Core Process
 
@@ -207,6 +207,13 @@ void main() {
 }
 ```
 
+The pack default wires `talker_bloc_logger`'s `TalkerBlocObserver` so every event/transition/error flows into Talker; add a custom observer when you must forward `onError` to Crashlytics without secrets:
+
+```dart
+// pack default: audit trail through Talker (package:talker_bloc_logger/talker_bloc_logger.dart)
+Bloc.observer = TalkerBlocObserver(talker: talker); // register before runApp
+```
+
 Never log raw tokens, passwords, or PII from `onEvent` — payloads reach the logging sink verbatim.
 
 ### 6. Testing with bloc_test
@@ -249,7 +256,7 @@ For state that must survive a cold start (theme, onboarding progress, cached fil
 | "Every event can be a payload-free marker; the bloc reads what it needs" | A payload-free event forces the bloc to reach for outside mutable state, destroying replayability. The event *is* the record: if the log can't reconstruct the input, the audit trail is fiction. |
 | "`context.watch<MyBloc>()` in every build is simpler than BlocBuilder" | `watch` rebuilds the whole enclosing widget on *any* state change. `BlocBuilder` with `buildWhen` rebuilds one subtree on the changes that matter — on a list screen, the difference between 1 and 60 rebuilds per scroll. |
 | "I'll add Equatable later, it's just boilerplate" | Without `props`, every emit is a new identity, so `buildWhen`, `listenWhen`, and `blocTest`'s `expect` all silently misbehave. It is the equality contract the whole library is built on. |
-| "Riverpod is simpler, we should have used it" | Maybe — that is exactly why the pack default is Riverpod. But in a `flutter_bloc` project, mixing paradigms costs more than the ceremony. Pick one per project and stay consistent. |
+| "Riverpod is simpler, we should have used it" | Maybe — that is exactly why Riverpod is the documented alternative. But in a `flutter_bloc` project, mixing paradigms costs more than the ceremony. Pick one per project and stay consistent. |
 
 ## Red Flags
 

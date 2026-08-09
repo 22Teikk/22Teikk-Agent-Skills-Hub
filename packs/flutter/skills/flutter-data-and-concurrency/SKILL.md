@@ -3,7 +3,7 @@ name: flutter-data-and-concurrency
 description: Handles Dart/Flutter async and concurrency in Flutter Dart 3+ projects. Use when writing Future/async-await pipelines, Streams and StreamControllers, isolates (Isolate.run, Isolate.spawn, compute), handling errors in async contexts, or consuming FutureBuilder/StreamBuilder. This is the data-layer entry point — repositories expose Future/Stream APIs; deep networking lives in flutter-data-networking and local persistence in flutter-data-persistence.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-data-networking, flutter-data-persistence, flutter-error-handling, flutter-state-riverpod, flutter-testing-and-benchmark, flutter-ui]
+depends-on: [flutter-data-networking, flutter-data-persistence, flutter-error-handling, flutter-state-bloc, flutter-state-riverpod, flutter-testing-and-benchmark, flutter-ui]
 ---
 
 # Flutter Data and Concurrency (Dart 3+)
@@ -12,7 +12,7 @@ depends-on: [flutter-data-networking, flutter-data-persistence, flutter-error-ha
 
 This skill owns the **async/concurrency core** of the Flutter data layer: Dart's `Future`/`Stream`/`Isolate` primitives and how they behave in a Flutter app. Data sources (network, database) sit **behind repositories**, and the repositories expose `Future`- and `Stream`-shaped APIs that state holders and widgets consume.
 
-Wave-1 split: the deep networking stack (`dio`/`retrofit`/`freezed` DTOs) moved to `flutter-data-networking`, and local persistence (`drift`/`hive`/`shared_preferences`/`sqflite`) moved to `flutter-data-persistence`. This skill keeps a one-section summary plus pointer for each and concentrates on the language-level async machinery both depend on. State holders (Riverpod default) are `flutter-state-riverpod`; global error handlers and `Result`/`Failure` types are `flutter-error-handling`.
+Wave-1 split: the deep networking stack (`dio`/`retrofit`/`freezed` DTOs) moved to `flutter-data-networking`, and local persistence (`drift`/`hive`/`shared_preferences`/`sqflite`) moved to `flutter-data-persistence`. This skill keeps a one-section summary plus pointer for each and concentrates on the language-level async machinery both depend on. State holders (BLoC default) are `flutter-state-bloc`; Riverpod projects use `flutter-state-riverpod`; global error handlers and `Result`/`Failure` types are `flutter-error-handling`.
 
 ## When to Use
 
@@ -101,13 +101,13 @@ List<Transaction> _parseJson(String rawJson) {
 - Stream errors are **asynchronous**: a `try/catch` around `stream.listen(...)` catches nothing. Handle them in the `onError` callback, or `await for (event in stream)` inside a `try/catch`.
 - A Future you intentionally ignore (fire-and-forget) still surfaces its error later. Mark it with `unawaited(future)` (from `dart:async`) so the intent is explicit and the `unawaited_futures` lint is satisfied.
 - Errors that escape every handler land in the enclosing **Zone**; `runZonedGuarded` is where the app installs its global catch-all (owned by `flutter-error-handling`).
-- Never swallow exceptions in an empty `catch {}`. At minimum log with the project's logging library (`logger`).
+- Never swallow exceptions in an empty `catch {}`. At minimum log with the project's logging library (`talker`).
 
 ```dart
 // Stream errors arrive on the subscription, not in the surrounding scope.
 final sub = stream.listen(
   controller.add,
-  onError: (Object e, StackTrace st) => _ref.read(loggerProvider).e('watch failed', e, st),
+  onError: (Object e, StackTrace st) => talker.error(e, st, 'watch failed'),
 );
 ref.onDispose(sub.cancel);
 
@@ -118,7 +118,7 @@ unawaited(ref.read(syncProvider.notifier).sync());
 ### 5. Async in widgets: `FutureBuilder` / `StreamBuilder`
 
 - For a single widget-scoped async value (a one-shot read that lives with one widget), `FutureBuilder`/`StreamBuilder` are fine.
-- In an app the default is Riverpod's `AsyncValue` — it models `loading`/`data`/`error` as one sealed value with retry via `ref.invalidate`, which a hand-rolled `setState` + FutureBuilder does not (see `flutter-state-riverpod`).
+- In a BLoC app the default is a `Cubit`/`Bloc` emitting `Loading | Data | Error` states; Riverpod apps use `AsyncValue` — both model the three states with retry, which a hand-rolled `setState` + FutureBuilder does not (see `flutter-state-bloc` for BLoC, `flutter-state-riverpod` for Riverpod).
 - If you do use `FutureBuilder`, never call `setState` inside `builder`, and give the Future a stable identity — a Future created inside `build()` refetches on every rebuild.
 
 ```dart
@@ -135,7 +135,7 @@ FutureBuilder<List<Transaction>>(
 ### 6. The repository seam
 
 - Data sources (the dio client, the drift database) are reached **only** through a repository; widgets and state holders never touch `Dio` or a `Database`/`Box` handle.
-- The repository exposes the async API: one-shot reads return `Future`, reactive reads return `Stream`. Wiring (providers, lifecycle) is `flutter-di-and-build`/`flutter-state-riverpod`; the concrete HTTP and DB mechanics are the two split skills.
+- The repository exposes the async API: one-shot reads return `Future`, reactive reads return `Stream`. Wiring (get_it registrations, or providers in Riverpod projects) is `flutter-di-and-build`; state-holder wiring is `flutter-state-bloc` (default) or `flutter-state-riverpod`; the concrete HTTP and DB mechanics are the two split skills.
 
 ```dart
 class TransactionRepository {
@@ -159,7 +159,7 @@ class TransactionRepository {
 
 ### 8. Persistence — split to `flutter-data-persistence`
 
-Local storage choice — `drift` for relational/typed queries with `watch()` reactive streams and step-by-step migrations, `hive`/`hive_ce` for key-value boxes with `TypeAdapter`s, `shared_preferences` for settings keys only, `sqflite` as the raw-SQL fallback — is decided and implemented in `flutter-data-persistence`. Route any persistence work there. Its reactive `watch()` streams are consumed through the repository per section 6 and watched by `StreamProvider.autoDispose` (see `flutter-state-riverpod`).
+Local storage choice — `drift` for relational/typed queries with `watch()` reactive streams and step-by-step migrations, `hive`/`hive_ce` for key-value boxes with `TypeAdapter`s, `shared_preferences` for settings keys only, `sqflite` as the raw-SQL fallback — is decided and implemented in `flutter-data-persistence`. Route any persistence work there. Its reactive `watch()` streams are consumed through the repository per section 6 and watched by the state layer: BLoC apps consume the stream in a `Cubit`/`Bloc` via `emit.forEach` (see `flutter-state-bloc`); Riverpod apps use `StreamProvider.autoDispose` (see `flutter-state-riverpod`).
 
 ### 9. BLoC variant (where the data layer meets the state holder)
 
@@ -187,7 +187,7 @@ Wave-1 split moved deep content out of this skill:
 | `drift`/`hive`/`shared_preferences`/`sqflite`, migrations | `flutter-data-persistence` |
 | Riverpod `AsyncValue` providers, provider lifecycle | `flutter-state-riverpod` |
 | Global error handlers, `Result`/`Failure` types | `flutter-error-handling` |
-| `pubspec.yaml`, providers-as-DI, `build_runner` codegen | `flutter-di-and-build` |
+| `pubspec.yaml`, DI wiring (get_it default), `build_runner` codegen | `flutter-di-and-build` |
 | In-memory DAO tests, mocktail, golden tests | `flutter-testing-and-benchmark` |
 
 This skill keeps the async/concurrency core, the repository seam, and the cross-cutting money/migration rules that the two data skills reference.
@@ -221,7 +221,7 @@ This skill keeps the async/concurrency core, the repository seam, and the cross-
 - [ ] Every `StreamController` is `close()`d and every `StreamSubscription` is cancelled (`ref.onDispose`).
 - [ ] `Future`/`Stream` errors surface as typed exceptions or sealed `Failure`s — never `print`.
 - [ ] Fire-and-forget Futures use `unawaited()`; no silently-ignored Futures.
-- [ ] `FutureBuilder`/`StreamBuilder` only for widget-scoped one-shots; app-level async state uses Riverpod `AsyncValue` with a handled error state.
+- [ ] `FutureBuilder`/`StreamBuilder` only for widget-scoped one-shots; app-level async state uses the BLoC state layer (or Riverpod `AsyncValue` in Riverpod projects) with a handled error state.
 - [ ] Networking and persistence work is routed to `flutter-data-networking` / `flutter-data-persistence`, not re-implemented here.
 - [ ] Repositories expose `Future`/`Stream` APIs and hide `Dio`/`Database`/`Box` handles from widgets and state holders.
 - [ ] Money values use `int` minor units end-to-end; `SUM()` over money columns returns `int`.

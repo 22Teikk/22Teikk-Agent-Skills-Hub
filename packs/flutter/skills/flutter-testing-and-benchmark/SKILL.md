@@ -1,6 +1,6 @@
 ---
 name: flutter-testing-and-benchmark
-description: Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, Riverpod ProviderContainer tests, widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks.
+description: Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, bloc_test / Cubit tests, Riverpod ProviderContainer tests (variant), widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks.
 version: 1.0.0
 platform: flutter
 depends-on: [flutter-e2e, flutter-state-riverpod]
@@ -8,7 +8,7 @@ depends-on: [flutter-e2e, flutter-state-riverpod]
   - flutter-data-and-concurrency
 ---
 
-# Flutter Testing and Benchmarking (Dart 3+, Riverpod)
+# Flutter Testing and Benchmarking (Dart 3+)
 
 ## Overview
 
@@ -16,7 +16,7 @@ Ensure correctness and performance stability. Write robust `flutter_test` widget
 
 ## When to Use
 
-- Use when writing unit tests for Dart code, `Notifier`s, repositories, or use cases.
+- Use when writing unit tests for Dart code, `Cubit`s / `Bloc`s (via `bloc_test`), repositories, or use cases (`Notifier`s in Riverpod projects).
 - Use when writing widget tests with `WidgetTester` (`pumpWidget`, `pumpAndSettle`, `find.byType`).
 - Use when setting up test doubles with `mocktail` (preferred over hand-rolled fakes).
 - Use when authoring golden tests for visual regression.

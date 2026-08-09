@@ -150,6 +150,7 @@
         "flutter-data-networking",
         "flutter-data-persistence",
         "flutter-error-handling",
+        "flutter-state-bloc",
         "flutter-state-riverpod",
         "flutter-testing-and-benchmark",
         "flutter-ui"
@@ -176,6 +177,8 @@
         "flutter-data-networking",
         "flutter-di-and-build",
         "flutter-error-handling",
+        "flutter-state-bloc",
+        "flutter-state-riverpod",
         "flutter-testing-and-benchmark",
         "flutter-ui",
         "security-and-hardening"
@@ -188,9 +191,9 @@
       "platform": "flutter",
       "dependsOn": [
         "flutter-di-and-build",
-        "flutter-state-riverpod"
+        "flutter-state-bloc"
       ],
-      "description": "Configures runtime dependency injection in Flutter Dart 3+ projects using the get_it + Riverpod hybrid. Use when registering services, repositories, or third-party SDKs with GetIt (registerSingleton/registerLazySingleton/registerFactory), wiring setupLocator() in main(), choosing between Riverpod providers and get_it for a dependency, or resetting the service locator in tests."
+      "description": "Configures runtime dependency injection in Flutter Dart 3+ projects using get_it (default) with constructor injection, and Riverpod providers as the variant for Riverpod projects. Use when registering services, repositories, or third-party SDKs with GetIt (registerSingleton/registerLazySingleton/registerFactory), wiring setupLocator() in main(), choosing between Riverpod providers and get_it for a dependency, or resetting the service locator in tests."
     },
     {
       "name": "flutter-di-and-build",
@@ -199,7 +202,7 @@
       "dependsOn": [
         "flutter-di"
       ],
-      "description": "Configures Flutter DI (Riverpod), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up Riverpod, configuring --flavor/--dart-define, or wiring CI for Flutter."
+      "description": "Configures Flutter DI (get_it + BLoC), pubspec deps, flavors, build_runner, and GitHub Actions for Flutter. Use when editing pubspec.yaml, setting up get_it, configuring --flavor/--dart-define, or wiring CI for Flutter."
     },
     {
       "name": "flutter-e2e",
@@ -229,6 +232,7 @@
       "version": "1.0.0",
       "platform": "flutter",
       "dependsOn": [
+        "flutter-state-bloc",
         "flutter-state-riverpod",
         "flutter-testing-and-benchmark"
       ],
@@ -239,7 +243,7 @@
       "version": "1.0.0",
       "platform": "flutter",
       "dependsOn": [
-        "flutter-state-riverpod",
+        "flutter-state-bloc",
         "flutter-testing-and-benchmark"
       ],
       "description": "Structures Flutter projects and features with the 2026-standard feature-first layout and the official MVVM UI/Data layer split. Use when creating a new Flutter project or organizing an existing one, deciding where a file belongs (lib/features/<feature>/{data,domain,presentation} vs lib/core vs lib/shared vs lib/app), enforcing layer boundaries and import rules, or choosing between single-package and melos/workspaces monorepos."
@@ -263,7 +267,6 @@
       "platform": "flutter",
       "dependsOn": [
         "flutter-state-bloc",
-        "flutter-state-riverpod",
         "flutter-ui"
       ],
       "description": "Maintains and migrates legacy Flutter apps built on the Provider 6.x package (ChangeNotifier-based, maintenance-mode). Use when a project already declares provider ^6.x and you must change a screen that reads ChangeNotifierProvider, context.watch/context.read, MultiProvider, ProxyProvider, or Consumer, or when planning a Provider → Riverpod migration OUT. Do NOT use to introduce Provider into a new project — use the flutter-state-riverpod skill; do NOT use for event-driven apps — use the flutter-state-bloc skill."
@@ -272,7 +275,9 @@
       "name": "flutter-state-riverpod",
       "version": "1.0.0",
       "platform": "flutter",
-      "dependsOn": [],
+      "dependsOn": [
+        "flutter-state-bloc"
+      ],
       "description": "Implements Riverpod 3.x state management in Flutter Dart 3+ projects. Use when writing Notifier/AsyncNotifier classes, @riverpod codegen providers, family/autoDispose/select modifiers, ProviderScope configuration, or Riverpod-as-DI wiring. Do NOT use for event-driven state machines (flutter-state-bloc), legacy ChangeNotifier apps (flutter-state-provider), or raw setState local widget state."
     },
     {
@@ -283,7 +288,7 @@
         "flutter-e2e",
         "flutter-state-riverpod"
       ],
-      "description": "Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, Riverpod ProviderContainer tests, widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks."
+      "description": "Implements unit testing and performance benchmarking in Flutter Dart 3+ projects. Use when writing flutter_test WidgetTester tests, mocktail unit tests, bloc_test / Cubit tests, Riverpod ProviderContainer tests (variant), widget golden tests, integration_test driver tests, or Timeline-based performance benchmarks."
     },
     {
       "name": "flutter-theming",
