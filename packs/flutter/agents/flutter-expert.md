@@ -24,8 +24,8 @@ Identify the project stack before writing code: Flutter version, state managemen
 ### 2. State Management
 
 - Is state hoisted to the correct level — no unnecessary state living in leaf widgets?
-- For Riverpod: are providers scoped correctly (`@riverpod`, `keepAlive`, `family`)?
 - For BLoC: does every event produce a new state via `emit`; no state mutation in place?
+- For Riverpod projects: are providers scoped correctly (`@riverpod`, `keepAlive`, `family`)?
 - Is UI state modeled as a sealed class / union (`Loading | Success | Error`)?
 - Are streams disposed of in `dispose()` or via `ref.onDispose`?
 
@@ -96,23 +96,23 @@ When a `/teikk-build` task touches a concern outside this persona's scope, route
 
 | Concern | Skill |
 |---|---|
-| Compose a screen, widget tree, GoRouter route, Riverpod `Notifier`, accessibility, perf (rebuilds, lists, images) | `flutter-ui` |
-| HTTP (`dio`), JSON (`freezed`/`json_serializable`), local DB (`drift`/`hive`), isolates, Riverpod `AsyncValue` providers | `flutter-data-and-concurrency` |
-| `pubspec.yaml`, Riverpod-as-DI wiring, `--dart-define` flavors, `build_runner`, asset bundling, GitHub Actions CI | `flutter-di-and-build` |
+| Compose a screen, widget tree, GoRouter route, BLoC/Cubit state, accessibility, perf (rebuilds, lists, images) | `flutter-ui` |
+| HTTP (`dio`), JSON (`freezed`/`json_serializable`), local DB (`drift`/`hive`), isolates, BLoC/Cubit state holders and Riverpod `AsyncValue` providers | `flutter-data-and-concurrency` |
+| `pubspec.yaml`, get_it-as-DI wiring, `--dart-define` flavors, `build_runner`, asset bundling, GitHub Actions CI | `flutter-di-and-build` |
 | `flutter_test` widget tests, `mocktail`, golden tests, `integration_test`, drift in-memory DAO tests, Patrol, `Timeline` benchmarks | `flutter-testing-and-benchmark` |
 | Project/feature layout, layer boundaries (`lib/features/<feature>/{data,domain,presentation}`), monorepo decision | `flutter-project-structure` |
 | Type-safe navigation, `GoRoute`/`StatefulShellRoute` structure, redirect/auth gating, deep links, `go_router_builder` typed routes | `flutter-navigation` |
-| Riverpod 3.x state (projects that declare `flutter_riverpod`): `Notifier`/`AsyncNotifier`, `@riverpod` codegen, `family`/`autoDispose`/`select`, `ProviderScope` | `flutter-state-riverpod` |
-| Bloc 9.x/Cubit event-driven state (projects that declare `bloc`): `Bloc<Event,State>`/`Cubit`, `BlocProvider`/`BlocListener`, `bloc_test` | `flutter-state-bloc` |
+| Bloc 9.x/Cubit event-driven state (the pack default, `Cubit` first): `Cubit`/`Bloc<Event,State>`, `BlocProvider`/`BlocListener`, `bloc_test` | `flutter-state-bloc` |
+| Riverpod 3.x (projects that declare `flutter_riverpod`): `Notifier`/`AsyncNotifier`, `@riverpod` codegen, `family`/`autoDispose`/`select`, `ProviderScope` | `flutter-state-riverpod` |
 | Legacy Provider 6.x / `ChangeNotifier` maintenance (projects that declare `provider`): `context.watch`/`context.read`, `MultiProvider`, `ProxyProvider`, Provider→Riverpod migration out | `flutter-state-provider` |
 | ThemeData, Material 3 `ColorScheme.fromSeed`, dark mode, `ThemeExtension` tokens, `textTheme` typography | `flutter-theming` |
 | Localization, official gen-l10n + ARB pipeline, placeholders/plurals, locale delegates | `flutter-localization` |
 | HTTP networking with `dio`/`retrofit`: `BaseOptions`/interceptors, `@RestApi` clients, immutable DTOs (`freezed`), streaming/cancellation | `flutter-data-networking` |
 | Local persistence: drift/hive/shared_preferences/sqflite choice, drift tables & migrations, `watch()` reactive streams, hive `TypeAdapter`s | `flutter-data-persistence` |
-| Runtime DI with `get_it` (+ Riverpod hybrid): `registerSingleton`/`registerLazySingleton`/`registerFactory`, `setupLocator()`, resetting the locator in tests | `flutter-di` |
+| Runtime DI with `get_it` (the default) + constructor injection: `registerSingleton`/`registerLazySingleton`/`registerFactory`, `setupLocator()`, resetting the locator in tests | `flutter-di` |
 | Implicit/explicit animations: `AnimatedContainer`/`AnimatedSwitcher`, `AnimationController`/`Tween`/`AnimatedBuilder`, Hero, staggered `Interval` sequences, `AnimatedList` | `flutter-animations` |
 | End-to-end journey smoke tests on device/emulator (official `integration_test`), multi-screen flows covering navigation + DI + startup | `flutter-e2e` |
 | Flutter performance audit — rebuilds, list/jank, images, DevTools timeline; route `/teikk-androidperf`-style perf review | `flutter-performance-auditor` (agent) |
 | Pack manifest — which skills ship, what `/teikk-flutter-setup` plants | `packs/flutter/SKILL.md` |
 
-State-management routing by techstack: **Riverpod** (the project default set by `/teikk-flutter-setup`) routes to `flutter-state-riverpod`; projects that declared `bloc` route to `flutter-state-bloc`; legacy `provider` 6.x apps (maintenance or migration out) route to `flutter-state-provider`. Never mix two state-management libraries in the same feature subtree.
+State-management routing by techstack: **BLoC** (the project default set by `/teikk-flutter-setup`) routes to `flutter-state-bloc`; projects that declared `flutter_riverpod` route to `flutter-state-riverpod`; legacy `provider` 6.x apps (maintenance or migration out) route to `flutter-state-provider`. Never mix two state-management libraries in the same feature subtree.

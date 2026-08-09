@@ -26,7 +26,7 @@ Guidelines for instrumenting Android applications. Since mobile apps run on thou
 
 ## Inline logging during `/teikk-build` (all platforms)
 
-`/teikk-android-setup`, `/teikk-ios-setup`, and `/teikk-flutter-setup` each plant a logging library and record its name as `logging.library` in `.teikk/spec/PROJECT.yaml` (Android default `timber`; iOS default `oslog`; Flutter default `logger`). `/teikk-build` reads that value and instruments each task's own logging inline as part of GREEN — there is no separate call needed for routine per-task logging. This file's code examples are Android/Timber; apply the same hygiene (strip debug in release, custom keys on captured exceptions, no PII, bounded-cardinality analytics) with the equivalent primitive on iOS (`os_log`/`Logger` or CocoaLumberjack) or Flutter (`logger`/`logging` package).
+`/teikk-android-setup`, `/teikk-ios-setup`, and `/teikk-flutter-setup` each plant a logging library and record its name as `logging.library` in `.teikk/spec/PROJECT.yaml` (Android default `timber`; iOS default `oslog`; Flutter default `talker`). `/teikk-build` reads that value and instruments each task's own logging inline as part of GREEN — there is no separate call needed for routine per-task logging. This file's code examples are Android/Timber; apply the same hygiene (strip debug in release, custom keys on captured exceptions, no PII, bounded-cardinality analytics) with the equivalent primitive on iOS (`os_log`/`Logger` or CocoaLumberjack) or Flutter (`talker`/`talker_flutter`).
 
 Use `/teikk-observability` directly only to retrofit logging onto pre-existing code that has none, or for analytics/perf work spanning more than one task's scope — see that command's scope note.
 

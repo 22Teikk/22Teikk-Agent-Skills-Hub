@@ -20,7 +20,7 @@ Build high-quality, responsive, accessible, and 60fps Flutter user interfaces us
 - Use when composing layouts or choosing between layout widgets.
 - Use when deciding between `StatelessWidget` and `StatefulWidget`, or managing local ephemeral state.
 - Use when wiring images, semantics, or accessibility labels.
-- Do NOT use for state management — see `flutter-state-riverpod` (or `flutter-state-bloc`, `flutter-state-provider`).
+- Do NOT use for state management — see `flutter-state-bloc` (default), `flutter-state-riverpod` (variant), or `flutter-state-provider` (legacy).
 - Do NOT use for navigation/routing — see `flutter-navigation`.
 - Do NOT use for theming — see `flutter-theming`.
 - Do NOT use for animations — see `flutter-animations`.
@@ -35,7 +35,7 @@ Build high-quality, responsive, accessible, and 60fps Flutter user interfaces us
 - Break screens into focused widgets. A `build()` method over ~80 lines is a red flag.
 - Prefer `StatelessWidget`. Justify every `StatefulWidget` with a one-line comment that names the local ephemeral state it owns (animation controller, scroll position, focus node, text editing controller).
 - Use `const` constructors everywhere a widget has no runtime-variable parameters — Flutter reuses the element on rebuild.
-- Leaf widgets receive values + callbacks; they never reach for app state themselves. Shared state lives in the state-management layer (see `flutter-state-riverpod`), and screens wire the two together at the top.
+- Leaf widgets receive values + callbacks; they never reach for app state themselves. Shared state lives in the state-management layer (see `flutter-state-bloc` — or `flutter-state-riverpod` in Riverpod projects), and screens wire the two together at the top.
 
 ```dart
 // Good: small, focused, const-friendly widgets
@@ -63,7 +63,7 @@ class TaskListScreen extends StatelessWidget {
 ### 2. UI state as a sealed family (rendering pattern)
 
 - Model screen state as a **sealed class** (Dart 3) with `Loading` / `Error` / `Data` (or feature-named) variants, and `switch` over it in the widget — the compiler enforces every branch.
-- The state *family* itself is produced and exposed by the state-management layer; this skill owns the exhaustive rendering. Producing it is the job of `flutter-state-riverpod` / `flutter-state-bloc`.
+- The state *family* itself is produced and exposed by the state-management layer; this skill owns the exhaustive rendering. Producing it is the job of `flutter-state-bloc` (the pack default) / `flutter-state-riverpod`.
 
 ```dart
 sealed class TaskListUiState { const TaskListUiState(); }
@@ -109,7 +109,7 @@ class TaskListContent extends StatelessWidget {
 ### 3. `StatefulWidget`: local ephemeral state only
 
 - `StatelessWidget` renders purely from its constructor parameters. Use it unless a widget owns genuinely local, ephemeral state.
-- Local ephemeral state = `AnimationController`, `ScrollController`, `FocusNode`, `TextEditingController`, a `PageController`, a checkbox toggle. Cross-screen or shared state does **not** belong in a widget — it belongs in `flutter-state-riverpod` / `flutter-state-bloc`.
+- Local ephemeral state = `AnimationController`, `ScrollController`, `FocusNode`, `TextEditingController`, a `PageController`, a checkbox toggle. Cross-screen or shared state does **not** belong in a widget — it belongs in `flutter-state-bloc` / `flutter-state-riverpod`.
 - Initialize controllers where the field is declared or in `initState`, and always `dispose()` them.
 
 ```dart
@@ -202,21 +202,21 @@ class _TasksTabState extends State<TasksTab>
 
 | Concern | Skill |
 |---|---|
-| State management (default) | `flutter-state-riverpod` |
-| State management (event-driven) | `flutter-state-bloc` |
+| State management (default) | `flutter-state-bloc` |
+| State management (variant: Riverpod) | `flutter-state-riverpod` |
 | State management (legacy Provider maintenance) | `flutter-state-provider` |
 | Navigation / routing (go_router) | `flutter-navigation` |
 | Animations | `flutter-animations` |
 | Theming / Material 3 | `flutter-theming` |
 | Localization (gen-l10n / ARB) | `flutter-localization` |
 
-For state management with Riverpod see `flutter-state-riverpod`; with BLoC see `flutter-state-bloc`; for legacy `provider` codebases see `flutter-state-provider`. Pick **one** approach per project — never mix `ConsumerWidget` with `BlocProvider` in the same subtree. For navigation see `flutter-navigation`; for animation see `flutter-animations`; for theming see `flutter-theming`; for localization see `flutter-localization`.
+For state management with BLoC (the pack default) see `flutter-state-bloc`; with Riverpod see `flutter-state-riverpod`; for legacy `provider` codebases see `flutter-state-provider`. Pick **one** approach per project — never mix `ConsumerWidget` with `BlocProvider` in the same subtree. For navigation see `flutter-navigation`; for animation see `flutter-animations`; for theming see `flutter-theming`; for localization see `flutter-localization`.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "This screen is simple, it doesn't need a state-management skill" | Simple screens grow. State that must survive navigation pops and `build()` rebuilds belongs in `flutter-state-riverpod`, not in a widget. |
+| "This screen is simple, it doesn't need a state-management skill" | Simple screens grow. State that must survive navigation pops and `build()` rebuilds belongs in `flutter-state-bloc` (or `flutter-state-riverpod` for Riverpod projects), not in a widget. |
 | "`setState` is fine for everything" | `setState` triggers a rebuild of the calling widget's subtree. It is correct for local ephemeral state; shared state belongs in a state-management skill. |
 | "I'll add Semantics labels later" | Accessibility debt compounds. Every `IconButton` without a `tooltip`/`semanticLabel` fails TalkBack/VoiceOver audits; add labels as you write the widget. |
 | "`ListView(children: [...])` is fine, the list is short" | Length grows. The day the list goes from 5 to 5,000 items is the day the user feels jank. Use `ListView.builder`. |

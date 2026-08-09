@@ -3,7 +3,7 @@ name: flutter-navigation
 description: "Implements type-safe navigation in Flutter apps with go_router 17.x. Use when defining GoRoute/StatefulShellRoute structures, context.go/context.push navigation, redirect/auth gating, deep links, state restoration, go_router_builder typed routes, or path/query parameter handling. Do NOT use for widget-level composition (flutter-ui) or Navigator.push-only micro apps."
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-state-riverpod, flutter-testing-and-benchmark]
+depends-on: [flutter-state-bloc, flutter-state-riverpod, flutter-testing-and-benchmark]
   - flutter-ui
 ---
 
@@ -139,7 +139,7 @@ final goRouter = GoRouter(
 );
 ```
 
-Always include the "already at the target" escape (`loggingIn ? null : ...`). A `redirect` that unconditionally returns `/login` loops until `go_router` throws a redirect-limit error. Drive `authNotifier` from your auth state provider so login/logout automatically re-evaluates routing — see `flutter-state-riverpod`.
+Always include the "already at the target" escape (`loggingIn ? null : ...`). A `redirect` that unconditionally returns `/login` loops until `go_router` throws a redirect-limit error. Drive auth state from a `Cubit`/`Bloc` (see `flutter-state-bloc`, the pack default) or an auth provider in Riverpod projects (see `flutter-state-riverpod`).
 
 ### 5. Typed routes with `go_router_builder` (recommended)
 

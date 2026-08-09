@@ -3,7 +3,7 @@ name: flutter-data-persistence
 description: Handles local persistence in Flutter Dart 3+ projects. Use when choosing between drift, hive, shared_preferences, and sqflite for on-device storage, defining drift tables and typed queries, wiring drift_dev/build_runner codegen, adding drift migrations (schemaVersion, MigrationStrategy, stepByStep), consuming reactive query streams (watch()/WatchStream), opening hive boxes with TypeAdapters, or reading/writing shared_preferences settings. Persistence only — networking lives in flutter-data-networking.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-data-networking, flutter-di-and-build, flutter-error-handling, flutter-testing-and-benchmark, flutter-ui, security-and-hardening]
+depends-on: [flutter-data-networking, flutter-di-and-build, flutter-error-handling, flutter-state-bloc, flutter-state-riverpod, flutter-testing-and-benchmark, flutter-ui, security-and-hardening]
 ---
 
 # Flutter Data Persistence (drift, Hive, shared_preferences, sqflite)
@@ -12,7 +12,7 @@ depends-on: [flutter-data-networking, flutter-di-and-build, flutter-error-handli
 
 Local persistence is a **decision table, not a default library**. `drift` (typed SQL over SQLite) is the 2026 default for anything structured: relational queries, joins, aggregations, migrations, reactive streams. `hive` is for key-value boxes of small/mid-size objects with no SQL shape. `shared_preferences` is for tiny settings keys **only**. `sqflite` is the raw-SQL escape hatch when drift is too heavy or legacy code already owns raw queries. Everything behind a repository — widgets and state holders never touch a `Database`, `Box`, or `prefs` handle.
 
-This skill deep-dives the persistence layer. The repository/provider seam that consumes it, and the drift/hive *summary* that lives with the data layer, are in `flutter-data-and-concurrency` — do not duplicate its section 5 here. Networking is `flutter-data-networking`; reactive providers that watch query streams are `flutter-state-riverpod`. In-memory DAO tests belong to `flutter-testing-and-benchmark`.
+This skill deep-dives the persistence layer. The repository/provider seam that consumes it, and the drift/hive *summary* that lives with the data layer, are in `flutter-data-and-concurrency` — do not duplicate its section 5 here. Networking is `flutter-data-networking`; reactive query-stream consumption is `flutter-state-bloc` (default) or `flutter-state-riverpod` (variant). In-memory DAO tests belong to `flutter-testing-and-benchmark`.
 
 ## When to Use
 
@@ -122,7 +122,7 @@ Stream<List<Transaction>> watchRecentShared() {
 }
 ```
 
-Consumers stay in `flutter-state-riverpod`: `StreamProvider.autoDispose` watches the repository's stream and disposes it via `ref.onDispose`. Never leak a `watch()` subscription that the widget created by hand.
+Consumers live in the state layer: BLoC apps watch the repository stream in a `Cubit`/`Bloc` (see `flutter-state-bloc`); Riverpod apps use `StreamProvider.autoDispose` + `ref.onDispose` (see `flutter-state-riverpod`). Never leak a `watch()` subscription that the widget created by hand.
 
 ### 5. drift migrations: `schemaVersion` + `MigrationStrategy`
 
@@ -230,7 +230,7 @@ final rows = await db.query('transactions', where: 'currency = ?', whereArgs: ['
 
 ### 9. Repository seam and boundaries
 
-Persistence is reached **only** through a repository (the seam lives in `flutter-data-and-concurrency`). The repository is exposed as a provider from `flutter-di-and-build` / `flutter-state-riverpod`; widgets `ref.watch` an `AsyncValue` over the stream. DB/Box/prefs failures surface as typed exceptions or sealed `Failure`s (see `flutter-error-handling`) — never `print`.
+Persistence is reached **only** through a repository (the seam lives in `flutter-data-and-concurrency`). The repository is registered in get_it from `flutter-di-and-build`; BLoC state holders expose loading/data/error (see `flutter-state-bloc`); Riverpod projects use `AsyncValue`. DB/Box/prefs failures surface as typed exceptions or sealed `Failure`s (see `flutter-error-handling`) — never `print`.
 
 ## Common Rationalizations
 
@@ -252,7 +252,7 @@ Persistence is reached **only** through a repository (the seam lives in `flutter
 - `schemaVersion` bumped with no `stepByStep`/`onUpgrade` step — silent data loss on update.
 - Money columns declared as `REAL`/`double`, or `SUM()` over money returning a float — `integer()` minor units end-to-end.
 - `watch()` subscriptions created in widgets and never disposed; query streams not going through a repository.
-- Multiple `driftDatabase()`/`openBox()`/`openDatabase()` instances instead of one behind a provider.
+- Multiple `driftDatabase()`/`openBox()`/`openDatabase()` instances instead of one get_it registration.
 - Persistence code written that is "covered" only by a mocked repository — the SQL and schema never ran (use `NativeDatabase.memory()`, see `flutter-testing-and-benchmark`).
 - A `Box`, `Database`, or `prefs` handle passed directly into a widget or state holder.
 
@@ -266,5 +266,5 @@ Persistence is reached **only** through a repository (the seam lives in `flutter
 - [ ] Hive boxes are typed (`openBox<T>()`) and every custom class has a registered `TypeAdapter`.
 - [ ] `shared_preferences` holds settings only; tokens/credentials/PII live in `flutter_secure_storage`.
 - [ ] No widget or state holder touches a `Database`/`Box`/`prefs` handle — all reads and writes go through a repository.
-- [ ] Reactive query streams are consumed via Riverpod `StreamProvider.autoDispose` and disposed with `ref.onDispose`; shared queries use the database's `WatchStream`.
+- [ ] Reactive query streams are consumed via the BLoC state layer (or Riverpod `StreamProvider.autoDispose` for Riverpod projects) and disposed properly; shared queries use the database's `WatchStream`.
 - [ ] Errors from DB/Box/prefs surface as typed exceptions or sealed `Failure`s — never `print`/`debugPrint`.

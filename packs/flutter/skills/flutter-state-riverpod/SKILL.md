@@ -3,14 +3,14 @@ name: flutter-state-riverpod
 description: "Implements Riverpod 3.x state management in Flutter Dart 3+ projects. Use when writing Notifier/AsyncNotifier classes, @riverpod codegen providers, family/autoDispose/select modifiers, ProviderScope configuration, or Riverpod-as-DI wiring. Do NOT use for event-driven state machines (flutter-state-bloc), legacy ChangeNotifier apps (flutter-state-provider), or raw setState local widget state."
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-data-and-concurrency, flutter-di-and-build]
+depends-on: [flutter-state-bloc]
 ---
 
 # Flutter State Management: Riverpod 3.x
 
 ## Overview
 
-Riverpod 3.x is the default state-management layer for this pack. It replaces `provider`'s runtime `InheritedWidget` lookups with a **compile-time-safe provider graph**: a provider is a top-level `final` (or generated) declaration, so a missing dependency is a compile error rather than a `ProviderNotFoundException` at runtime.
+Riverpod 3.x is a supported state-management layer for this pack (the pack default is BLoC — see `flutter-state-bloc`). Riverpod replaces `provider`'s runtime `InheritedWidget` lookups with a **compile-time-safe provider graph**: a provider is a top-level `final` (or generated) declaration, so a missing dependency is a compile error rather than a `ProviderNotFoundException` at runtime.
 
 Three properties drive every rule below:
 

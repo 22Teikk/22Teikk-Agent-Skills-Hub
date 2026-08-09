@@ -1,9 +1,9 @@
 ---
 name: flutter-di
-description: Configures runtime dependency injection in Flutter Dart 3+ projects using the get_it + Riverpod hybrid. Use when registering services, repositories, or third-party SDKs with GetIt (registerSingleton/registerLazySingleton/registerFactory), wiring setupLocator() in main(), choosing between Riverpod providers and get_it for a dependency, or resetting the service locator in tests.
+description: Configures runtime dependency injection in Flutter Dart 3+ projects using get_it (default) with constructor injection, and Riverpod providers as the variant for Riverpod projects. Use when registering services, repositories, or third-party SDKs with GetIt (registerSingleton/registerLazySingleton/registerFactory), wiring setupLocator() in main(), choosing between Riverpod providers and get_it for a dependency, or resetting the service locator in tests.
 version: 1.0.0
 platform: flutter
-depends-on: [flutter-di-and-build, flutter-state-riverpod]
+depends-on: [flutter-di-and-build, flutter-state-bloc]
   - flutter-di-and-build
   - flutter-state-riverpod
 ---
@@ -14,10 +14,10 @@ depends-on: [flutter-di-and-build, flutter-state-riverpod]
 
 This skill covers **runtime** dependency injection in Flutter: *who constructs an object, when, and how it reaches the code that needs it*. It sits next to `flutter-di-and-build`, which covers the **build** side (pubspec dependency pinning, flavors, `build_runner`, asset bundling, CI). The split: `flutter-di-and-build` configures the toolchain that produces the app; `flutter-di` wires the objects the running app depends on. Both reference the same object graph — a provider or service locator registration consumes the dependencies declared in `pubspec.yaml` — but neither duplicates the other.
 
-The confirmed DI pattern for Flutter is a **get_it + Riverpod hybrid**:
+The confirmed DI pattern for Flutter is **get_it with constructor injection**:
 
-- **Riverpod providers** (`Provider`, `NotifierProvider`, `FutureProvider`) for anything that needs reactive state, widget lifecycle, or per-scope disposal — the default in this pack.
-- **get_it** for pure, non-reactive service-locator needs — repositories, services, and third-party SDKs that never hold UI state and are best injected imperatively.
+- **get_it** — the default DI container for this pack: repositories, services, and third-party SDKs registered once and injected through constructors.
+- **Riverpod providers** (`Provider`, `NotifierProvider`, `FutureProvider`) — the variant, used only in projects that already use Riverpod for state: for anything that needs reactive state, widget lifecycle, or per-scope disposal.
 
 **Prefer constructor injection for testability.** Service location (`GetIt.instance<Foo>()` reached deep inside a class) is a fallback, not a default: any class that can take its dependencies in its constructor should, so tests construct it directly without a locator at all.
 
@@ -29,15 +29,15 @@ The confirmed DI pattern for Flutter is a **get_it + Riverpod hybrid**:
 - Use when deciding whether a dependency belongs in a Riverpod provider (reactive/lifecycle) or in get_it (pure service).
 - Use when tests need a clean object graph: `getIt.reset()` between test cases, or fake registrations.
 - Do NOT use for build configuration (flavors, codegen, pubspec) — see `flutter-di-and-build`.
-- Do NOT use for reactive state holders, view models, or anything the UI watches — see `flutter-state-riverpod`.
+- Do NOT use for reactive state holders, view models, or anything the UI watches — see `flutter-state-bloc` (the pack default state layer).
 
 ## Core Process
 
 ### 1. Choose the right container: Riverpod vs get_it
 
-The hybrid rule is a decision, not a default. Ask two questions before registering anything:
+The default is **get_it + constructor injection**; reach for a Riverpod provider only when the project already uses Riverpod for state. Ask two questions before registering anything:
 
-1. **Does the object need reactive state or widget lifecycle?** A `Notifier` that the UI watches, a `Dio` instance owned per-scope, a database that must close on dispose → **Riverpod provider** (`flutter-state-riverpod`).
+1. **Does the project use Riverpod for state, and does this object need reactive state or widget lifecycle?** A `Notifier` that the UI watches, a `Dio` instance owned per-scope, a database that must close on dispose → **Riverpod provider** (`flutter-state-riverpod`) — only in Riverpod projects; never introduce Riverpod into a non-Riverpod project (avoid mixing two state-management libraries).
 2. **Is it a pure, stateless service consumed imperatively?** A `PaymentGateway`, `AnalyticsService`, `ImagePicker` wrapper, a third-party SDK handle → **get_it**.
 
 ```dart
@@ -79,14 +79,14 @@ void setupLocator() {
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const MyApp());
 }
 ```
 
 - `registerLazySingleton` — one instance, created on first access. Default choice; keeps startup fast.
 - `registerSingleton` — one instance, created immediately. Use when the object must exist before anything resolves it.
 - `registerFactory` — a fresh instance per call. Use for stateful, per-operation objects (a session, a request context).
-- Both `ProviderScope` (Riverpod) and the get_it locator live in `main()`; they coexist — providers watch the object graph, services resolve from the locator.
+- `setupLocator()` runs before `runApp()`; if the project uses Riverpod for state, its `ProviderScope` wraps the app in `main()` too — the two coexist: providers watch the object graph, services resolve from the locator.
 
 ### 3. Prefer constructor injection over service location
 
@@ -124,7 +124,7 @@ locator.registerLazySingleton<CheckoutService>(
 
 ### 4. Resolve at the widget boundary, not inside widgets
 
-Widgets should take a resolved service once — via `ProviderScope` + a provider, or a constructor/parameter — rather than calling `GetIt.instance` inside `build`. When get_it is unavoidable at the widget layer, resolve it into the widget's state or pass it down explicitly:
+Widgets should take a resolved service once — via a constructor/parameter (or a provider in Riverpod projects) — rather than calling `GetIt.instance` inside `build`. When get_it is unavoidable at the widget layer, resolve it into the widget's state or pass it down explicitly:
 
 ```dart
 class OrderScreen extends StatelessWidget {
@@ -198,11 +198,11 @@ final checkoutProvider = Provider<CheckoutService>((ref) {
 - A Riverpod provider body that reaches into `GetIt.instance` (bypasses `ProviderScope` overrides).
 - `getIt.reset()` missing from test `setUp` — test-order flakiness from a shared graph.
 - The same dependency registered both as a Riverpod provider and in get_it — pick one container per dependency.
-- get_it used for reactive state that widgets watch — that's `flutter-state-riverpod`'s job.
+- get_it used for reactive state that widgets watch — that's `flutter-state-bloc`'s job (the pack default), or `flutter-state-riverpod`'s in Riverpod projects.
 
 ## Verification
 
-- [ ] `setupLocator()` is called in `main()` before `runApp()`; `ProviderScope` wraps the widget tree.
+- [ ] `setupLocator()` is called in `main()` before `runApp()`; `ProviderScope` wraps the widget tree only in Riverpod projects.
 - [ ] Every service, repository, and SDK is registered with `registerSingleton` / `registerLazySingleton` / `registerFactory` — never a `static` field or module-scope `final`.
 - [ ] Every class that can takes its dependencies via constructor; `GetIt.instance` appears only at composition edges and widget boundaries.
 - [ ] No Riverpod provider body calls `GetIt.instance` — provider graphs are fully `ProviderScope`-overridable.
