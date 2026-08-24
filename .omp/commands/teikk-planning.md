@@ -1,0 +1,28 @@
+---
+description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+---
+
+**Open Questions gate (hard gate, automated):** Run `bash scripts/check-open-questions.sh` from the repo root before planning. Non-zero exit = STOP and resolve/defer each `- [ ]` in `.teikk/spec/SPEC.md` `## Open Questions` (mark `- [x]` to resolve, `- [~]` to defer). If script is missing (older installs), fall back to the manual check in `planning-and-task-breakdown` Step 1.
+
+Read and follow `planning-and-task-breakdown`.
+
+Read the existing spec (`.teikk/spec/SPEC.md` first, fall back to `.teikk/SPEC.md`) and relevant codebase sections, then:
+
+1. Enter plan mode — read only, no code changes
+2. Extract **Platform**, **Architecture Decisions**, **Observability** from the spec — if missing, stop and ask user to update spec first
+3. Identify the dependency graph between components
+4. Add **Phase 0 Foundation** per platform (per skill: Android → Hilt+Timber/Crashlytics; iOS → SPM+SwiftLint+os_log/Crashlytics; Flutter → flavor+state mgmt+logging — must complete before feature slices)
+5. Slice work vertically (one complete path per task, not horizontal layers)
+6. Write tasks with acceptance criteria linking to **behavioral tests** (not mocks, not labels):
+   - Format: `- [ ] [AC] → `TestClass.testMethod` (unit | integration | e2e)`
+   - ✓ `Total is calculated → TransactionDaoTest.insertAndSum (integration, Room in-memory)`
+   - ✗ `UI shows data → ExampleInstrumentedTest` (boilerplate)
+   - ✗ `User sees button → mock repository returns true` (mock-only)
+   - Tag skills/personas per platform: Android → `android-ui-kotlin`, add `compose-animations` when motion is in scope, `android-data-and-concurrency-kotlin`, `android-di-and-build` + `kotlin-specialist`; iOS → `swift-expert`; Flutter → `flutter-expert`, add `flutter-animations` when Flutter motion is in scope; Cross-platform → `mobile-app-developer`
+7. Add checkpoints between phases
+8. **Traceability checklist** — verify every AC has a real test before writing code: AC maps to test method (not mock), no label-only tests, data layer has at least one Room in-memory DAO test
+9. Present plan for human review
+
+Save plan to `.teikk/tasks/plan.md`. Test mappings feed `/teikk-ship` Phase B traceability gate.
+
+Immediately after, write `.teikk/tasks/todo.md` per `planning-and-task-breakdown` Step 6 — one checkbox line per task (title matching `## Task N:` heading in `plan.md`), a `**Current task:**` pointer at top, all unchecked. This is the small index `/teikk-build`/test/review/ship read on every resume instead of re-scanning the full plan.

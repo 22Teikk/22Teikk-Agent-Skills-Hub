@@ -1,6 +1,8 @@
-# Start spec-driven development — write a structured specification before writing code
+---
+description: Start spec-driven development — write a structured specification before writing code
+---
 
-Invoke the teikk-agents-skills:spec-driven-development skill.
+Read and follow `spec-driven-development`.
 
 Surface assumptions explicitly (platform, tech stack defaults by platform per skill, observability, E2E opt-in) and ask the user to confirm or correct before writing the spec. For native vs cross-platform trade-offs, read `mobile-app-developer` first.
 

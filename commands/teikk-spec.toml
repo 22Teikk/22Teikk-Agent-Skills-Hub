@@ -40,7 +40,7 @@ model_tiers:                # tier names; concrete model values are user's overr
   ultra: fable
 ```
 
-After PROJECT.yaml is written, inspect installed tool directories (`.claude`, `.opencode`, `.cursor`, `.gemini`, `.agents`). If exactly one is present, run `npx teikk-agents-skills update <that-target>` so its platform pack is installed. If none or multiple are present, print the exact `npx teikk-agents-skills update <target>` command(s) and do not guess or update `all`.
+After PROJECT.yaml is written, inspect installed tool directories (`.claude`, `.opencode`, `.omp`, `.cursor`, `.gemini`, `.agents`). If exactly one is present, run `npx teikk-agents-skills update <that-target>` so its platform pack is installed. If none or multiple are present, print the exact `npx teikk-agents-skills update <target>` command(s) and do not guess or update `all`.
 
 Platform defaults (apply unless spec overrode them):
 - Android budgets: 2000/100/5; logging: `timber` | `logcat` (discouraged)
