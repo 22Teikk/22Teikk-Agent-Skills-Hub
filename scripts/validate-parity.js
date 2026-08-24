@@ -36,6 +36,7 @@ const COMMAND_TARGETS = [
   { label: 'opencode',    dir: 'commands',          ext: '.toml' },
   { label: 'cursor',      dir: '.cursor/commands',  ext: '.md'   },
   { label: 'gemini',      dir: '.gemini/commands',  ext: '.toml' },
+  { label: 'omp',         dir: '.omp/commands',     ext: '.md'   },
 ];
 
 const PACKS_DIR       = path.join(ROOT, 'packs');
