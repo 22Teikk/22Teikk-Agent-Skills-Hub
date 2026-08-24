@@ -25,6 +25,7 @@ const SCAN_DIRS = [
   'references',
   '.claude/commands',
   '.opencode/commands',
+  '.omp/commands',
   '.cursor/commands',
   '.agents/workflows',
 ];

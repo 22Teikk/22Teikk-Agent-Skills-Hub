@@ -743,6 +743,118 @@ function runPlatformPackSelection() {
   }
 }
 
+function runOmpTarget() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `${PACKAGE_NAME}-omp-`));
+
+  try {
+    fs.writeFileSync(path.join(tmp, 'package.json'), '{ "name": "fixture-app" }\n');
+
+    const init = spawnSync(
+      process.execPath,
+      [CLI, 'init', 'omp', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(init.status === 0, `init omp failed: ${init.stderr}`);
+
+    assert(fs.existsSync(path.join(tmp, '.omp', 'commands')), 'missing .omp/commands');
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'commands', 'teikk-spec.md')),
+      'missing .omp/commands/teikk-spec.md',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'commands', 'teikk-ship.md')),
+      'missing .omp/commands/teikk-ship.md',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'skills', 'spec-driven-development', 'SKILL.md')),
+      'missing .omp/skills — skills must be physically copied into .omp/skills',
+    );
+    assert(
+      !fs.lstatSync(path.join(tmp, '.omp', 'skills')).isSymbolicLink(),
+      '.omp/skills should be a real directory, not a symlink',
+    );
+    assert(
+      fs.existsSync(
+        path.join(tmp, '.omp', 'skills', 'code-review-and-quality', 'references', 'domain-guardrails.md'),
+      ),
+      'missing bundled reference in .omp/skills',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'agents', 'code-reviewer.md')),
+      '.omp/agents must be physically copied',
+    );
+    assert(
+      !fs.lstatSync(path.join(tmp, '.omp', 'agents')).isSymbolicLink(),
+      '.omp/agents should be a real directory, not a symlink',
+    );
+    for (const script of [
+      'benchmark.js',
+      'check-open-questions.sh',
+      'check-request-overlap.sh',
+      'check-traceability.sh',
+      'check-phase-build.sh',
+      'check-phase-tests.sh',
+      'decisions.js',
+      'phase-status.sh',
+      'rollback.sh',
+    ]) {
+      assert(
+        fs.existsSync(path.join(tmp, 'scripts', script)),
+        `missing scripts/${script} for omp target`,
+      );
+    }
+
+    const gitignoreContent = fs.readFileSync(path.join(tmp, '.gitignore'), 'utf8');
+    assert(gitignoreContent.includes(GITIGNORE_BEGIN), 'missing gitignore begin marker');
+    assert(gitignoreContent.includes(GITIGNORE_END), 'missing gitignore end marker');
+    assert(gitignoreContent.includes('.teikk/'), 'missing .teikk/ in gitignore');
+    assert(gitignoreContent.includes('.omp/commands/'), 'missing .omp/commands/ in gitignore');
+    assert(gitignoreContent.includes('.omp/skills/'), 'missing .omp/skills/ in gitignore');
+    assert(gitignoreContent.includes('.omp/agents/'), 'missing .omp/agents/ in gitignore');
+
+    const manifest = JSON.parse(fs.readFileSync(path.join(tmp, MANIFEST_FILE), 'utf8'));
+    assert(manifest.targets.includes('omp'), 'manifest missing omp');
+
+    // Test platform pack update for omp
+    fs.mkdirSync(path.join(tmp, '.teikk', 'spec'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.teikk', 'spec', 'PROJECT.yaml'), 'platform: android\n');
+
+    const update = spawnSync(
+      process.execPath,
+      [CLI, 'update', 'omp', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(update.status === 0, `update omp failed: ${update.stderr}`);
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'skills', 'android-ui-kotlin', 'SKILL.md')),
+      'missing Android skill in .omp/skills after update',
+    );
+    assert(
+      fs.existsSync(path.join(tmp, '.omp', 'agents', 'kotlin-specialist.md')),
+      'missing Android agent in .omp/agents after update',
+    );
+
+    // Test clean uninstall
+    const uninstall = spawnSync(
+      process.execPath,
+      [CLI, 'uninstall', '--cwd', tmp, '--package-root', REPO_ROOT],
+      { encoding: 'utf8' },
+    );
+    assert(uninstall.status === 0, `uninstall failed: ${uninstall.stderr}`);
+    assert(!fs.existsSync(path.join(tmp, MANIFEST_FILE)), 'manifest not removed');
+    assert(!fs.existsSync(path.join(tmp, '.omp', 'commands')), 'uninstall left .omp/commands behind');
+    assert(!fs.existsSync(path.join(tmp, '.omp', 'skills')), 'uninstall left .omp/skills behind');
+    assert(!fs.existsSync(path.join(tmp, '.omp', 'agents')), 'uninstall left .omp/agents behind');
+
+    const gitignoreAfter = fs.readFileSync(path.join(tmp, '.gitignore'), 'utf8');
+    assert(!gitignoreAfter.includes(GITIGNORE_BEGIN), 'gitignore block not removed');
+
+    process.stdout.write('test-install: omp target tests passed\n');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 run();
 runAdditive();
 runLegacyUpgrade();
@@ -752,3 +864,4 @@ runStaleCleanup();
 runClaudeHooksWiring();
 runSharedScripts();
 runPlatformPackSelection();
+runOmpTarget();

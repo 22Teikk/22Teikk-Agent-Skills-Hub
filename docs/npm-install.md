@@ -82,9 +82,9 @@ Skills and agents are copied directly into each tool's own dir (no shared tree, 
 | `claude` | [Claude Code](getting-started.md) | `.claude/` with `commands/`, `skills/`, `agents/`, `hooks/`, `lib/telemetry.sh` |
 | `antigravity` | [Antigravity](antigravity-setup.md) | `.agents/` with `skills/`, `agents/`; root `commands/` |
 | `gemini` | [Gemini CLI](gemini-cli-setup.md) | `.gemini/` with `skills/`, `agents/` |
-| `opencode` | [OpenCode](opencode-setup.md) | `.opencode/` with `commands/` (23 native `.md`), `skills/`, `agents/` |
+| `opencode` | [OpenCode](opencode-setup.md) | `.opencode/` with `commands/` (24 native `.md`), `skills/`, `agents/` |
+| `omp` | [Oh My Pi](omp-setup.md) | `.omp/` with `commands/` (24 native `.md`), `skills/`, `agents/` |
 | `all` | Every target above | Per-tool copies for multi-tool teams |
-
 List targets:
 
 ```bash

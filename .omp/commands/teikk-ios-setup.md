@@ -1,0 +1,28 @@
+---
+description: Set up iOS foundation — SPM dependencies, SwiftLint, logging, Crashlytics
+---
+
+Read `swift-expert`.
+
+Use at iOS project start or when project tooling is missing. Sets up the Phase 0 Foundation before any feature work. Read `observability-and-instrumentation` for logging hygiene; plant the library named in `logging.library` from `.teikk/spec/PROJECT.yaml` (fall back to `.teikk/PROJECT.yaml`, then `oslog` as the platform default) — this is the library every `/teikk-build` task will use inline going forward.
+
+## Deliverables
+
+**SPM dependencies** (add via Xcode or `Package.swift`):
+- Firebase SDK (Crashlytics + Analytics)
+- SwiftLint (build tool plugin or pre-build script phase)
+- CocoaLumberjack, only if `logging.library` is `cocoalumberjack`
+
+**Project configuration:**
+- `SwiftLint.yml` at project root with `strict: true`, at minimum: `force_try`, `force_cast`, `implicitly_unwrapped_optional`
+- Crashlytics initialized in `@main` App entry point or `AppDelegate`
+- Logging wrapper per `logging.library` that strips debug output in release builds (`#if DEBUG`) — `os_log`/`Logger` (default) or `CocoaLumberjack`
+- `Info.plist` privacy strings for any required permissions declared upfront
+
+**Build verification:**
+```bash
+xcodebuild build -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16'
+```
+
+After completion, update `.teikk/tasks/plan.md` Phase 0 Foundation checkpoint if a plan exists.

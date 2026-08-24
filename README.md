@@ -41,7 +41,7 @@ Auto-install on `npm install` — add to your project's `package.json`:
 }
 ```
 
-Primary targets: `claude` | `antigravity` | `opencode`. Also supported: `cursor` | `gemini` | `all`
+Primary targets: `claude` | `antigravity` | `opencode` | `omp`. Also supported: `cursor` | `gemini` | `all`
 
 Full install/update/uninstall + `.gitignore` behavior: **[docs/npm-install.md](docs/npm-install.md)**.
 
@@ -75,7 +75,7 @@ Start here, then follow the topic you need. The README is a hub — the detail l
 | **npm install** — auto-install, update, uninstall, `.gitignore` | [docs/npm-install.md](docs/npm-install.md) |
 | **Skill anatomy** — structure of a `SKILL.md`, contributing new skills | [docs/skill-anatomy.md](docs/skill-anatomy.md) |
 
-**Per-IDE setup:** [Cursor](docs/cursor-setup.md) · [Antigravity](docs/antigravity-setup.md) · [Gemini CLI](docs/gemini-cli-setup.md) · [OpenCode](docs/opencode-setup.md) · [Claude Code](docs/getting-started.md)
+**Per-IDE setup:** [Cursor](docs/cursor-setup.md) · [Antigravity](docs/antigravity-setup.md) · [Gemini CLI](docs/gemini-cli-setup.md) · [OpenCode](docs/opencode-setup.md) · [Oh My Pi](docs/omp-setup.md) · [Claude Code](docs/getting-started.md)
 
 ---
 
